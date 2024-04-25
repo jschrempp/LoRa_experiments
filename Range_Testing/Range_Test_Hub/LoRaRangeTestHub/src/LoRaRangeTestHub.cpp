@@ -66,14 +66,14 @@ void loop() {
   // wait for a message from the tester
   if(Serial1.available()) { // data is in the Serial1 buffer
     delay(5); // wait a bit for the complete message to have been received
-    receivedData = Serial1.readString();
+    receivedData += Serial1.readString();
     Serial.println("received data = " + receivedData);
 
     // test for received data from the hub (denoted by "+RCV")
-    if(receivedData.indexOf("+RCV") > 0) { // will be -1 of "+RCV" not in the string
+    if(receivedData.indexOf("HELLO") > 0) { // will be -1 if "HELLO" not in the string
 
       digitalWrite(D7, HIGH);
- //     receivedData = "";  // clear out the received data string after printing it
+      receivedData = "";  // clear out the received data string after printing it
       Serial1.println("AT+SEND=0,4,TEST");
       Serial.println("sent:  TEST");
       digitalWrite(D7, LOW);
