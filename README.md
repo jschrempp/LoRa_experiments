@@ -8,7 +8,7 @@ serial port "AT" commands, making the RYLR998 very easy to use.  In addition, th
 draw to about 10 microamps.  The use of LoRa for long distance, low volume data communication along with the ability to sleep the module
 when not transmitting suggests that these modules could be ideal for use as long range contact open/close sensors.
 
-The purpose of the tests documed in this repository is to explore the RYLR998 module capabilities in two respects:
+The purpose of the tests documented in this repository is to explore the RYLR998 module capabilities in two respects:
 
 - Long range operation:  the ability of the module to successfully commmunicate from an outdoor location some distance frorm a house
 into a receiver located inside of the house.
