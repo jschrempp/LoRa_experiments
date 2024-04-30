@@ -1,7 +1,8 @@
 # LoRa_experiments
  Tests of LoRA module (RYLR998) ranging and low power.
 
-The Reyax RYLR998 is an inexpensive LoRa "modem".  It can perform point to point wireless data communication with other such modules.  
+The Reyax RYLR998 is an inexpensive LoRa "modem".  It can perform point to point wireless data communication with other such modules.
+
 The RYLR998 contains both a LoRa chip and a low power microcontroller.  A host microcontroller communicates with an RLYR998 using
 serial port "AT" commands, making the RYLR998 very easy to use.  In addition, the RYLR998 has a low power sleep mode that reduces current
 draw to about 10 microamps.  The use of LoRa for long distance, low volume data communication along with the ability to sleep the module
