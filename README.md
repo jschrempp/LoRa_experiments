@@ -21,7 +21,7 @@ There are two main folders in this repository:
 
 - Range_Testing: this folder contains a report and source code for range testing experiments.
 
-- Low_Power_Testing: this folder contains a report and source code for testing low power operation of the module.
+- Low_Power_Testing: this folder contains a report and source code for testing low power operation of the module.  EMPTY at present.
 
 
 
