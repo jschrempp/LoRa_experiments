@@ -10,7 +10,7 @@ when not transmitting suggests that these modules could be ideal for use as long
 
 The purpose of the tests documented in this repository is to explore the RYLR998 module capabilities in two respects:
 
-- Long range operation:  the ability of the module to successfully commmunicate from an outdoor location some distance frorm a house
+- Long range operation:  the ability of the module to successfully commmunicate from an outdoor location some distance from a house
 into a receiver located inside of the house.
 
 - Low power operation:  the ability of the module to be powered down when not needed to transmit a short message, in support
