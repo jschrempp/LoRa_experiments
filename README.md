@@ -21,7 +21,9 @@ There are two main folders in this repository:
 
 - Range_Testing: this folder contains a report and source code for range testing experiments.
 
-- Low_Power_Testing: this folder contains a report and source code for testing low power operation of the module.  EMPTY at present.
+- Low_Power_Testing: this folder contains a report and source code for testing low power operation of the module. It also contains
+a spreadsheet to calculate battery life, based upon using an Attiny85 as the host microcontroller with a reset pulse generator circuit 
+to power it up for transmitting a short message and then powering the LoRa module down and then powering itself down unti the next reset.
 
 
 
