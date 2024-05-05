@@ -1,5 +1,5 @@
 # LoRa_experiments
- Tests of LoRA module (RYLR998) ranging and low power.
+## Tests of LoRA module (RYLR998) ranging and low power.
 
 The Reyax RYLR998 is an inexpensive LoRa "modem".  It can perform point to point wireless data communication with other such modules.
 
