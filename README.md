@@ -25,5 +25,7 @@ There are two main folders in this repository:
 a spreadsheet to calculate battery life, based upon using an Attiny85 as the host microcontroller with a reset pulse generator circuit 
 to power it up for transmitting a short message and then powering the LoRa module down and then powering itself down until the next reset.
 
+References
+- LoRa AT command guide https://lemosint.com/wp-content/uploads/2021/11/Lora_AT_Command_RYLR998_RYLR498_EN.pdf
 
 
