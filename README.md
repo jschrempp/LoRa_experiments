@@ -25,5 +25,34 @@ There are two main folders in this repository:
 a spreadsheet to calculate battery life, based upon using an Attiny85 as the host microcontroller with a reset pulse generator circuit 
 to power it up for transmitting a short message and then powering the LoRa module down and then powering itself down until the next reset.
 
+## LoRa set up ##
+- LoRa AT command guide https://lemosint.com/wp-content/uploads/2021/11/Lora_AT_Command_RYLR998_RYLR498_EN.pdf
+
+Note that for these tests you need to program each LoRa module by hand using a terminal emulator and an FTDI module. Connect four
+pins from the FTDI to the LoRa module (leave the reset pin on the LoRa module unconnected):
+
+```
+FTDI       LoRa
+3v3        VDD
+TXD        RXD
+RXD        TXD
+GND        GND
+```
+
+Plug the FTDI device into your laptop.
+
+You can use the Arduino IDE Serial Monitor. With the IDE running go to Tools / Port and select the port of your FTDI device (it might be 
+something like `/dev/serial-1`). Then click the Serial Monitor button on the upper right of the Arduino IDE. This brings up a new window.
+In the bottom menu select "Both NL & CR" and "115200 baud". In the command window at the top type AT and click Send. You should get the 
+response +OK
+
+Assuming you are now connected correctly to your LoRa module, perform the following commands:
+```
+AT+ADDRESS=0
+AT+NETWORKID=3
+```
+Do the same for your second LoRa module.
+
+  
 
 
