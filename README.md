@@ -27,6 +27,7 @@ to power it up for transmitting a short message and then powering the LoRa modul
 
 ## LoRa set up ##
 - LoRa AT command guide https://lemosint.com/wp-content/uploads/2021/11/Lora_AT_Command_RYLR998_RYLR498_EN.pdf
+- LoRa module we use https://reyax.com/products/RYLR498
 
 Note that for these tests you need to program each LoRa module by hand using a terminal emulator and an FTDI module. Connect four
 pins from the FTDI to the LoRa module (leave the reset pin on the LoRa module unconnected):
