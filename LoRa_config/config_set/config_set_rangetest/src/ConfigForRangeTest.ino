@@ -66,10 +66,11 @@ SYSTEM_THREAD(ENABLED);
 #define LoRaNETWORK_NUM 3
 #define LoRaADDRESS_SENSOR 0
 #define LoRaADDRESS_HUB 1
-#define LoRaBANDWIDTH 7   // 7:125, 8:250, 9:500 kHz   slower is better for range; default 7
-#define LoRaSPREADING_FACTOR 9  // 7 - 12  larger is better for range; default 9
+#define LoRaBANDWIDTH 7   // 7:125, 8:250, 9:500 kHz   lower is better for range; default 7
+#define LoRaSPREADING_FACTOR 9  // 7 - 11  larger is better for range; default 9
+                        // SF7to SF9 at 125kHz, SF7 to SF10 at 250kHz, and SF7 to SF11 at 500kHz
 #define LoRaCODING_RATE 1  // 1 - 4  1 is faster; default 1
-#define LoRaPREAMBLE 12  
+#define LoRaPREAMBLE 12  // max unless network number is 18; 
 
 #define ms_TO_WAIT_FOR_RESPONSE 1000
 
