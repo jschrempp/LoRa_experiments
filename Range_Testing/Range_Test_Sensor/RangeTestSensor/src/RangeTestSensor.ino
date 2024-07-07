@@ -62,34 +62,40 @@ void setup() {
 
 void loop() {
   String receivedData = "";  // string to hold the received LoRa data
-  bool expectResponse = false;
+  static bool awaitingResponse = false;
+  static unsigned long startTime = 0;
 
-  // test for button to be pressed
-  if(digitalRead(D0) == LOW) { // button press detected
+  // test for button to be pressed and no transmission in progress
+  if(digitalRead(D0) == LOW && !awaitingResponse) { // button press detected
+    Serial.println("");
+    Serial.println("--------------------");
     Serial.println("AT+SEND=1,5,HELLO");
     Serial1.println("AT+SEND=1,5,HELLO");
-    expectResponse = true;
-    delay(3000); // wait a few seconds for a response
+    awaitingResponse = true;
+    startTime = millis();
+    delay(1000); // wait a little while before testing for a response
   }
 
-  if(expectResponse == true) {
+  if(awaitingResponse == true) {
 
     // is there received data?  process it
     if(Serial1.available()) {
       receivedData = Serial1.readString();
-      Serial.println("received data = " + receivedData);
+      Serial.println("received data = <" + receivedData + ">");
 
       // test for received data from the hub (denoted by "+RCV")
-      if(receivedData.indexOf("+RCV") > 0) { // will be -1 of "+RCV" not in the string
-        receivedData = "";  // clear out the received data string after printing it
-        expectResponse = false; // we got a responce
+      if(receivedData.indexOf("+RCV") >= 0) { // will be -1 of "+RCV" not in the string
         blinkTimes(3); // signal that data received from the hub
-      } else {  // did not get a response from the hub
-        blinkTimes(1);
-      }
-
-    } else {
-      expectResponse = true;  // didn't get a response yet but not timed out
+        awaitingResponse = false; // we got a response
+        Serial.println("response received");
+      } 
+      receivedData = "";  // clear out the received data string
+    } 
+    
+    if (awaitingResponse && (millis() - startTime > 5000) ) {
+      awaitingResponse = false;  // timed out
+      blinkTimes(1);
+      Serial.println("timeout");
     }
 
   }
@@ -101,9 +107,9 @@ void loop() {
 void blinkTimes(int number) {
   for(int i = 0; i < number; i++) {
     digitalWrite(D7, HIGH);
-    delay(500);
+    delay(250);
     digitalWrite(D7, LOW);
-    delay(500);
+    delay(250);
   }
   return;
 } // end of blinkTimes()
