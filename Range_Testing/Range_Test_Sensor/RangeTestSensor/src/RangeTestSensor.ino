@@ -46,70 +46,166 @@ SYSTEM_THREAD(ENABLED);
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
-void setup() {
-  pinMode(D0, INPUT_PULLUP);
-  pinMode(D7, OUTPUT);
-  Serial.begin(9600); // the USB serial port 
-  Serial1.begin(115200);  // the LoRa device
+// function to send AT commands to the LoRa module
+// returns 0 if successful, -1 if not successful
+// prints message and result to the serial monitor
+int LoRaCommand(String command) {
+    Serial.println("");
+    Serial.println(command);
+    Serial1.println(command);
+    delay(50); // wait for the response
+    int retcode = 0;
+    if(Serial1.available()) {
+        String receivedData = Serial1.readString();
+        // received data has a newline at the end
+        Serial.print("received data = " + receivedData);
+        if(receivedData.indexOf("ERR") > 0) {
+            Serial.println("LoRa error");
+            retcode = -1;
+        } else {
+            Serial.println("command worked");
+            retcode = 0;
+        }
+    } else {
+        Serial.println("No response from LoRa");
+        retcode =  -1;
+    }
+    return retcode;
+};
 
-  Serial.println("Ready for testing .../n");
-  digitalWrite(D7, HIGH);
-  delay(500);
-  digitalWrite(D7, LOW);
-  delay(1000);
+void setup() {
+    pinMode(D0, INPUT_PULLUP);
+    pinMode(D7, OUTPUT);
+    Serial.begin(9600); // the USB serial port 
+    Serial1.begin(115200);  // the LoRa device
+
+    // READ LoRa Settings
+    Serial.println("");
+    Serial.println("");
+    Serial.println("-----------------");
+    Serial.println("Reading back the settings");
+
+    bool error = false;
+    if(LoRaCommand("AT+NETWORKID?") != 0) {
+        Serial.println("error reading network id");
+        error = true;
+    }
+    if(LoRaCommand("AT+ADDRESS?") != 0) {
+        Serial.println("error reading device address");
+        error = true;
+    }
+    if(LoRaCommand("AT+PARAMETER?") != 0) {
+        Serial.println("error reading parameters");
+        error = true;
+    }
+
+    if(error) {
+        while(true){
+            blinkTimes(2, 100);
+        }
+    }
+    
+    Serial.println("Sensor ready for testing .../n");
+    digitalWrite(D7, HIGH);
+    delay(500);
+    digitalWrite(D7, LOW);
+    delay(1000);
+
 } // end of setup()
 
 
 void loop() {
-  String receivedData = "";  // string to hold the received LoRa data
-  static bool awaitingResponse = false;
-  static unsigned long startTime = 0;
+
+    String receivedData = "";  // string to hold the received LoRa data
+    String cmd = "";  // string to hold the command to send to the LoRa
+    static bool awaitingOK = false;  // when waiting for a response from the LoRa to our send command
+    static bool awaitingResponse = false; // when waiting for a response from the hub
+    static unsigned long startTime = 0;
 
   // test for button to be pressed and no transmission in progress
-  if(digitalRead(D0) == LOW && !awaitingResponse) { // button press detected
-    Serial.println("");
-    Serial.println("--------------------");
-    Serial.println("AT+SEND=1,5,HELLO");
-    Serial1.println("AT+SEND=1,5,HELLO");
-    awaitingResponse = true;
-    startTime = millis();
-    delay(1000); // wait a little while before testing for a response
-  }
-
-  if(awaitingResponse == true) {
-
-    // is there received data?  process it
-    if(Serial1.available()) {
-      receivedData = Serial1.readString();
-      Serial.println("received data = <" + receivedData + ">");
-
-      // test for received data from the hub (denoted by "+RCV")
-      if(receivedData.indexOf("+RCV") >= 0) { // will be -1 of "+RCV" not in the string
-        blinkTimes(3); // signal that data received from the hub
-        awaitingResponse = false; // we got a response
-        Serial.println("response received");
-      } 
-      receivedData = "";  // clear out the received data string
-    } 
-    
-    if (awaitingResponse && (millis() - startTime > 5000) ) {
-      awaitingResponse = false;  // timed out
-      blinkTimes(1);
-      Serial.println("timeout");
+    if(digitalRead(D0) == LOW && !awaitingResponse && !awaitingOK) { // button press detected
+        Serial.println("");
+        Serial.println("--------------------");
+        cmd = "AT+SEND=1,5,HELLO";
+        Serial.println(cmd);
+        Serial1.println(cmd);
+        awaitingOK = true;
+        startTime = millis();
     }
+ 
+    if(awaitingOK) {
 
-  }
-  while(digitalRead(D0) == LOW); // wait for button to be released
-  delay(100); // wait a little while before sampling the button again
+        if (millis() - startTime > 1000)  { // 1 second timeout is a long time
+            awaitingOK = false;  // timed out
+            blinkTimes(6);
+            Serial.println("timeout waiting for +OK");
+        }
+
+        if(Serial1.available()) {
+            Serial.println("delta time = " + String(millis() - startTime) + " ms");
+            receivedData = Serial1.readString();
+            Serial.println("received data = " + receivedData);
+
+            if(receivedData.indexOf("+OK") >= 0) { // will be -1 of "+OK" not in the string
+                blinkTimes(1,50); // signal that data received from the hub
+                awaitingOK = false; // we got the OK
+                awaitingResponse = true; // we need a response from the hub
+                startTime = millis();
+            } 
+        } 
+    } // end of if(awaitingOK)
+
+
+    if(awaitingResponse) {
+
+        if (millis() - startTime > 5000 ) { // wait 5 seconds for a response from the hub
+            awaitingResponse = false;  // timed out
+            blinkTimes(1);
+            Serial.println("timeout waiting for hub response");
+        }
+
+        // is there received data?  process it
+        if(Serial1.available()) {
+            receivedData = Serial1.readString();
+            Serial.println("received data = " + receivedData);
+
+            // test for received data from the hub (denoted by "+RCV")
+            if(receivedData.indexOf("+RCV") >= 0) { // will be -1 of "+RCV" not in the string
+                
+                awaitingResponse = false; // we got a response
+                Serial.println("response received");
+
+                if (receivedData.indexOf("TESTOK") >= 0) {
+                    Serial.println("response is TESTOK");
+                    blinkTimes(3);
+                } else if (receivedData.indexOf("NOPE") >= 0) {
+                    Serial.println("response is NOPE");
+                    blinkTimes(4);
+                } else {
+                    Serial.println("response is unrecognized");
+                    blinkTimes(5);
+                }
+            } 
+
+        } // end of if(Serial1.available())
+
+    } // end of if(awaitingResponse)
+
+    //while(digitalRead(D0) == LOW); // wait for button to be released
+    //delay(1); // wait a little while before sampling the button again
 
 } // end of loop()
 
 void blinkTimes(int number) {
-  for(int i = 0; i < number; i++) {
-    digitalWrite(D7, HIGH);
-    delay(250);
-    digitalWrite(D7, LOW);
-    delay(250);
-  }
-  return;
+    blinkTimes(number, 250);
+}
+
+void blinkTimes(int number, int delayTimeMS) {
+    for(int i = 0; i < number; i++) {
+        digitalWrite(D7, HIGH);
+        delay(delayTimeMS);
+        digitalWrite(D7, LOW);
+        delay(delayTimeMS);
+    }
+    return;
 } // end of blinkTimes()
