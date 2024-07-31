@@ -45,6 +45,7 @@ SYSTEM_THREAD(ENABLED);
 void setup() {
   pinMode(D0, INPUT_PULLUP);
 
+
   Serial1.begin(115200);  // the LoRa device
   Serial1.setTimeout(10);  // a full string is received after 10 ms of no new data from the serial buffer
   delay(1000);
