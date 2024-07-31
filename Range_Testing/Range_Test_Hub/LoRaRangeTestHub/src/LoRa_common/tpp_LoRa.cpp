@@ -40,10 +40,15 @@ bool tpp_LoRa::readSettings() {
 // returns 0 if successful, -1 if not successful
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(String command) {
+    int timeoutMS = 50;
+    if(command.indexOf("SEND") > 0) {
+        timeoutMS = 500;
+    }
+
     Serial.println("");
     Serial.println(command);
     LORA_SERIAL.println(command);
-    delay(50); // wait for the response
+    delay(timeoutMS); // wait for the response
     int retcode = 0;
     if(LORA_SERIAL.available()) {
         String receivedData = Serial1.readString();
