@@ -31,11 +31,12 @@
 #include "Particle.h"
 
 // The following system directives are for Particle devices.  Not needed for Arduino.
-SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
 
 #define VERSION 1.00
 #define STATION_NUM 1 // housekeeping; not used ini the code
+
+String NODATA = "NODATA";
 
 // function to send AT commands to the LoRa module
 // returns 0 if successful, -1 if not successful
@@ -63,6 +64,19 @@ int LoRaCommand(String command) {
     }
     return retcode;
 };
+
+void logToParticle(String message, String devNum, String msgNum, String SNRhub1, String SNRhub2, String SNRsensor) {
+    // create a JSON string to send to the cloud
+    String data = "message=" + message + "|msgNum=" + String(msgNum) 
+        + "|SNRhub1=" + String(SNRhub1) + "|SNRhub2=" + String(SNRhub2) 
+        + "|SNRsensor=" + String(SNRsensor);
+
+    Serial.println("cloudLogging:" + data);
+    long rtn = Particle.publish("LoRaHubLogging", data, PRIVATE);
+    Serial.println("cloudLogging return: " + String(rtn));
+}
+
+
 
 void setup() {
 
@@ -108,7 +122,8 @@ void setup() {
 
 void loop() {
 
-    String receivedData = "";  // string to hold the received LoRa dat
+    
+    static String receivedData = "";  // string to hold the received LoRa dat
 
     // wait for a message from the tester
     if(Serial1.available()) { // data is in the Serial1 buffer
@@ -118,29 +133,59 @@ void loop() {
         receivedData = Serial1.readString();
         Serial.println("received data = " + receivedData);
 
-        // test for received data from the hub (denoted by "+RCV")
         if(receivedData.indexOf("HELLO") > 0) { // will be -1 if "HELLO" not in the string
+            // HELLO is the message from our sensors
 
-        digitalWrite(D7, HIGH);
-        Serial1.println("AT+SEND=0,6,TESTOK");
-        Serial.println("sent:  TESTOK");
-        digitalWrite(D7, LOW);
+            // find the commas in received data
+            int commas[5];
+            int commaCount = 0;
+            for(int i = 0; i < receivedData.length(); i++) {
+                if(receivedData.charAt(i) == ',') {
+                    commaCount++;
+                    commas[commaCount] = i;
+                    if (commaCount > 5) {
+                        // should never happen
+                        Serial.println("ERROR: received data from sensor has more than 5 commas");
+                        break;
+                    }   
+                }
+            }
+            if (commaCount != 4) {
+                // should never happen
+                Serial.println("ERROR: received data from sensor does not have 5 commas");
+            } else {
+                // create substrings from received data
+                String loraStatus = receivedData.substring(0, commas[1]);
+                String deviceNum = receivedData.substring(commas[1] + 1, commas[2]);
+                String payload = receivedData.substring(commas[2] + 1, commas[3]);
+                String RSSI = receivedData.substring(commas[3] + 1, commas[4]);
+                String SNRHub = receivedData.substring(commas[4] + 1, receivedData.length()-2); // -1 to remove the newline
+
+                digitalWrite(D7, HIGH);
+                Serial1.println("AT+SEND=0,6,TESTOK");
+                Serial.println("sent:  TESTOK");
+                logToParticle("sent:  TESTOK", deviceNum, NODATA, SNRHub, NODATA, NODATA);
+                digitalWrite(D7, LOW);
+            }
 
         } else if(receivedData.indexOf("+OK") == 0) {
+            // was not hello but was the normal OK from LoRa that the previous
+            // command succeeded
             
             Serial.println("received data is +OK");
-       
+    
         } else {
 
             digitalWrite(D7, HIGH);
             Serial.println("received data is not HELLO or +OK");
             Serial1.println("AT+SEND=0,4,NOPE");
             Serial.println("sent:  NOPE");
+            logToParticle("sent:  NOPE",NODATA, NODATA, NODATA, NODATA, NODATA);
             digitalWrite(D7, LOW);
 
         }
+    }  // end of if(Serial1.available())
 
-    } 
 } // end of loop()
 
 void blinkTimes(int number) {
