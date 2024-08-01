@@ -15,22 +15,22 @@
 //  If error then the D7 will blink twice
 bool tpp_LoRa::readSettings() {
     // READ LoRa Settings
-    Serial.println("");
-    Serial.println("");
-    Serial.println("-----------------");
-    Serial.println("Reading back the settings");
+    Serial.println("tpp_LoRa");
+    Serial.println("tpp_LoRa");
+    Serial.println("tpp_LoRa -----------------");
+    Serial.println("tpp_LoRa Reading back the settings");
 
     bool error = false;
-    if(sendCommand("AT+NETWORKID?") != 0) {
-        Serial.println("error reading network id");
+    if(sendCommand("AT+NETWORKID?") != 1) {
+        Serial.println("tpp_LoRa error reading network id");
         error = true;
     }
-    if(sendCommand("AT+ADDRESS?") != 0) {
-        Serial.println("error reading device address");
+    if(sendCommand("AT+ADDRESS?") != 1) {
+        Serial.println("tpp_LoRa error reading device address");
         error = true;
     }
-    if(sendCommand("AT+PARAMETER?") != 0) {
-        Serial.println("error reading parameters");
+    if(sendCommand("AT+PARAMETER?") != 1) {
+        Serial.println("tpp_LoRa error reading parameters");
         error = true;
     } else {
         // replace commas with backslashes in the parameters string
@@ -48,11 +48,11 @@ bool tpp_LoRa::readSettings() {
 int tpp_LoRa::sendCommand(String command) {
     int timeoutMS = 50;
     if(command.indexOf("SEND") > 0) {
-        timeoutMS = 500;
+        timeoutMS = 100;
     } 
 
-    Serial.println("");
-    Serial.println(command);
+    Serial.println("tpp_LoRa ");
+    Serial.println("tpp_LoRa " + command);
     LORA_SERIAL.println(command);
     delay(timeoutMS); // wait for the response
     int retcode = 0;
@@ -61,16 +61,16 @@ int tpp_LoRa::sendCommand(String command) {
         receivedData = Serial1.readString();
         // received data has a newline at the end
         receivedData.trim();
-        Serial.print("received data = " + receivedData);
+        Serial.println("tpp_LoRa received data = " + receivedData);
         if(receivedData.indexOf("ERR") > 0) {
-            Serial.println("LoRa error");
+            Serial.println("tpp_LoRa LoRa error");
             retcode = 0;
         } else {
-            Serial.println("command worked");
+            Serial.println("tpp_LoRa command worked");
             retcode = 1;
         }
     } else {
-        Serial.println("No response from LoRa");
+        Serial.println("tpp_LoRa No response from LoRa");
         retcode =  -1;
     }
     return retcode;
@@ -82,20 +82,23 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     if(LORA_SERIAL.available()) { // data is in the Serial1 buffer
 
-        Serial.println("");
-        Serial.println("--------------------");
+        Serial.println("tpp_LoRa ");
+        Serial.println("tpp_LoRa --------------------");
         delay(100); // wait a bit for the complete message to have been received
         receivedData = LORA_SERIAL.readString();
-        Serial.println("received data = " + receivedData);
+        // received data has a newline at the end
+        receivedData.trim();
+        Serial.println("tpp_LoRa received data = " + receivedData);
 
         if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 5) {
 
             // this is the normal OK from LoRa that the previous command succeeded
-            Serial.println("received data is +OK");
+            Serial.println("tpp_LoRa received data is +OK");
             receivedMessageState = 1;
 
         } else {
             
+            // (LoRa.receivedData.indexOf("+RCV") >= 0)
             // find the commas in received data
             unsigned int commas[5];
             bool commaCountError = false;   
@@ -115,7 +118,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                     commaCount--;
                     if (commaCount < 1) {
                         // should never happen
-                        Serial.println("ERROR: received data from sensor has weird comma count");
+                        Serial.println("tpp_LoRa ERROR: received data from sensor has weird comma count");
                         break;
                         commaCountError = true;
                     }   
@@ -126,7 +129,7 @@ void tpp_LoRa::checkForReceivedMessage() {
             if (commaCountError) {
 
                 // error in the received data
-                Serial.println("ERROR: received data from sensor has odd comma count");
+                Serial.println("tpp_LoRa ERROR: received data from sensor has odd comma count");
 
                 receivedMessageState = -1;
 
@@ -137,7 +140,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                 deviceNum = receivedData.substring(commas[1] + 1, commas[2]);
                 payload = receivedData.substring(commas[2] + 1, commas[3]);
                 RSSI = receivedData.substring(commas[3] + 1, commas[4]);
-                SNR = receivedData.substring(commas[4] + 1, receivedData.length()-2); // -1 to remove the newline
+                SNR = receivedData.substring(commas[4] + 1, receivedData.length()); // -1 to remove the newline
 
                 receivedMessageState = 1;
 
