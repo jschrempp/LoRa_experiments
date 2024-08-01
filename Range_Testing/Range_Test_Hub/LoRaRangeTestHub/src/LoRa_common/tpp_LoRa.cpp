@@ -60,13 +60,14 @@ int tpp_LoRa::sendCommand(String command) {
     if(LORA_SERIAL.available()) {
         receivedData = Serial1.readString();
         // received data has a newline at the end
+        receivedData.trim();
         Serial.print("received data = " + receivedData);
         if(receivedData.indexOf("ERR") > 0) {
             Serial.println("LoRa error");
-            retcode = -1;
+            retcode = 0;
         } else {
             Serial.println("command worked");
-            retcode = 0;
+            retcode = 1;
         }
     } else {
         Serial.println("No response from LoRa");
@@ -83,7 +84,7 @@ void tpp_LoRa::checkForReceivedMessage() {
 
         Serial.println("");
         Serial.println("--------------------");
-        delay(5); // wait a bit for the complete message to have been received
+        delay(100); // wait a bit for the complete message to have been received
         receivedData = LORA_SERIAL.readString();
         Serial.println("received data = " + receivedData);
 
