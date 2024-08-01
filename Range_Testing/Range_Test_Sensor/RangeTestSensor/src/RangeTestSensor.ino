@@ -83,7 +83,12 @@ void loop() {
         Serial.println("");
         Serial.println("--------------------");
         msgNum++;
-        String payload = "HELLO - msgNum: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+        String payload = "";
+        if (msgNum == 1){
+            payload = "HELLO - msgNum: " + String(msgNum) + " Parameters: " + LoRa.parameters;
+        } else {
+            payload = "HELLO - msgNum: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+        }
         int length = payload.length();
         cmd = "AT+SEND=1," + String(length) + "," + payload;
         Serial.println(cmd);

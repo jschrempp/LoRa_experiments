@@ -33,7 +33,10 @@ bool tpp_LoRa::readSettings() {
         Serial.println("error reading parameters");
         error = true;
     } else {
+        // replace commas with backslashes in the parameters string
         parameters = receivedData;
+        parameters.replace(",", ":");
+        parameters = "[" + parameters + "]";
     }
 
     return error;
@@ -46,7 +49,7 @@ int tpp_LoRa::sendCommand(String command) {
     int timeoutMS = 50;
     if(command.indexOf("SEND") > 0) {
         timeoutMS = 500;
-    }
+    } 
 
     Serial.println("");
     Serial.println(command);
