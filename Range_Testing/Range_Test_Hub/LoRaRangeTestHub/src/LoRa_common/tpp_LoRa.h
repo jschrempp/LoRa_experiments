@@ -21,6 +21,8 @@ class tpp_LoRa
 {
 private:
     /* data */
+    void clearClassVariabels();
+
 public:
     
     // Read current settings and print them to the serial monitor
