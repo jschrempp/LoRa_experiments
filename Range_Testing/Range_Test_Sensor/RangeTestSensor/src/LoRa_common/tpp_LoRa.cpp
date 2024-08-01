@@ -32,7 +32,10 @@ bool tpp_LoRa::readSettings() {
     if(sendCommand("AT+PARAMETER?") != 0) {
         Serial.println("error reading parameters");
         error = true;
+    } else {
+        parameters = receivedData;
     }
+
     return error;
 }
 
@@ -50,8 +53,9 @@ int tpp_LoRa::sendCommand(String command) {
     LORA_SERIAL.println(command);
     delay(timeoutMS); // wait for the response
     int retcode = 0;
+    receivedData = "";
     if(LORA_SERIAL.available()) {
-        String receivedData = Serial1.readString();
+        receivedData = Serial1.readString();
         // received data has a newline at the end
         Serial.print("received data = " + receivedData);
         if(receivedData.indexOf("ERR") > 0) {

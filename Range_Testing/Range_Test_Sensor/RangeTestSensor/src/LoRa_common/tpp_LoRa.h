@@ -38,6 +38,7 @@ public:
     int sendCommand(String command);
 
     int receivedMessageState = 0; // 0 = no message, 1 = message received, - 1 = error
+    String parameters = "";
     String receivedData = "";
     String loraStatus = "";
     String deviceNum = "";
