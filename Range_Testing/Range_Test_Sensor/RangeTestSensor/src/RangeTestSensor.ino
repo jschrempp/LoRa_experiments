@@ -70,7 +70,6 @@ void loop() {
 
     String receivedData = "";  // string to hold the received LoRa data
     String cmd = "";  // string to hold the command to send to the LoRa
-    static bool awaitingOK = false;  // when waiting for a response from the LoRa to our send command
     static bool awaitingResponse = false; // when waiting for a response from the hub
     static unsigned long startTime = 0;
     static String lastRSSI = "";
@@ -78,20 +77,19 @@ void loop() {
     static int msgNum = 0;
 
   // test for button to be pressed and no transmission in progress
-    if(digitalRead(D0) == LOW && !awaitingResponse && !awaitingOK) { // button press detected
+    if(digitalRead(D0) == LOW && !awaitingResponse) { // button press detected
         digitalWrite(D7, HIGH);
         Serial.println("");
         Serial.println("--------------------");
         msgNum++;
         String payload = "";
         if (msgNum == 1){
-            payload = "HELLO - msgNum: " + String(msgNum) + " Parameters: " + LoRa.parameters;
+            payload = "HELLO m: " + String(msgNum) + " p: " + LoRa.parameters;
         } else {
-            payload = "HELLO - msgNum: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+            payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
         }
         int length = payload.length();
         cmd = "AT+SEND=1," + String(length) + "," + payload;
-        Serial.println(cmd);
         LoRa.sendCommand(cmd);
         awaitingResponse = true;
         startTime = millis();
@@ -109,11 +107,12 @@ void loop() {
         LoRa.checkForReceivedMessage();
         switch (LoRa.receivedMessageState) {
             case -1: // error
-                awaitingOK = false;  // error
+                awaitingResponse = false;  // error
                 blinkTimes(7);
-                Serial.println("error waiting for +OK");
+                Serial.println("error while waiting for response");
                 break;
             case 0: // no message
+                delay(5); // wait a little while before checking again
                 break;
             case 1: // message received
                 Serial.println("received data = " + LoRa.receivedData);
