@@ -33,7 +33,7 @@
 
 // The following system directives are for Particle devices.  Not needed for Arduino.
 SYSTEM_THREAD(ENABLED);
-SerialLogHandler logHandler(LOG_LEVEL_TRACE);
+//SerialLogHandler logHandler(LOG_LEVEL_TRACE);
 
 #define VERSION 1.00
 #define STATION_NUM 1 // housekeeping; not used ini the code
@@ -82,49 +82,45 @@ void loop() {
     switch (LoRa.receivedMessageState) {
         case -1: // error
             Serial.println("Error reading data from LoRa module");
+            Serial.println("Waiting for messages");
             break;
         case 0: // no message
             break;
         case 1: // message received
-            if ((LoRa.receivedData.indexOf("+OK") == 0) && LoRa.receivedData.length() == 5) {
+            String logMessage = "";
+            String messageSent = "";
+            digitalWrite(D7, HIGH);
+            Serial.println("payload: " + LoRa.payload);
 
-                // this is the normal OK from LoRa that the previous command succeeded
-                Serial.println("received data is +OK");
+            if(LoRa.payload.indexOf("HELLO") >= 0) { // will be -1 if "HELLO" not in the string
+
+                // HELLO is the message from our sensors
+                // send a message back to the sensor
+                if (LoRa.sendCommand("AT+SEND=0,6,TESTOK")) {
+                    Serial.println("sent TESTOK to sensor");
+                    logMessage = "TESTOK";
+                    messageSent = "TESTOK";
+                } else {
+                    Serial.println("error sending TESTOK to sensor");
+                    logMessage = "Send of TESTOK failed";
+                };
 
             } else {
-                
-                String logMessage = "";
-                String messageSent = "";
-                digitalWrite(D7, HIGH);
 
-                if(LoRa.receivedData.indexOf("HELLO") > 0) { // will be -1 if "HELLO" not in the string
+                Serial.println("received data is not HELLO or +OK");
+                LoRa.sendCommand("AT+SEND=0,4,NOPE");
+                logMessage = "NOPE";
+                messageSent = "NOPE";
 
-                    // HELLO is the message from our sensors
-                    // send a message back to the sensor
-                    if (LoRa.sendCommand("AT+SEND=0,6,TESTOK")) {
-                        Serial.println("sent TESTOK to sensor");
-                        logMessage = "TESTOK";
-                        messageSent = "TESTOK";
-                    } else {
-                        Serial.println("error sending TESTOK to sensor");
-                        logMessage = "Send of TESTOK failed";
-                    };
+            } // end of if(receivedData.indexOf("HELLO") > 0)
 
-                } else {
+            // log the data to the cloud
+            Serial.println("sent message: " + messageSent);
+            logToParticle(logMessage, LoRa.deviceNum, NODATA, LoRa.payload, LoRa.RSSI, LoRa.SNR, NODATA, NODATA);
 
-                    Serial.println("received data is not HELLO or +OK");
-                    LoRa.sendCommand("AT+SEND=0,4,NOPE");
-                    logMessage = "NOPE";
-                    messageSent = "NOPE";
+            digitalWrite(D7, LOW);
+            Serial.println("Waiting for messages");
 
-                } // end of if(receivedData.indexOf("HELLO") > 0)
-
-                // log the data to the cloud
-                Serial.println("sent message: " + messageSent);
-                logToParticle(logMessage, LoRa.deviceNum, NODATA, LoRa.payload, LoRa.RSSI, LoRa.SNR, NODATA, NODATA);
-
-                digitalWrite(D7, LOW);
-            }
             break;
     } // end of switch
 

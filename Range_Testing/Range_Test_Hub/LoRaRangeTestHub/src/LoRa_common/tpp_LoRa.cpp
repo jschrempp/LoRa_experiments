@@ -10,59 +10,100 @@
 #include "Particle.h"
 #include "tpp_LoRa.h"
 
+#define TPP_LORA_DEBUG 1
+
+
+void debugPrint(String message) {
+    if(TPP_LORA_DEBUG) {
+        Serial.println("tpp_LoRa: " + message);
+    }
+}
+
+void tpp_LoRa::clearClassVariabels() {
+    receivedData = "";
+    loraStatus = "";
+    deviceNum = "";
+    payload = "";
+    RSSI = "";
+    SNR = "";
+    receivedMessageState = 0;
+}   
 
 // Read current settings and print them to the serial monitor
 //  If error then the D7 will blink twice
 bool tpp_LoRa::readSettings() {
     // READ LoRa Settings
-    Serial.println("");
-    Serial.println("");
-    Serial.println("-----------------");
-    Serial.println("Reading back the settings");
+    debugPrint("");
+    debugPrint("");
+    debugPrint("-----------------");
+    debugPrint("Reading back the settings");
 
     bool error = false;
-    if(sendCommand("AT+NETWORKID?") != 0) {
-        Serial.println("error reading network id");
+    if(sendCommand("AT+NETWORKID?") != 1) {
+        debugPrint("error reading network id");
         error = true;
     }
-    if(sendCommand("AT+ADDRESS?") != 0) {
-        Serial.println("error reading device address");
+    if(sendCommand("AT+ADDRESS?") != 1) {
+        debugPrint("error reading device address");
         error = true;
     }
-    if(sendCommand("AT+PARAMETER?") != 0) {
-        Serial.println("error reading parameters");
+    if(sendCommand("AT+PARAMETER?") != 1) {
+        debugPrint("error reading parameters");
         error = true;
+    } else {
+        // replace commas with backslashes in the parameters string
+        parameters = receivedData;
+        parameters.replace(",", ":");
+        parameters = "[" + parameters + "]";
     }
+
     return error;
 }
 
 // function to send AT commands to the LoRa module
-// returns 0 if successful, -1 if not successful
+// returns 1 if successful, 0 if error, -1 if no response
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(String command) {
-    int timeoutMS = 50;
-    if(command.indexOf("SEND") > 0) {
-        timeoutMS = 500;
-    }
 
-    Serial.println("");
-    Serial.println(command);
-    LORA_SERIAL.println(command);
-    delay(timeoutMS); // wait for the response
     int retcode = 0;
-    if(LORA_SERIAL.available()) {
-        String receivedData = Serial1.readString();
+
+    system_tick_t timeoutMS = 50;
+    if(command.indexOf("SEND") > 0) {
+        timeoutMS = 1000;
+    } 
+
+    debugPrint("");
+    debugPrint("cmd: " + command);
+    LORA_SERIAL.println(command);
+    
+    // wait for data available, which should be +OK or +ERR
+    system_tick_t starttimeMS = millis();
+    int dataAvailable = 0;
+    debugPrint("waiting ");
+    do {
+        dataAvailable = LORA_SERIAL.available();
+        delay(10);
+        debugPrint(".");
+    } while ((dataAvailable == 0) && (millis() - starttimeMS < timeoutMS)) ;
+    debugPrint("");
+
+    delay(100); // wait for the full response
+
+    // Get the response if there is one
+    if(dataAvailable > 0) {
+        receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
-        Serial.print("received data = " + receivedData);
+        receivedData.trim();
+        debugPrint("received data = " + receivedData);
         if(receivedData.indexOf("ERR") > 0) {
-            Serial.println("LoRa error");
-            retcode = -1;
-        } else {
-            Serial.println("command worked");
+            debugPrint("LoRa error");
             retcode = 0;
+        } else {
+            debugPrint("command worked");
+            retcode = 1;
         }
     } else {
-        Serial.println("No response from LoRa");
+        debugPrint("No response from LoRa");
         retcode =  -1;
     }
     return retcode;
@@ -72,22 +113,27 @@ int tpp_LoRa::sendCommand(String command) {
 // If there is no data on Serial1 then clear the class variables.
 void tpp_LoRa::checkForReceivedMessage() {
 
+    clearClassVariabels();
+
     if(LORA_SERIAL.available()) { // data is in the Serial1 buffer
 
-        Serial.println("");
-        Serial.println("--------------------");
-        delay(5); // wait a bit for the complete message to have been received
+        debugPrint("");
+        debugPrint("--------------------");
+        delay(100); // wait a bit for the complete message to have been received
         receivedData = LORA_SERIAL.readString();
-        Serial.println("received data = " + receivedData);
+        // received data has a newline at the end
+        receivedData.trim();
+        debugPrint("received data = " + receivedData);
 
-        if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 5) {
+        if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 3) {
 
             // this is the normal OK from LoRa that the previous command succeeded
-            Serial.println("received data is +OK");
+            debugPrint("received data is +OK");
             receivedMessageState = 1;
 
         } else {
             
+            // (LoRa.receivedData.indexOf("+RCV") >= 0)
             // find the commas in received data
             unsigned int commas[5];
             bool commaCountError = false;   
@@ -107,7 +153,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                     commaCount--;
                     if (commaCount < 1) {
                         // should never happen
-                        Serial.println("ERROR: received data from sensor has weird comma count");
+                        debugPrint("ERROR: received data from sensor has weird comma count");
                         break;
                         commaCountError = true;
                     }   
@@ -118,18 +164,18 @@ void tpp_LoRa::checkForReceivedMessage() {
             if (commaCountError) {
 
                 // error in the received data
-                Serial.println("ERROR: received data from sensor has odd comma count");
+                debugPrint("ERROR: received data from sensor has odd comma count");
 
                 receivedMessageState = -1;
 
             } else {
-                // xxx should read backwards from the end of the string to get commas
+                
                 // create substrings from received data
                 loraStatus = receivedData.substring(0, commas[1]);
                 deviceNum = receivedData.substring(commas[1] + 1, commas[2]);
                 payload = receivedData.substring(commas[2] + 1, commas[3]);
                 RSSI = receivedData.substring(commas[3] + 1, commas[4]);
-                SNR = receivedData.substring(commas[4] + 1, receivedData.length()-2); // -1 to remove the newline
+                SNR = receivedData.substring(commas[4] + 1, receivedData.length()); // -1 to remove the newline
 
                 receivedMessageState = 1;
 
@@ -140,13 +186,7 @@ void tpp_LoRa::checkForReceivedMessage() {
     } else {
 
         // no data in the Serial1 buffer
-        receivedData = "";
-        loraStatus = "";
-        deviceNum = "";
-        payload = "";
-        RSSI = "";
-        SNR = "";
-        receivedMessageState = 0;
+        clearClassVariabels();
     }
 
     return;

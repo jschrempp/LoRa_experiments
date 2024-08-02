@@ -21,6 +21,8 @@ class tpp_LoRa
 {
 private:
     /* data */
+    void clearClassVariabels();
+
 public:
     
     // Read current settings and print them to the serial monitor
@@ -38,6 +40,7 @@ public:
     int sendCommand(String command);
 
     int receivedMessageState = 0; // 0 = no message, 1 = message received, - 1 = error
+    String parameters = "";
     String receivedData = "";
     String loraStatus = "";
     String deviceNum = "";
