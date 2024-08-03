@@ -5,8 +5,6 @@
 
 */
 
-
-
 #include "Particle.h"
 #include "tpp_LoRa.h"
 
@@ -14,6 +12,16 @@
 
 
 void debugPrint(String message) {
+    if(TPP_LORA_DEBUG) {
+        Serial.print("tpp_LoRa: " + message);
+    }
+}
+void debugPrintNoHeader(String message) {
+    if(TPP_LORA_DEBUG) {
+        Serial.print(message);
+    }
+}
+void debugPrintln(String message) {
     if(TPP_LORA_DEBUG) {
         Serial.println("tpp_LoRa: " + message);
     }
@@ -29,26 +37,72 @@ void tpp_LoRa::clearClassVariabels() {
     receivedMessageState = 0;
 }   
 
+
+// Initialize the LoRa module with settings 
+// rtn True if successful
+
+bool tpp_LoRa::initDevice(int deviceAddress) {
+
+    bool error = false;
+
+    // check that LoRa is ready
+    if(sendCommand("AT") == 0) {
+        debugPrintln("LoRa is ready");
+    } else {
+        debugPrintln("LoRa is not ready");
+        error = true;
+    }
+ 
+    // Set the network number
+    if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) == 0) {
+        debugPrintln("Network number set");
+    } else {
+        debugPrintln("Network number not set");
+        error = true;
+    }
+
+    // Set the device number based on button state
+    if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) == 0) {
+        debugPrintln("Device number set");
+    } else {
+        debugPrintln("Device number not set");
+        error = true;
+    }
+
+    // set the parameters for the LoRa module
+
+    if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
+        + String(LoRaBANDWIDTH) + "," + String(LoRaCODING_RATE) + "," + String(LoRaPREAMBLE)) == 0) {
+        debugPrintln("Parameters set");
+    } else {
+        debugPrintln("Parameters not set");
+        error = true;
+    }
+
+    return error;
+
+}
+
 // Read current settings and print them to the serial monitor
 //  If error then the D7 will blink twice
 bool tpp_LoRa::readSettings() {
     // READ LoRa Settings
-    debugPrint("");
-    debugPrint("");
-    debugPrint("-----------------");
-    debugPrint("Reading back the settings");
+    debugPrintln("");
+    debugPrintln("");
+    debugPrintln("-----------------");
+    debugPrintln("Reading back the settings");
 
     bool error = false;
-    if(sendCommand("AT+NETWORKID?") != 1) {
-        debugPrint("error reading network id");
+    if(sendCommand("AT+NETWORKID?") != 0) {
+        debugPrintln("error reading network id");
         error = true;
     }
-    if(sendCommand("AT+ADDRESS?") != 1) {
-        debugPrint("error reading device address");
+    if(sendCommand("AT+ADDRESS?") != 0) {
+        debugPrintln("error reading device address");
         error = true;
     }
-    if(sendCommand("AT+PARAMETER?") != 1) {
-        debugPrint("error reading parameters");
+    if(sendCommand("AT+PARAMETER?") != 0) {
+        debugPrintln("error reading parameters");
         error = true;
     } else {
         // replace commas with backslashes in the parameters string
@@ -61,7 +115,7 @@ bool tpp_LoRa::readSettings() {
 }
 
 // function to send AT commands to the LoRa module
-// returns 1 if successful, 0 if error, -1 if no response
+// returns 0 if successful, 1 if error, -1 if no response
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(String command) {
 
@@ -72,8 +126,8 @@ int tpp_LoRa::sendCommand(String command) {
         timeoutMS = 1000;
     } 
 
-    debugPrint("");
-    debugPrint("cmd: " + command);
+    debugPrintln("");
+    debugPrintln("cmd: " + command);
     LORA_SERIAL.println(command);
     
     // wait for data available, which should be +OK or +ERR
@@ -83,9 +137,9 @@ int tpp_LoRa::sendCommand(String command) {
     do {
         dataAvailable = LORA_SERIAL.available();
         delay(10);
-        debugPrint(".");
+        debugPrintNoHeader(".");
     } while ((dataAvailable == 0) && (millis() - starttimeMS < timeoutMS)) ;
-    debugPrint("");
+    debugPrintNoHeader("\n");
 
     delay(100); // wait for the full response
 
@@ -94,16 +148,16 @@ int tpp_LoRa::sendCommand(String command) {
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
         receivedData.trim();
-        debugPrint("received data = " + receivedData);
+        debugPrintln("received data = " + receivedData);
         if(receivedData.indexOf("ERR") > 0) {
-            debugPrint("LoRa error");
-            retcode = 0;
-        } else {
-            debugPrint("command worked");
+            debugPrintln("LoRa error");
             retcode = 1;
+        } else {
+            debugPrintln("command worked");
+            retcode = 0;
         }
     } else {
-        debugPrint("No response from LoRa");
+        debugPrintln("No response from LoRa");
         retcode =  -1;
     }
     return retcode;
@@ -117,18 +171,18 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     if(LORA_SERIAL.available()) { // data is in the Serial1 buffer
 
-        debugPrint("");
-        debugPrint("--------------------");
+        debugPrintln("");
+        debugPrintln("--------------------");
         delay(100); // wait a bit for the complete message to have been received
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
         receivedData.trim();
-        debugPrint("received data = " + receivedData);
+        debugPrintln("received data = " + receivedData);
 
         if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 3) {
 
             // this is the normal OK from LoRa that the previous command succeeded
-            debugPrint("received data is +OK");
+            debugPrintln("received data is +OK");
             receivedMessageState = 1;
 
         } else {
@@ -153,7 +207,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                     commaCount--;
                     if (commaCount < 1) {
                         // should never happen
-                        debugPrint("ERROR: received data from sensor has weird comma count");
+                        debugPrintln("ERROR: received data from sensor has weird comma count");
                         break;
                         commaCountError = true;
                     }   
@@ -164,7 +218,7 @@ void tpp_LoRa::checkForReceivedMessage() {
             if (commaCountError) {
 
                 // error in the received data
-                debugPrint("ERROR: received data from sensor has odd comma count");
+                debugPrintln("ERROR: received data from sensor has odd comma count");
 
                 receivedMessageState = -1;
 
