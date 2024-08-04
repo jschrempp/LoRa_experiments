@@ -48,7 +48,7 @@ SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 tpp_LoRa LoRa; // create an instance of the LoRa class
 
-
+int LoRaSensorAddress = 0; // the address of the sensor
 
 void setup() {
     pinMode(D0, INPUT_PULLUP);
@@ -56,6 +56,8 @@ void setup() {
     digitalWrite(D7, HIGH);
     Serial.begin(9600); // the USB serial port 
     Serial1.begin(115200);  // the LoRa device
+
+    LoRa.initDevice(LoRaSensorAddress); // initialize the LoRa device
 
     LoRa.readSettings(); // read the settings from the LoRa device
     
@@ -89,7 +91,7 @@ void loop() {
             payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
         }
         int length = payload.length();
-        cmd = "AT+SEND=1," + String(length) + "," + payload;
+        cmd = "AT+SEND=" + String(TPP_LORA_HUB_ADDRESS) + "," + String(length) + "," + payload;
         LoRa.sendCommand(cmd);
         awaitingResponse = true;
         startTime = millis();

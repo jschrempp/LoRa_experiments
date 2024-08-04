@@ -54,7 +54,6 @@ void logToParticle(String message, String deviceNum, String msgNum, String paylo
     Serial.println("cloudLogging return: " + String(rtn));
 }
 
-
 void setup() {
 
     pinMode(D7, OUTPUT);
@@ -62,6 +61,7 @@ void setup() {
     Serial.begin(9600); // the USB serial port 
     Serial1.begin(115200);  // the LoRa device
 
+    LoRa.initDevice(LoRaADDRESS_HUB);
     LoRa.readSettings(); 
 
     Serial.println("Hub ready for testing .../n");
@@ -96,7 +96,7 @@ void loop() {
 
                 // HELLO is the message from our sensors
                 // send a message back to the sensor
-                if (LoRa.sendCommand("AT+SEND=0,6,TESTOK")) {
+                if (LoRa.sendCommand("AT+SEND=0,6,TESTOK") == 0) {
                     Serial.println("sent TESTOK to sensor");
                     logMessage = "TESTOK";
                     messageSent = "TESTOK";
