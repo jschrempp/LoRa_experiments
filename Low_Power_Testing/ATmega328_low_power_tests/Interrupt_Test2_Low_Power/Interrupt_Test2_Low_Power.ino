@@ -17,7 +17,20 @@
  *    be in deep sleep.  TEST RESULT: verified.  Deep sleep measures a few microamps using a ATmega328 not-P (accurate measurement
  *    is not possible with my cheap multimeter).
  *    
- *    version 1.0, by: Bob Glicksman, 08/04/24
+ *    NOTE: The initial tests performed on 8/1/24 used an internal pullup on the interrupt 0 line.  Deep sleep current measured
+ *    oen to two tenths of a microamp when the button was not pressed (contact open).  When the button was pressed (contact closed),
+ *    the deep sleep current went up to about 85 microamps.  This is due to the internal pullup being about 40 Kohms.
+ *    
+ *    8/5/24:  I changed the code to not use the internal pullup (version 1.1).  I used an external 1 Mohm resistor as the pullup, with a 0.1 uF
+ *    capacitor between the switched line and ground.  The capacitor is to filter out noise.  Because the RC combination results in 
+ *    a long rise time when the switch is released, I wired the switched line to pin 1 of a 74HC14 schmitt trigger inverter input.
+ *    I wired the output (74HC14 pin 2) to the input of the next inverter (74HC14 pin 3) and took the output of this second inverter
+ *    (74HC14 pin 4) as the interrup signal (microcontroller pin 4).  I connected thew inputs to the 4 remaining inverters to 
+ *    ground to minimize supply current draw.  This reduced the deep sleep current draw to about 3.4 microamps
+ *    when the contact is closed!  NOTE:  it is possible that external schmitt trigger gates are not required as the microcontroller
+ *    may have schmitt triggers on the input pins.  
+ *    
+ *    version 1.10, by: Bob Glicksman, 08/05/24
  *    (c) 2024, Bob Glicksman, Jim Schrempp, Team Practical Projects.  All rights reserved.
  */
 
@@ -30,7 +43,8 @@ const int LED_PIN = 9;  // the LED is on digital pin 9 which is chip pin 15
 
 
 void setup() {
-  pinMode(BUTTON_PIN, INPUT_PULLUP); // Interrupt 0 is pin 2 is chip pin 4
+//  pinMode(BUTTON_PIN, INPUT_PULLUP); // Interrupt 0 is pin 2 is chip pin 4
+  pinMode(BUTTON_PIN, INPUT); // Interrupt 0 is pin 2 is chip pin 4, external pullup with schmitt trigger is used.
   pinMode(LED_PIN, OUTPUT); // the LED pin is 9, chip pin 15.
   blink3(500);  // indicate that setup() is over and loop() begins
   pinMode(LED_PIN, INPUT);  // change the LED pin for lowest power consumption while sleeping
