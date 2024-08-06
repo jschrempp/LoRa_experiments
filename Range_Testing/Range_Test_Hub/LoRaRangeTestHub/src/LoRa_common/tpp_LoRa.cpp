@@ -121,7 +121,7 @@ int tpp_LoRa::sendCommand(String command) {
 
     int retcode = 0;
 
-    system_tick_t timeoutMS = 50;
+    system_tick_t timeoutMS = 1000;
     if(command.indexOf("SEND") > 0) {
         timeoutMS = 1000;
     } 
@@ -162,6 +162,18 @@ int tpp_LoRa::sendCommand(String command) {
     }
     return retcode;
 };
+
+// function to transmit a message to another LoRa device
+// returns 0 if successful, 1 if error, -1 if no response
+// prints message and result to the serial monitor
+int tpp_LoRa::transmitMessage(String devAddress, String message){
+
+    String cmd = "AT+SEND=" + devAddress + "," + String(message.length()) + "," + message;
+
+    return sendCommand(cmd);
+
+}
+
 
 // If there is data on Serial1 then read it and parse it into the class variables
 // If there is no data on Serial1 then clear the class variables.
@@ -225,13 +237,16 @@ void tpp_LoRa::checkForReceivedMessage() {
             } else {
                 
                 // create substrings from received data
-                loraStatus = receivedData.substring(0, commas[1]);
-                deviceNum = receivedData.substring(commas[1] + 1, commas[2]);
+                deviceNum = receivedData.substring(5, commas[1]);  // skip the "+RCV="
+                //charCount = receivedData.substring(commas[1] + 1, commas[2]);
                 payload = receivedData.substring(commas[2] + 1, commas[3]);
                 RSSI = receivedData.substring(commas[3] + 1, commas[4]);
                 SNR = receivedData.substring(commas[4] + 1, receivedData.length()); // -1 to remove the newline
 
                 receivedMessageState = 1;
+
+
+                Serial.println("loraStatus = " + loraStatus);
 
             } // end of if (commaCount != 4) 
             

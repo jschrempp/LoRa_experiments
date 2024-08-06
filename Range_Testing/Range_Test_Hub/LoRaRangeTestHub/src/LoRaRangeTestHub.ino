@@ -42,12 +42,11 @@ String NODATA = "NODATA";
 tpp_LoRa LoRa;
 
 
-void logToParticle(String message, String deviceNum, String msgNum, String payload, String RSSIhub1, String SNRhub1, String SNRhub2, String SNRsensor) {
+void logToParticle(String message, String deviceNum, String payload, String SNRhub1) {
     // create a JSON string to send to the cloud
-    String data = "message=" + message + "|msgNum=" + String(msgNum) 
-        + "|deviceNum=" + deviceNum + "|payload=" + payload + "|RSSIHub1=" + RSSIhub1
-        + "|SNRhub1=" + String(SNRhub1) + "|SNRhub2=" + String(SNRhub2) 
-        + "|SNRsensor=" + String(SNRsensor);
+    String data = "message=" + message
+        + "|deviceNum=" + deviceNum + "|payload=" + payload 
+        + "|SNRhub1=" + String(SNRhub1);
 
     Serial.println("cloudLogging:" + data);
     long rtn = Particle.publish("LoRaHubLogging", data, PRIVATE);
@@ -61,7 +60,7 @@ void setup() {
     Serial.begin(9600); // the USB serial port 
     Serial1.begin(115200);  // the LoRa device
 
-    LoRa.initDevice(LoRaADDRESS_HUB);
+    LoRa.initDevice(TPP_LORA_HUB_ADDRESS);
     LoRa.readSettings(); 
 
     Serial.println("Hub ready for testing .../n");
@@ -89,6 +88,7 @@ void loop() {
         case 1: // message received
             String logMessage = "";
             String messageSent = "";
+            String deviceNum = LoRa.deviceNum;
             digitalWrite(D7, HIGH);
             Serial.println("payload: " + LoRa.payload);
 
@@ -96,7 +96,7 @@ void loop() {
 
                 // HELLO is the message from our sensors
                 // send a message back to the sensor
-                if (LoRa.sendCommand("AT+SEND=0,6,TESTOK") == 0) {
+                if (LoRa.transmitMessage(deviceNum, "TESTOK") == 0) {
                     Serial.println("sent TESTOK to sensor");
                     logMessage = "TESTOK";
                     messageSent = "TESTOK";
@@ -108,7 +108,8 @@ void loop() {
             } else {
 
                 Serial.println("received data is not HELLO or +OK");
-                LoRa.sendCommand("AT+SEND=0,4,NOPE");
+                //LoRa.sendCommand("AT+SEND=0,4,NOPE");
+                LoRa.transmitMessage(deviceNum, "NOPE");
                 logMessage = "NOPE";
                 messageSent = "NOPE";
 
@@ -116,7 +117,7 @@ void loop() {
 
             // log the data to the cloud
             Serial.println("sent message: " + messageSent);
-            logToParticle(logMessage, LoRa.deviceNum, NODATA, LoRa.payload, LoRa.RSSI, LoRa.SNR, NODATA, NODATA);
+            logToParticle(logMessage, LoRa.deviceNum, LoRa.payload, LoRa.SNR);
 
             digitalWrite(D7, LOW);
             Serial.println("Waiting for messages");
