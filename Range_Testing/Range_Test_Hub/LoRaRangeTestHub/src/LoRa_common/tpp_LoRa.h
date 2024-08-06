@@ -16,7 +16,7 @@
 
 #define VERSION 1.00
 
-#define TPP_LORA_HUB_ADDRESS 0   // arbitrary  0 - 65535
+#define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 
 #define LORA_SERIAL Serial1
 
