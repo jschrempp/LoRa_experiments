@@ -16,18 +16,16 @@
 
 #define VERSION 1.00
 
-#define TPP_LORA_HUB_ADDRESS 1
+#define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 
 #define LORA_SERIAL Serial1
 
 #define LoRaNETWORK_NUM 18
-#define LoRaADDRESS_SENSOR 0
-#define LoRaADDRESS_HUB 1
-#define LoRaSPREADING_FACTOR 9  // 7 - 11  larger is better for range; default 9
-                        // SF7to SF9 at 125kHz, SF7 to SF10 at 250kHz, and SF7 to SF11 at 500kHz
-#define LoRaBANDWIDTH 7   // 7:125, 8:250, 9:500 kHz   lower is better for range; default 7
-#define LoRaCODING_RATE 4  // 1 is faster; default 1 [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
-#define LoRaPREAMBLE 24  // 12 max unless network number is 18; 
+#define LoRaSPREADING_FACTOR 9  // default 9;  7 - 11  larger is better for range 
+                                // SF7to SF9 at 125kHz, SF7 to SF10 at 250kHz, and SF7 to SF11 at 500kHz
+#define LoRaBANDWIDTH 7         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range
+#define LoRaCODING_RATE 1       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
+#define LoRaPREAMBLE 12         // 12 max unless network number is 18; 
 
 // class for the LoRa module
 class tpp_LoRa
@@ -54,6 +52,11 @@ public:
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
     int sendCommand(String command);
+
+    // function to transmit a message to another LoRa device
+    // returns 0 if successful, 1 if error, -1 if no response
+    // prints message and result to the serial monitor
+    int transmitMessage(String devAddress, String message);
 
     int receivedMessageState = 0; // 0 = no message, 1 = message received, -1 = error
     String parameters = "";
