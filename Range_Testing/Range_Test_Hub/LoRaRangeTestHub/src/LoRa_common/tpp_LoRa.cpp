@@ -245,9 +245,6 @@ void tpp_LoRa::checkForReceivedMessage() {
 
                 receivedMessageState = 1;
 
-
-                Serial.println("loraStatus = " + loraStatus);
-
             } // end of if (commaCount != 4) 
             
         } // end of if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 5)
