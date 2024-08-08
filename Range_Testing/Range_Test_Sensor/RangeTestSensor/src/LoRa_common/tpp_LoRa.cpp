@@ -121,7 +121,7 @@ int tpp_LoRa::sendCommand(String command) {
 
     int retcode = 0;
     system_tick_t timeoutMS = 1000;
-    String receivedData = "";
+    receivedData = "";
 
     debugPrintln("");
     debugPrintln("cmd: " + command);
@@ -146,7 +146,7 @@ int tpp_LoRa::sendCommand(String command) {
         // received data has a newline at the end
         receivedData.trim();
         debugPrintln("received data = " + receivedData);
-        if(receivedData.indexOf("ERR") > 0) {
+        if(receivedData.indexOf("+ERR") > 0) {
             debugPrintln("LoRa error");
             retcode = 1;
         } else {
