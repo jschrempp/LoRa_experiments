@@ -60,11 +60,21 @@ void setup() {
     Serial.begin(9600); // the USB serial port 
     Serial1.begin(115200);  // the LoRa device
 
-    LoRa.initDevice(TPP_LORA_HUB_ADDRESS);
-    LoRa.readSettings(); 
+    if (LoRa.initDevice(TPP_LORA_HUB_ADDRESS) != 0) {  // initialize the LoRa device
+        Serial.println("Error initializing LoRa device");
+        while(1) {blinkTimes(50);};
+        return;
+    }
+    
+    if (LoRa.readSettings() != 0) {
+        Serial.println("Error reading LoRa settings");
+        blinkTimes(50);
+        while(1) {blinkTimes(50);};
+        return;
+    }
 
-    Serial.println("Hub ready for testing .../n");
-    Serial.print("waiting for data ...");
+    Serial.println("Hub ready for testing ...");
+    Serial.print("waiting for data ...\n");
 
     digitalWrite(D7, LOW);
 
