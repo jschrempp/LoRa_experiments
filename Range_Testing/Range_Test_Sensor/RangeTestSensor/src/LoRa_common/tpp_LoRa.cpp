@@ -120,11 +120,8 @@ bool tpp_LoRa::readSettings() {
 int tpp_LoRa::sendCommand(String command) {
 
     int retcode = 0;
-
     system_tick_t timeoutMS = 1000;
-    if(command.indexOf("SEND") > 0) {
-        timeoutMS = 1000;
-    } 
+    receivedData = "";
 
     debugPrintln("");
     debugPrintln("cmd: " + command);
@@ -149,7 +146,7 @@ int tpp_LoRa::sendCommand(String command) {
         // received data has a newline at the end
         receivedData.trim();
         debugPrintln("received data = " + receivedData);
-        if(receivedData.indexOf("ERR") > 0) {
+        if(receivedData.indexOf("+ERR") > 0) {
             debugPrintln("LoRa error");
             retcode = 1;
         } else {
@@ -198,6 +195,8 @@ void tpp_LoRa::checkForReceivedMessage() {
             receivedMessageState = 1;
 
         } else {
+
+            // xxx do we need to check for +RCV here?
             
             // (LoRa.receivedData.indexOf("+RCV") >= 0)
             // find the commas in received data
