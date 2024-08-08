@@ -60,12 +60,12 @@ void setup() {
     if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
         Serial.println("error initializing LoRa device - Stopping");
         Serial.println("hint: did you change the LoRaSensorAddress?");
-        while(1) {delay(100);};
+        while(1) {blinkTimes(50);};
     }; 
 
     if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
         Serial.println("error reading LoRa settings - Stopping");
-        while(1) {delay(100);};
+        while(1) {blinkTimes(50);};
     }; 
     
     Serial.println("Sensor ready for testing ...\n" );    
