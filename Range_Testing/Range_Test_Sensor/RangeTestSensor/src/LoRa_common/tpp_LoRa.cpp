@@ -46,37 +46,41 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
     bool error = false;
 
     // check that LoRa is ready
-    if(sendCommand("AT") == 0) {
-        debugPrintln("LoRa is ready");
-    } else {
+    if(sendCommand("AT") != 0) {
         debugPrintln("LoRa is not ready");
         error = true;
-    }
- 
-    // Set the network number
-    if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) == 0) {
-        debugPrintln("Network number set");
-    } else {
-        debugPrintln("Network number not set");
-        error = true;
-    }
 
-    // Set the device number based on button state
-    if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) == 0) {
-        debugPrintln("Device number set");
     } else {
-        debugPrintln("Device number not set");
-        error = true;
-    }
 
-    // set the parameters for the LoRa module
+        debugPrintln("LoRa is ready");
 
-    if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
-        + String(LoRaBANDWIDTH) + "," + String(LoRaCODING_RATE) + "," + String(LoRaPREAMBLE)) == 0) {
-        debugPrintln("Parameters set");
-    } else {
-        debugPrintln("Parameters not set");
-        error = true;
+        // Set the network number
+        if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) != 0) {
+            debugPrintln("Network number not set");
+            error = true;
+
+        } else {
+
+            debugPrintln("Network number set");
+
+            // Set the device number based on button state
+            if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) != 0) {
+                debugPrintln("Device number not set");
+                error = true;
+
+            } else {
+                debugPrintln("Device number set");
+
+                // set the parameters for the LoRa module
+                if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
+                    + String(LoRaBANDWIDTH) + "," + String(LoRaCODING_RATE) + "," + String(LoRaPREAMBLE)) != 0) {
+                    debugPrintln("Parameters not set");
+                    error = true;
+                } else {
+                    debugPrintln("Parameters set");
+                }
+            }
+        }
     }
 
     return error;
@@ -96,12 +100,10 @@ bool tpp_LoRa::readSettings() {
     if(sendCommand("AT+NETWORKID?") != 0) {
         debugPrintln("error reading network id");
         error = true;
-    }
-    if(sendCommand("AT+ADDRESS?") != 0) {
+    } else if(sendCommand("AT+ADDRESS?") != 0) {
         debugPrintln("error reading device address");
         error = true;
-    }
-    if(sendCommand("AT+PARAMETER?") != 0) {
+    } else if(sendCommand("AT+PARAMETER?") != 0) {
         debugPrintln("error reading parameters");
         error = true;
     } else {
@@ -146,7 +148,7 @@ int tpp_LoRa::sendCommand(String command) {
         // received data has a newline at the end
         receivedData.trim();
         debugPrintln("received data = " + receivedData);
-        if(receivedData.indexOf("+ERR") > 0) {
+        if(receivedData.indexOf("+ERR") >= 0) {
             debugPrintln("LoRa error");
             retcode = 1;
         } else {
