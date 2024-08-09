@@ -42,13 +42,13 @@ SYSTEM_THREAD(ENABLED);
 #define VERSION 1.00
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
+#define THIS_LORA_SENSOR_ADDRESS -1 // the address of the sensor
+
 // Show system, cloud connectivity, and application logs over USB
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 tpp_LoRa LoRa; // create an instance of the LoRa class
-
-int LoRaSensorAddress = 15587; // the address of the sensor
 
 void setup() {
     pinMode(D0, INPUT_PULLUP);
@@ -57,12 +57,18 @@ void setup() {
     Serial.begin(9600); // the USB serial port 
     Serial1.begin(115200);  // the LoRa device
 
-    LoRa.initDevice(LoRaSensorAddress); // initialize the LoRa device
+    if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
+        Serial.println("error initializing LoRa device - Stopping");
+        Serial.println("hint: did you change the LoRaSensorAddress?");
+        while(1) {blinkTimes(50);};
+    }; 
 
-    LoRa.readSettings(); // read the settings from the LoRa device
+    if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
+        Serial.println("error reading LoRa settings - Stopping");
+        while(1) {blinkTimes(50);};
+    }; 
     
-    Serial.println("Sensor ready for testing .../n");
-    delay(500);
+    Serial.println("Sensor ready for testing ...\n" );    
     digitalWrite(D7, LOW);
 
 } // end of setup()
@@ -127,7 +133,7 @@ void loop() {
 
                     if (LoRa.receivedData.indexOf("TESTOK") >= 0) {
                         Serial.println("response is TESTOK");
-                        blinkTimes(3);
+                        blinkTimes(3, 150);
                     } else if (LoRa.receivedData.indexOf("NOPE") >= 0) {
                         Serial.println("response is NOPE");
                         blinkTimes(4);
