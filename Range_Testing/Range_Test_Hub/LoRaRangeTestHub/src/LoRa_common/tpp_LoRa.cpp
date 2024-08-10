@@ -47,20 +47,23 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
 
     // check that LoRa is ready
     if(sendCommand("AT") != 0) {
-        debugPrintln("LoRa is not ready");
-        error = true;
 
-    } else {
+        if(sendCommand("AT") != 0) { // try again for photon 1
+            debugPrintln("LoRa is not ready");
+            error = true;
+        } 
+    }
+    
+    if(!error) {
 
         debugPrintln("LoRa is ready");
 
         // Set the network number
         if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) != 0) {
-            debugPrintln("Network number not set");
-            error = true;
+                debugPrintln("Network ID not set");
+                error = true;
 
         } else {
-
             debugPrintln("Network number set");
 
             // Set the device number based on button state
