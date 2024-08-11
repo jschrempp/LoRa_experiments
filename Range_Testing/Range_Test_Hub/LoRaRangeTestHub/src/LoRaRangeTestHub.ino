@@ -118,7 +118,6 @@ void loop() {
             } else {
 
                 Serial.println("received data is not HELLO or +OK");
-                //LoRa.sendCommand("AT+SEND=0,4,NOPE");
                 LoRa.transmitMessage(deviceNum, "NOPE");
                 logMessage = "NOPE";
                 messageSent = "NOPE";
