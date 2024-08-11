@@ -10,7 +10,7 @@
 
 #define TPP_LORA_DEBUG 1
 
-bool LoRaBusy = false;
+bool mg_LoRaBusy = false;
 
 void debugPrint(String message) {
     if(TPP_LORA_DEBUG) {
@@ -125,11 +125,11 @@ bool tpp_LoRa::readSettings() {
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(String command) {
 
-    if (LoRaBusy) {
+    if (mg_LoRaBusy) {
         debugPrintln("LoRa is busy");
         return 1;
     }   
-    LoRaBusy = true;
+    mg_LoRaBusy = true;
 
     int retcode = 0;
     system_tick_t timeoutMS = 1000;
@@ -169,7 +169,7 @@ int tpp_LoRa::sendCommand(String command) {
         debugPrintln("No response from LoRa");
         retcode =  -1;
     }
-    LoRaBusy = false;
+    mg_LoRaBusy = false;
     return retcode;
 };
 
@@ -190,12 +190,12 @@ int tpp_LoRa::transmitMessage(String devAddress, String message){
 // If there is no data on Serial1 then clear the class variables.
 void tpp_LoRa::checkForReceivedMessage() {
 
-    if (LoRaBusy) {
+    if (mg_LoRaBusy) {
         debugPrintln("LoRa is busy");
         receivedMessageState = 0;
         return;
     }   
-    LoRaBusy = true;
+    mg_LoRaBusy = true;
 
     clearClassVariabels();
 
@@ -277,7 +277,7 @@ void tpp_LoRa::checkForReceivedMessage() {
         clearClassVariabels();
     }
 
-    LoRaBusy = false;
+    mg_LoRaBusy = false;
 
     return;
 }
