@@ -1,7 +1,8 @@
 /* Basic_ATmega328_LoRa_test.
  *  This is a test of LoRa communication to the "Range Testing Hub" of a bare bones ATmega328 communicating with
  *  the LoRa module via serial I/O.  It is essentally a duplicate of the test performed on 5/04/24 using as Photon
- *  driving the LoRa module.  The code powers up and down the LoRa module, but it does not power down the ATmega328.
+ *  driving the LoRa module, with a few diagnostic LED flashes.  The code powers up and down the LoRa module, 
+ *  but it does not power down the ATmega328.
  *  
  *  Connections:
  *    LoRa Vdd to +3 volts
@@ -11,28 +12,35 @@
  *    
  *    A pushbutton signal is connected to ATmega328 pin 4 (Arduino DIO 2, Interrupt 0). The pushbutton is pulled
  *    up with a 1 Mohm resistor and grounds the signal line.  A 0.1 uF capacitor is placed across the pushbutton to reduce noise
- *    sensititvity.  The signal line is connected to a schmitt trigger inverter when is then connected to another inverter, the
+ *    sensititvity.  The signal line is connected to a schmitt trigger inverter which is then connected to another inverter, the
  *    output of which goes to ATmega328 pin 4.
  *    
  *    An LED is connected to ATmega328 pin 15 (Arduino DIO 9) through a 330 ohm resistor.
  *    
  *    Interrupts are not used in this test. When the pushbutton is pressed, DIO 2 goes low and this triggers the 
  *    following sequence in code:
- *      the LoRa module is powered up ("AT+MODE=0"); wait for OK response
- *      a message is sent to the Hub ("AT+SEND ..."); wait for OK response
- *      the LoRa module is powered down ("AT+MODE=1"); wait for OK response
- *      the LED is flashed twice
+ *      - the LoRa module is powered up ("AT+MODE=0"); wait for OK response (note: done twice, since +OK does not come back
+ *        the first time after a power up of LoRa.
+ *      - a message is sent to the Hub ("AT+SEND ..."); wait for OK response
+ *      - the LoRa module is powered down ("AT+MODE=1"); wait for OK response
+ *      the LED is flashed 5 times
+ *      
+ *    NOTE: after each AT message, we wait for a response from the LoRa and test it for +OK.  If we get a response that is
+ *    other than +OK, we flash the LED, as follows:
+ *      - "AT+MODE=0": if not +OK, flash once
+ *      - "AT_SEND=...: if not OK, flash twice
+ *      - "AT+MODE=1": if not +OK, flash three times
  *      
  *    The LoRa chip is pre-programmed to be station number 5.  The Hub is station number 57248.
  *    The network ID is 18.  loRa parameters are: 9,7,1,24.  All are preprogrammed into the LoRa chip prior to this
  *    test being run.
  *    
- *    Version 1.0; 8/11/24, by Bob Glicksman
+ *    Version 1.1; 8/12/24, by Bob Glicksman
  *    (c) 2024 Bob Glicksman, Jim Schrempp, Team Practical projects; all rights reserved.
  *      
 */
 
-#define VERSION 1.00
+#define VERSION 1.10
 #define BUTTON_PIN 2  // the button is on Arduino pin 2, chip pin 4
 #define LED_PIN 9 // the LED is on Arduino DIO 9, chip pin 15
 
@@ -51,11 +59,12 @@ void setup() {
 void loop() {
   // test for the button to be pressed
   if(digitalRead(BUTTON_PIN) == LOW) {  // button press detected    
-    // flush out the receive buffer
-    Serial.readString();
-    
+   
     // wake up the LoRa module
     Serial.println("AT+MODE=0");
+    waitForOK();  // something other than +OK comes back after the LoRa is powered down
+    //  try again to make sure that we are powered up - got +OK
+    Serial.println("AT+MODE=0");    
     if(waitForOK() == -1) { // only flash the LED if did not get +OK
       blinkLed(1);
     }
