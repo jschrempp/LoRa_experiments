@@ -10,6 +10,7 @@
 
 #define TPP_LORA_DEBUG 1
 
+bool mg_LoRaBusy = false;
 
 void debugPrint(String message) {
     if(TPP_LORA_DEBUG) {
@@ -124,6 +125,12 @@ bool tpp_LoRa::readSettings() {
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(String command) {
 
+    if (mg_LoRaBusy) {
+        debugPrintln("LoRa is busy");
+        return 1;
+    }   
+    mg_LoRaBusy = true;
+
     int retcode = 0;
     system_tick_t timeoutMS = 1000;
     receivedData = "";
@@ -162,6 +169,7 @@ int tpp_LoRa::sendCommand(String command) {
         debugPrintln("No response from LoRa");
         retcode =  -1;
     }
+    mg_LoRaBusy = false;
     return retcode;
 };
 
@@ -177,9 +185,17 @@ int tpp_LoRa::transmitMessage(String devAddress, String message){
 }
 
 
-// If there is data on Serial1 then read it and parse it into the class variables
+// If there is data on Serial1 then read it and parse it into the class variables. 
+// Set receivedMessageState to 1 if successful, 0 if no message, -1 if error
 // If there is no data on Serial1 then clear the class variables.
 void tpp_LoRa::checkForReceivedMessage() {
+
+    if (mg_LoRaBusy) {
+        debugPrintln("LoRa is busy");
+        receivedMessageState = 0;
+        return;
+    }   
+    mg_LoRaBusy = true;
 
     clearClassVariabels();
 
@@ -201,56 +217,58 @@ void tpp_LoRa::checkForReceivedMessage() {
 
         } else {
 
-            // xxx do we need to check for +RCV here?
-            
-            // (LoRa.receivedData.indexOf("+RCV") >= 0)
-            // find the commas in received data
-            unsigned int commas[5];
-            bool commaCountError = false;   
-
-            // find first comma
-            for(unsigned int i = 0; i < receivedData.length(); i++) {
-                if(receivedData.charAt(i) == ',') {   
-                    commas[0] = i;
-                    break;
-                }
-            }
-
-            // find other commas from the end to the front
-            int commaCount = 5;
-            for(unsigned int i = receivedData.length()-1; i >= commas[0]; i--) {
-                if(receivedData.charAt(i) == ',') {
-                    commaCount--;
-                    if (commaCount < 1) {
-                        // should never happen
-                        debugPrintln("ERROR: received data from sensor has weird comma count");
-                        break;
-                        commaCountError = true;
-                    }   
-                    commas[commaCount] = i;
-                }
-            }
-            
-            if (commaCountError) {
-
-                // error in the received data
-                debugPrintln("ERROR: received data from sensor has odd comma count");
-
+            if (receivedData.indexOf("+RCV") < 0) {
+                // We are expecting a +RCV message
+                debugPrintln("received data is not +RCV");
                 receivedMessageState = -1;
-
             } else {
+                // find the commas in received data
+                unsigned int commas[5];
+                bool commaCountError = false;   
+
+                // find first comma
+                for(unsigned int i = 0; i < receivedData.length(); i++) {
+                    if(receivedData.charAt(i) == ',') {   
+                        commas[0] = i;
+                        break;
+                    }
+                }
+
+                // find other commas from the end to the front
+                int commaCount = 5;
+                for(unsigned int i = receivedData.length()-1; i >= commas[0]; i--) {
+                    if(receivedData.charAt(i) == ',') {
+                        commaCount--;
+                        if (commaCount < 1) {
+                            // should never happen
+                            debugPrintln("ERROR: received data from sensor has weird comma count");
+                            break;
+                            commaCountError = true;
+                        }   
+                        commas[commaCount] = i;
+                    }
+                }
                 
-                // create substrings from received data
-                deviceNum = receivedData.substring(5, commas[1]);  // skip the "+RCV="
-                //charCount = receivedData.substring(commas[1] + 1, commas[2]);
-                payload = receivedData.substring(commas[2] + 1, commas[3]);
-                RSSI = receivedData.substring(commas[3] + 1, commas[4]);
-                SNR = receivedData.substring(commas[4] + 1, receivedData.length()); // -1 to remove the newline
+                if (commaCountError) {
 
-                receivedMessageState = 1;
+                    // error in the received data
+                    debugPrintln("ERROR: received data from sensor has odd comma count");
 
-            } // end of if (commaCount != 4) 
-            
+                    receivedMessageState = -1;
+
+                } else {
+                    
+                    // create substrings from received data
+                    deviceNum = receivedData.substring(5, commas[1]);  // skip the "+RCV="
+                    //charCount = receivedData.substring(commas[1] + 1, commas[2]);
+                    payload = receivedData.substring(commas[2] + 1, commas[3]);
+                    RSSI = receivedData.substring(commas[3] + 1, commas[4]);
+                    SNR = receivedData.substring(commas[4] + 1, receivedData.length()); // -1 to remove the newline
+
+                    receivedMessageState = 1;
+
+                } // end of if (commaCount != 4) 
+            } // end of if(receivedData.indexOf("+RCV") < 0)
         } // end of if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 5)
 
     } else {
@@ -258,6 +276,8 @@ void tpp_LoRa::checkForReceivedMessage() {
         // no data in the Serial1 buffer
         clearClassVariabels();
     }
+
+    mg_LoRaBusy = false;
 
     return;
 }
