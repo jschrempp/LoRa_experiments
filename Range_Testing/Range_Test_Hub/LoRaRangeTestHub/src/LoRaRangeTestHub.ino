@@ -42,11 +42,11 @@ String NODATA = "NODATA";
 tpp_LoRa LoRa;
 
 
-void logToParticle(String message, String deviceNum, String payload, String SNRhub1) {
+void logToParticle(String message, String deviceNum, String payload, String SNRhub1, String RSSIHub1) {
     // create a JSON string to send to the cloud
     String data = "message=" + message
         + "|deviceNum=" + deviceNum + "|payload=" + payload 
-        + "|SNRhub1=" + String(SNRhub1);
+        + "|SNRhub1=" + String(SNRhub1) + "|RSSIHub1=" + String(RSSIHub1);
 
     Serial.println("cloudLogging:" + data);
     long rtn = Particle.publish("LoRaHubLogging", data, PRIVATE);
@@ -126,7 +126,7 @@ void loop() {
 
             // log the data to the cloud
             Serial.println("sent message: " + messageSent);
-            logToParticle(logMessage, LoRa.deviceNum, LoRa.payload, LoRa.SNR);
+            logToParticle(logMessage, LoRa.deviceNum, LoRa.payload, LoRa.SNR, LoRa.RSSI);
 
             digitalWrite(D7, LOW);
             Serial.println("Waiting for messages");

@@ -24,7 +24,7 @@
 #define LoRaSPREADING_FACTOR 9  // default 9;  7 - 11  larger is better for range 
                                 // SF7to SF9 at 125kHz, SF7 to SF10 at 250kHz, and SF7 to SF11 at 500kHz
 #define LoRaBANDWIDTH 7         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range
-#define LoRaCODING_RATE 1       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
+#define LoRaCODING_RATE 4       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]
 #define LoRaPREAMBLE 24         // 12 max unless network number is 18; 
 
 // class for the LoRa module
@@ -59,6 +59,7 @@ public:
     int transmitMessage(String devAddress, String message);
 
     int receivedMessageState = 0; // 0 = no message, 1 = message received, -1 = error
+    String thisDeviceNetworkID = "";
     String parameters = "";
     String receivedData = "";
     String loraStatus = "";
