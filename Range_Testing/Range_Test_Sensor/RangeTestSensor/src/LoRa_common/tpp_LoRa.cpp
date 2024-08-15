@@ -63,29 +63,28 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
         if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) != 0) {
                 debugPrintln("Network ID not set");
                 error = true;
-
-        } else {
-            debugPrintln("Network number set");
-
-            // Set the device number based on button state
-            if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) != 0) {
+        } else if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) != 0) {
                 debugPrintln("Device number not set");
                 error = true;
-
-            } else {
-                debugPrintln("Device number set");
-
-                // set the parameters for the LoRa module
-                if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
+        } else if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
                     + String(LoRaBANDWIDTH) + "," + String(LoRaCODING_RATE) + "," + String(LoRaPREAMBLE)) != 0) {
-                    debugPrintln("Parameters not set");
-                    error = true;
-                } else {
-                    debugPrintln("Parameters set");
-                }
-            }
+            debugPrintln("Parameters not set");
+            error = true;
+        } else if (sendCommand("AT+MODE=0") != 0) {
+            debugPrintln("Tranciever mode not set");
+            error = true;
+        } else if (sendCommand("AT+BAND=915000000") != 0) {
+            debugPrintln("Band not set");
+            error = true;
+        } else if (sendCommand("AT+CRFOP=22") != 0) {
+            debugPrintln("Power not set");
+            error = true;
+        } else {
+            debugPrintln("LoRo module is initialized");
         }
     }
+    
+    thisDeviceNetworkID = deviceAddress; 
 
     return error;
 
@@ -101,7 +100,11 @@ bool tpp_LoRa::readSettings() {
     debugPrintln("Reading back the settings");
 
     bool error = false;
-    if(sendCommand("AT+NETWORKID?") != 0) {
+    
+    if(sendCommand("AT+CRFOP=22?") != 0) {
+        debugPrintln("error reading radio power");
+        error = true;
+    } else if (sendCommand("AT+NETWORKID?") != 0) {
         debugPrintln("error reading network id");
         error = true;
     } else if(sendCommand("AT+ADDRESS?") != 0) {
