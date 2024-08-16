@@ -100,6 +100,13 @@ bool tpp_LoRa::readSettings() {
     debugPrintln("Reading back the settings");
 
     bool error = false;
+
+    if(sendCommand("AT+UID?") != 0) {
+        debugPrintln("error reading UID");
+        error = true;
+    } else {
+        UID = "abcdefgJim";  //receivedData.substring(5, receivedData.length()).trim();
+    }
     
     if(sendCommand("AT+CRFOP=22?") != 0) {
         debugPrintln("error reading radio power");
@@ -115,7 +122,7 @@ bool tpp_LoRa::readSettings() {
         error = true;
     } else {
         // replace commas with backslashes in the parameters string
-        parameters = receivedData;
+        parameters = receivedData.trim();
         parameters.replace(",", ":");
         parameters = "[" + parameters + "]";
     }
@@ -262,7 +269,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                 } else {
                     
                     // create substrings from received data
-                    deviceNum = receivedData.substring(5, commas[1]);  // skip the "+RCV="
+                    deviceNum = receivedData.substring(5, commas[0]);  // skip the "+RCV="
                     //charCount = receivedData.substring(commas[1] + 1, commas[2]);
                     payload = receivedData.substring(commas[2] + 1, commas[3]);
                     RSSI = receivedData.substring(commas[3] + 1, commas[4]);
