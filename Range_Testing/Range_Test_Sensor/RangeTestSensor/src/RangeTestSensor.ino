@@ -91,10 +91,16 @@ void loop() {
         Serial.println("--------------------");
         msgNum++;
         String payload = "";
-        if (msgNum == 1){
-            payload = "HELLO m: " + String(msgNum) + " p: " + LoRa.parameters;
-        } else {
-            payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+        switch (msgNum) {
+            case 1:
+                payload = "HELLO m: " + String(msgNum) + " uid: " + LoRa.UID;
+                break;
+            case 2:
+                payload = "HELLO m: " + String(msgNum) + " p: " + LoRa.parameters;
+                break;
+            default:
+                payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+                break;
         }
         LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), payload);
         awaitingResponse = true;
