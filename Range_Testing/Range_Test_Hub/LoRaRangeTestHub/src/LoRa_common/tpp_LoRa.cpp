@@ -48,6 +48,7 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
 
     // check that LoRa is ready
     if(sendCommand("AT") != 0) {
+        debugPrintln("LoRa reply bad, trying again");
 
         if(sendCommand("AT") != 0) { // try again for photon 1
             debugPrintln("LoRa is not ready");
@@ -105,7 +106,7 @@ bool tpp_LoRa::readSettings() {
         debugPrintln("error reading UID");
         error = true;
     } else {
-        UID = "abcdefgJim";  //receivedData.substring(5, receivedData.length()).trim();
+        UID = receivedData.substring(5, receivedData.length()).trim();
     }
     
     if(sendCommand("AT+CRFOP=22?") != 0) {
