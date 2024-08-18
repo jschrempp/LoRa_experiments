@@ -44,6 +44,11 @@ SYSTEM_THREAD(ENABLED);
 
 #define THIS_LORA_SENSOR_ADDRESS -1 // the address of the sensor
 
+//Jim's addresses
+//#define THIS_LORA_SENSOR_ADDRESS 12648 // the address of the sensor LoRaSensor
+//#define THIS_LORA_SENSOR_ADDRESS 11139 // the address of the sensor  lora3
+
+
 // Show system, cloud connectivity, and application logs over USB
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
