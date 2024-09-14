@@ -32,18 +32,23 @@
  * version 1.0; 4/25/24
  */
 
+#define DEBUG_SERIAL Serial
+
 #define PARTIClEPROCESSOR  0
 
 #if PARTIClEPROCESSOR 
 #include "Particle.h"
+#define TPP_LORA_DEBUG 1      
+
 #else
-#define D0 0
-#define D7 7
+#include "Arduino.h"
+#define BUTTON_PIN_DIGITAL 2
+#define LED_PIN_DIGITAL 10
+#define TPP_LORA_DEBUG 0      // always 0 for Arduino
+
 #endif
 
-#include "Arduino.h"
 #include "tpp_LoRa.h"
-
 
 #if PARTIClEPROCESSOR
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
@@ -71,30 +76,31 @@ SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 tpp_LoRa LoRa; // create an instance of the LoRa class
 
-#define TPP_LORA_DEBUG 1
 
 void debugPrint(String message) {
-#if TPP_LORA_DEBUG
     if(TPP_LORA_DEBUG) {
-        Serial.print("tpp_LoRa: " + message);
+        DEBUG_SERIAL.print("tpp_LoRa: " + message);
     }
-#endif
 }
 void debugPrintNoHeader(String message) {
     if(TPP_LORA_DEBUG) {
-        Serial.print(message);
+        DEBUG_SERIAL.print(message);
     }
 }
 void debugPrintln(String message) {
     if(TPP_LORA_DEBUG) {
-        Serial.println("tpp_LoRa: " + message);
+        DEBUG_SERIAL.println("tpp_LoRa: " + message);
     }
 }
 
 void setup() {
-    pinMode(D0, INPUT_PULLUP);
-    pinMode(D7, OUTPUT);
-    digitalWrite(D7, HIGH);
+   
+    pinMode(10, OUTPUT);
+    pinMode(BUTTON_PIN_DIGITAL, INPUT_PULLUP);
+    blinkTimes(2,50);
+    delay(1000);    
+
+    digitalWrite(10, HIGH);
 
 #ifdef DEBUG_SERIAL
     DEBUG_SERIAL.begin(9600); // the USB serial port 
@@ -103,16 +109,16 @@ void setup() {
     if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
         debugPrintln("error initializing LoRa device - Stopping");
         debugPrintln("hint: did you change the LoRaSensorAddress?");
-        while(1) {blinkTimes(50);};
+        while(1) {blinkTimes(50,100);};
     }; 
 
     if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
         debugPrintln("error reading LoRa settings - Stopping");
-        while(1) {blinkTimes(50);};
+        while(1) {blinkTimes(50,100);};
     }; 
     
     debugPrintln("Sensor ready for testing ...\n" );    
-    digitalWrite(D7, LOW);
+    digitalWrite(LED_PIN_DIGITAL, LOW);
 
 } // end of setup()
 
@@ -128,10 +134,10 @@ void loop() {
     static int msgNum = 0;
 
   // test for button to be pressed and no transmission in progress
-    if(digitalRead(D0) == LOW && !awaitingResponse) { // button press detected
-        digitalWrite(D7, HIGH);
-        Serial.println("");
-        Serial.println("--------------------");
+    if(digitalRead(BUTTON_PIN_DIGITAL) == LOW && !awaitingResponse) { // button press detected
+        digitalWrite(LED_PIN_DIGITAL, HIGH);
+        debugPrintln("");
+        debugPrintln("--------------------");
         msgNum++;
         String payload = "";
         switch (msgNum) {
@@ -148,7 +154,7 @@ void loop() {
         LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), payload);
         awaitingResponse = true;
         startTime = millis();
-        digitalWrite(D7, LOW);
+        digitalWrite(LED_PIN_DIGITAL, LOW);
     }
 
 
@@ -157,7 +163,7 @@ void loop() {
         if (millis() - startTime > 5000 ) { // wait 5 seconds for a response from the hub
             awaitingResponse = false;  // timed out
             blinkTimes(1);
-            Serial.println("timeout waiting for hub response");
+            debugPrintln("timeout waiting for hub response");
             msgNum++; // bump the message number so the hub knows we missed a response
         }
         LoRa.checkForReceivedMessage();
@@ -165,14 +171,14 @@ void loop() {
             case -1: // error
                 awaitingResponse = false;  // error
                 blinkTimes(7);
-                Serial.println("error while waiting for response");
+                debugPrintln("error while waiting for response");
                 msgNum++;
                 break;
             case 0: // no message
                 delay(5); // wait a little while before checking again
                 break;
             case 1: // message received
-                Serial.println("received data = " + LoRa.receivedData);
+                debugPrintln("received data = " + LoRa.receivedData);
                 lastRSSI = LoRa.RSSI;
                 lastSNR = LoRa.SNR;
 
@@ -180,17 +186,17 @@ void loop() {
                 if(LoRa.receivedData.indexOf("+RCV") >= 0) { // will be -1 of "+RCV" not in the string
                     
                     awaitingResponse = false; // we got a response
-                    Serial.println("response received");
+                    debugPrintln("response received");
 
                     if (LoRa.receivedData.indexOf("TESTOK") >= 0) {
-                        Serial.println("response is TESTOK");
+                        debugPrintln("response is TESTOK");
                         blinkTimes(3, 150);
                     } else if (LoRa.receivedData.indexOf("NOPE") >= 0) {
-                        Serial.println("response is NOPE");
+                        debugPrintln("response is NOPE");
                         blinkTimes(4);
                         msgNum++;
                     } else {
-                        Serial.println("response is unrecognized");
+                        debugPrintln("response is unrecognized");
                         blinkTimes(5);
                         msgNum++;
                     }
@@ -212,9 +218,9 @@ void blinkTimes(int number) {
 
 void blinkTimes(int number, int delayTimeMS) {
     for(int i = 0; i < number; i++) {
-        digitalWrite(D7, HIGH);
+        digitalWrite(LED_PIN_DIGITAL, HIGH);
         delay(delayTimeMS);
-        digitalWrite(D7, LOW);
+        digitalWrite(LED_PIN_DIGITAL, LOW);
         delay(delayTimeMS);
     }
     return;

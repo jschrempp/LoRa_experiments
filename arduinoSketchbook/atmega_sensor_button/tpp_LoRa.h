@@ -5,7 +5,7 @@
 
 */
 /*
-    The block below was recommended by CoPilo. It has nothing to do with our libary.
+    The block below was recommended by CoPilot. It has nothing to do with our libary.
     tpp_LoRa.h - Library for LoRa communication with the Things Plus Plus board.
     Created by Bennett Marsh, 2021.
     Released into the public domain.
@@ -14,26 +14,26 @@
 #ifndef tpp_LoRa_h 
 #define tpp_LoRa_h
 
-#define TPP_LORA_DEBUG 1
-
 #define PARTICLEPROCESSOR 0
 
 #if PARTIClEPROCESSOR
 #include "Particle.h"
 #define DEBUG_SERIAL Serial
 #define LORA_SERIAL Serial1
+#define TPP_LORA_DEBUG 1        // set to 1 for debugging output; 0 for no debugging
 
 #else
 #include "Arduino.h"
 #define LORA_SERIAL Serial
-#define LORA_DEBUG Serial1
+#define DEBUG_SERIAL Serial     // Note that this is the same serial port used to communicate
+                                // with LoRa chip, so Do NOT debug
+#define TPP_LORA_DEBUG 0        // Always set to 0 when running on Arduino
 
 #endif
 
 #define VERSION 1.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
-
 
 typedef uint32_t system_tick_t;
 

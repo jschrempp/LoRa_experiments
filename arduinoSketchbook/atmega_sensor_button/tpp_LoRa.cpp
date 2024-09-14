@@ -11,19 +11,24 @@ bool mg_LoRaBusy = false;
 
 void tpp_LoRa::debugPrint(String message) {
     if(TPP_LORA_DEBUG) {
-        Serial.print("tpp_LoRa: " + message);
+        DEBUG_SERIAL.print("tpp_LoRa: " + message);
     }
 }
 void tpp_LoRa::debugPrintNoHeader(String message) {
     if(TPP_LORA_DEBUG) {
-        Serial.print(message);
+        DEBUG_SERIAL.print(message);
     }
 }
 void tpp_LoRa::debugPrintln(String message) {
     if(TPP_LORA_DEBUG) {
-        Serial.println("tpp_LoRa: " + message);
+        DEBUG_SERIAL.println("tpp_LoRa: " + message);
     }
 }
+
+void blinkTimes(int number, int delayTimeMS) ;
+
+void blinkTimes(int number) ;
+
 
 void tpp_LoRa::clearClassVariabels() {
     receivedData = "";
@@ -52,6 +57,7 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
         if(sendCommand("AT") != 0) { // try again for photon 1
             debugPrintln("LoRa is not ready");
             error = true;
+            blinkTimes(5);
         } 
     }
     
@@ -63,27 +69,37 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
         if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) != 0) {
                 debugPrintln("Network ID not set");
                 error = true;
+                blinkTimes(6);
         } else if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) != 0) {
                 debugPrintln("Device number not set");
                 error = true;
+                blinkTimes(7);
         } else if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
                     + String(LoRaBANDWIDTH) + "," + String(LoRaCODING_RATE) + "," + String(LoRaPREAMBLE)) != 0) {
             debugPrintln("Parameters not set");
+            blinkTimes(8);
             error = true;
         } else if (sendCommand("AT+MODE=0") != 0) {
             debugPrintln("Tranciever mode not set");
             error = true;
+                blinkTimes(9);
         } else if (sendCommand("AT+BAND=915000000") != 0) {
             debugPrintln("Band not set");
             error = true;
+                blinkTimes(10);
         } else if (sendCommand("AT+CRFOP=22") != 0) {
             debugPrintln("Power not set");
             error = true;
+                blinkTimes(11);
         } else {
             debugPrintln("LoRo module is initialized");
         }
     }
     
+    if (error) {
+      delay(1000);  // allow human to know that the error blinks are over
+    }
+
     thisDeviceNetworkID = deviceAddress; 
 
     return error;
@@ -205,6 +221,7 @@ void tpp_LoRa::checkForReceivedMessage() {
     if (mg_LoRaBusy) {
         debugPrintln("LoRa is busy");
         receivedMessageState = 0;
+        blinkTimes(5,100);
         return;
     }   
     mg_LoRaBusy = true;
@@ -293,5 +310,7 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     return;
 }
+
+
 
 
