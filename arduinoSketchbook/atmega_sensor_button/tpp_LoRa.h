@@ -50,6 +50,9 @@ typedef uint32_t system_tick_t;
 
 #define LoRaPREAMBLE 24         // 12 max unless network number is 18; 
 
+#define RECEIVE_ERROR_MISSING_RCV -1
+#define RECEIVE_ERROR_COMMA_COUNT -2
+
 // class for the LoRa module
 class tpp_LoRa
 {
@@ -63,7 +66,7 @@ private:
 public:
     
     // Initialize the LoRa module with settings found in the tpp_LoRa.h file
-    bool initDevice(int devAddress);
+    int initDevice(int devAddress);
 
     // Read current settings and print them to the serial monitor
     //  If error then return false

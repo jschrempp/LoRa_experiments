@@ -106,15 +106,16 @@ void setup() {
     DEBUG_SERIAL.begin(9600); // the USB serial port 
 #endif
 
-    if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
+    int error_code = LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS);
+    if (error_code != 0) {  // initialize the LoRa device
         debugPrintln("error initializing LoRa device - Stopping");
         debugPrintln("hint: did you change the LoRaSensorAddress?");
-        while(1) {blinkTimes(50,100);};
+        while(1) {blinkTimes(error_code,100); delay(1000);};
     }; 
 
     if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
         debugPrintln("error reading LoRa settings - Stopping");
-        while(1) {blinkTimes(50,100);};
+        while(1) {blinkTimes(error_code,100); delay(1000);};
     }; 
     
     debugPrintln("Sensor ready for testing ...\n" );    
@@ -168,10 +169,16 @@ void loop() {
         }
         LoRa.checkForReceivedMessage();
         switch (LoRa.receivedMessageState) {
-            case -1: // error
+            case RECEIVE_ERROR_MISSING_RCV: // error
                 awaitingResponse = false;  // error
                 blinkTimes(7);
-                debugPrintln("error while waiting for response");
+                debugPrintln("error while waiting for response, no RCV");
+                msgNum++;
+                break;
+            case RECEIVE_ERROR_COMMA_COUNT: // error
+                awaitingResponse = false;  // error
+                blinkTimes(8);
+                debugPrintln("error while waiting for response, bad comma count");
                 msgNum++;
                 break;
             case 0: // no message

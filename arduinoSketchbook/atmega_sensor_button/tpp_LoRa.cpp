@@ -25,11 +25,6 @@ void tpp_LoRa::debugPrintln(String message) {
     }
 }
 
-void blinkTimes(int number, int delayTimeMS) ;
-
-void blinkTimes(int number) ;
-
-
 void tpp_LoRa::clearClassVariabels() {
     receivedData = "";
     loraStatus = "";
@@ -42,11 +37,13 @@ void tpp_LoRa::clearClassVariabels() {
 
 
 // Initialize the LoRa module with settings 
-// rtn True if successful
+// rtn 0 if successful
+// rtn code if failure
 
-bool tpp_LoRa::initDevice(int deviceAddress) {
+int tpp_LoRa::initDevice(int deviceAddress) {
 
-    bool error = false;
+    int rtn_code = 0;
+    bool error = 0;
 
     LORA_SERIAL.begin(115200);  // the LoRa device
 
@@ -57,7 +54,7 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
         if(sendCommand("AT") != 0) { // try again for photon 1
             debugPrintln("LoRa is not ready");
             error = true;
-            blinkTimes(5);
+            rtn_code = 5;
         } 
     }
     
@@ -69,40 +66,36 @@ bool tpp_LoRa::initDevice(int deviceAddress) {
         if(sendCommand("AT+NETWORKID=" + String(LoRaNETWORK_NUM)) != 0) {
                 debugPrintln("Network ID not set");
                 error = true;
-                blinkTimes(6);
+                rtn_code = 6;
         } else if(sendCommand("AT+ADDRESS=" + String(deviceAddress)) != 0) {
                 debugPrintln("Device number not set");
                 error = true;
-                blinkTimes(7);
+                rtn_code = 7;
         } else if(sendCommand("AT+PARAMETER=" + String(LoRaSPREADING_FACTOR) + ","
                     + String(LoRaBANDWIDTH) + "," + String(LoRaCODING_RATE) + "," + String(LoRaPREAMBLE)) != 0) {
             debugPrintln("Parameters not set");
-            blinkTimes(8);
+            rtn_code = 8;
             error = true;
         } else if (sendCommand("AT+MODE=0") != 0) {
             debugPrintln("Tranciever mode not set");
             error = true;
-                blinkTimes(9);
+            rtn_code = 9;
         } else if (sendCommand("AT+BAND=915000000") != 0) {
             debugPrintln("Band not set");
             error = true;
-                blinkTimes(10);
+            rtn_code = 10;
         } else if (sendCommand("AT+CRFOP=22") != 0) {
             debugPrintln("Power not set");
             error = true;
-                blinkTimes(11);
+            rtn_code = 11;
         } else {
             debugPrintln("LoRo module is initialized");
         }
     }
-    
-    if (error) {
-      delay(1000);  // allow human to know that the error blinks are over
-    }
 
     thisDeviceNetworkID = deviceAddress; 
 
-    return error;
+    return rtn_code;
 
 }
 
@@ -214,14 +207,13 @@ int tpp_LoRa::transmitMessage(String devAddress, String message){
 
 
 // If there is data on Serial1 then read it and parse it into the class variables. 
-// Set receivedMessageState to 1 if successful, 0 if no message, -1 if error
+// Set receivedMessageState to 1 if successful, 0 if no message, -1 to -99 if error
 // If there is no data on Serial1 then clear the class variables.
 void tpp_LoRa::checkForReceivedMessage() {
 
     if (mg_LoRaBusy) {
         debugPrintln("LoRa is busy");
         receivedMessageState = 0;
-        blinkTimes(5,100);
         return;
     }   
     mg_LoRaBusy = true;
@@ -232,7 +224,7 @@ void tpp_LoRa::checkForReceivedMessage() {
 
         debugPrintln("");
         debugPrintln("--------------------");
-        delay(100); // wait a bit for the complete message to have been received
+        delay(1000); // wait a bit for the complete message to have been received
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
         receivedData.trim();
@@ -249,7 +241,7 @@ void tpp_LoRa::checkForReceivedMessage() {
             if (receivedData.indexOf("+RCV") < 0) {
                 // We are expecting a +RCV message
                 debugPrintln("received data is not +RCV");
-                receivedMessageState = -1;
+                receivedMessageState = RECEIVE_ERROR_MISSING_RCV;
             } else {
                 // find the commas in received data
                 unsigned int commas[5];
@@ -283,7 +275,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                     // error in the received data
                     debugPrintln("ERROR: received data from sensor has odd comma count");
 
-                    receivedMessageState = -1;
+                    receivedMessageState = RECEIVE_ERROR_COMMA_COUNT;
 
                 } else {
                     
