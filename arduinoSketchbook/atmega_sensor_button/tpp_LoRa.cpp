@@ -11,17 +11,17 @@ bool mg_LoRaBusy = false;
 
 void tpp_LoRa::debugPrint(String message) {
     if(TPP_LORA_DEBUG == 1) {
-        DEBUG_SERIAL.print("tpp_LoRa: " + message);
+        LORA_DEBUG_SERIAL.print("tpp_LoRa: " + message);
     }
 }
 void tpp_LoRa::debugPrintNoHeader(String message) {
     if(TPP_LORA_DEBUG == 1) {
-        DEBUG_SERIAL.print(message);
+        LORA_DEBUG_SERIAL.print(message);
     }
 }
 void tpp_LoRa::debugPrintln(String message) {
     if(TPP_LORA_DEBUG == 1) {
-        DEBUG_SERIAL.println("tpp_LoRa: " + message);
+        LORA_DEBUG_SERIAL.println("tpp_LoRa: " + message);
     }
 }
 
@@ -102,8 +102,6 @@ int tpp_LoRa::initDevice(int deviceAddress) {
 // Read current settings and print them to the serial monitor
 //  If error then the D7 will blink twice
 bool tpp_LoRa::readSettings() {
-
-  return 0;
 
     // READ LoRa Settings
     debugPrintln("");
@@ -232,7 +230,7 @@ void tpp_LoRa::checkForReceivedMessage() {
         // received data has a newline at the end
         receivedData.trim();
         debugPrintln("received data = " + receivedData);
-        DEBUG_SERIAL.println("data " + receivedData);
+        
 
         if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 3) {
 

@@ -42,18 +42,17 @@
 
 #else  // ATmega238
 #include "Arduino.h"
-//#include <SoftwareSerial.h>
 #include <NeoSWSerial.h>
 #define BUTTON_PIN_DIGITAL 2
 #define LED_PIN_DIGITAL 10
 #define txPin 11
 #define rxPin 12
-#define DEBUG_SERIAL Serial
-#define DEBUG_SERIAL softSerial
-//#define DEBUG_SERIAL myDebugSerial
+//#define DEBUG_SERIAL Serial
+//#define DEBUG_SERIAL softSerial
+#define DEBUG_SERIAL myDebugSerial
 NeoSWSerial DEBUG_SERIAL(rxPin, txPin);
 //extern SoftwareSerial DEBUG_SERIAL = SoftwareSerial(rxPin, txPin);
-#define TPP_LORA_DEBUG 0  // always 0 for Arduino
+#define SENSOR_DEBUG 0  // always 0 for Arduino
 
 #endif
 
@@ -87,18 +86,18 @@ tpp_LoRa LoRa;  // create an instance of the LoRa class
 
 
 void debugPrint(String message) {
-  if (TPP_LORA_DEBUG) {
-    DEBUG_SERIAL.print("tpp_LoRa: " + message);
+  if (SENSOR_DEBUG == 1) {
+    DEBUG_SERIAL.print("sensor: " + message);
   }
 }
 void debugPrintNoHeader(String message) {
-  if (TPP_LORA_DEBUG) {
+  if (SENSOR_DEBUG == 1) {
     DEBUG_SERIAL.print(message);
   }
 }
 void debugPrintln(String message) {
-  if (TPP_LORA_DEBUG == 1) {
-    DEBUG_SERIAL.println("tpp_LoRa: " + message);
+  if (SENSOR_DEBUG == 1) {
+    DEBUG_SERIAL.println("sensor: " + message);
   }
 }
 
@@ -116,15 +115,15 @@ void setup() {
   delay(1000);
   pinMode(rxPin, INPUT);
   pinMode(txPin, OUTPUT);
-  if (TPP_LORA_DEBUG == 1) {
+  if (SENSOR_DEBUG == 1) {
     DEBUG_SERIAL.begin(9600);
     delay(250);
-    DEBUG_SERIAL.println("Sensor is running");
+    DEBUG_SERIAL.println("Sensor booted and running");
   }
 
     DEBUG_SERIAL.begin(9600); //xxx
     delay(250);
-    DEBUG_SERIAL.println("Sensor is running");
+    DEBUG_SERIAL.println("Sensor booted and running");
 
 #endif
 

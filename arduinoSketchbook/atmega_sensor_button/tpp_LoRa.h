@@ -27,7 +27,7 @@
 //#include <SoftwareSerial.h>
 //#include <NeoSWSerial.h>
 #define LORA_SERIAL Serial
-#define DEBUG_SERIAL Serial
+#define LORA_DEBUG_SERIAL Serial
 //#define DEBUG_SERIAL softSerial
 //#define DEBUG_SERIAL myDebugSerial
 //NeoSWSerial DEBUG_SERIAL(rxPin, txPin);
