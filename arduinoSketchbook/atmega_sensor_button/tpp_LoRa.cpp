@@ -10,17 +10,17 @@
 bool mg_LoRaBusy = false;
 
 void tpp_LoRa::debugPrint(String message) {
-    if(TPP_LORA_DEBUG) {
+    if(TPP_LORA_DEBUG == 1) {
         DEBUG_SERIAL.print("tpp_LoRa: " + message);
     }
 }
 void tpp_LoRa::debugPrintNoHeader(String message) {
-    if(TPP_LORA_DEBUG) {
+    if(TPP_LORA_DEBUG == 1) {
         DEBUG_SERIAL.print(message);
     }
 }
 void tpp_LoRa::debugPrintln(String message) {
-    if(TPP_LORA_DEBUG) {
+    if(TPP_LORA_DEBUG == 1) {
         DEBUG_SERIAL.println("tpp_LoRa: " + message);
     }
 }
@@ -45,14 +45,14 @@ int tpp_LoRa::initDevice(int deviceAddress) {
     int rtn_code = 0;
     bool error = 0;
 
-    LORA_SERIAL.begin(115200);  // the LoRa device
+    LORA_SERIAL.begin(38400);  // the LoRa device
 
     // check that LoRa is ready
     if(sendCommand("AT") != 0) {
         debugPrintln("LoRa reply bad, trying again");
 
         if(sendCommand("AT") != 0) { // try again for photon 1
-            debugPrintln("LoRa is not ready");
+            //debugPrintln("LoRa is not ready");
             error = true;
             rtn_code = 5;
         } 
@@ -102,6 +102,9 @@ int tpp_LoRa::initDevice(int deviceAddress) {
 // Read current settings and print them to the serial monitor
 //  If error then the D7 will blink twice
 bool tpp_LoRa::readSettings() {
+
+  return 0;
+
     // READ LoRa Settings
     debugPrintln("");
     debugPrintln("");
@@ -156,28 +159,28 @@ int tpp_LoRa::sendCommand(String command) {
     system_tick_t timeoutMS = 1000;
     receivedData = "";
 
-    debugPrintln("");
-    debugPrintln("cmd: " + command);
+    //debugPrintln("");
+    //debugPrintln("cmd: " + command);
     LORA_SERIAL.println(command);
     
     // wait for data available, which should be +OK or +ERR
     system_tick_t starttimeMS = millis();
     int dataAvailable = 0;
-    debugPrint("waiting ");
+    //debugPrint("waiting ");
     do {
         dataAvailable = LORA_SERIAL.available();
         delay(10);
-        debugPrintNoHeader(".");
+        //debugPrintNoHeader(".");
     } while ((dataAvailable == 0) && (millis() - starttimeMS < timeoutMS)) ;
-    debugPrintNoHeader("\n");
+    //debugPrintNoHeader("\n");
 
-    delay(100); // wait for the full response
+    //delay(100); // wait for the full response
 
     // Get the response if there is one
     if(dataAvailable > 0) {
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
-        receivedData.trim();
+        //receivedData.trim();
         debugPrintln("received data = " + receivedData);
         if(receivedData.indexOf("+ERR") >= 0) {
             debugPrintln("LoRa error");
@@ -212,7 +215,7 @@ int tpp_LoRa::transmitMessage(String devAddress, String message){
 void tpp_LoRa::checkForReceivedMessage() {
 
     if (mg_LoRaBusy) {
-        debugPrintln("LoRa is busy");
+        //debugPrintln("LoRa is busy");
         receivedMessageState = 0;
         return;
     }   
@@ -222,13 +225,14 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     if(LORA_SERIAL.available()) { // data is in the Serial1 buffer
 
-        debugPrintln("");
-        debugPrintln("--------------------");
+        //debugPrintln("");
+       // debugPrintln("--------------------");
         delay(1000); // wait a bit for the complete message to have been received
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
         receivedData.trim();
         debugPrintln("received data = " + receivedData);
+        DEBUG_SERIAL.println("data " + receivedData);
 
         if ((receivedData.indexOf("+OK") == 0) && receivedData.length() == 3) {
 

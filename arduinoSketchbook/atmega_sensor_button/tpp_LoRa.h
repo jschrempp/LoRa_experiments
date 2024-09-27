@@ -22,11 +22,18 @@
 #define LORA_SERIAL Serial1
 #define TPP_LORA_DEBUG 1        // set to 1 for debugging output; 0 for no debugging
 
-#else
+#else  //ATmega328
 #include "Arduino.h"
+//#include <SoftwareSerial.h>
+//#include <NeoSWSerial.h>
 #define LORA_SERIAL Serial
-#define DEBUG_SERIAL Serial     // Note that this is the same serial port used to communicate
-                                // with LoRa chip, so Do NOT debug
+#define DEBUG_SERIAL Serial
+//#define DEBUG_SERIAL softSerial
+//#define DEBUG_SERIAL myDebugSerial
+//NeoSWSerial DEBUG_SERIAL(rxPin, txPin);
+//extern SoftwareSerial DEBUG_SERIAL;
+//extern NeoSWSerial DEBUG_SERIAL;
+
 #define TPP_LORA_DEBUG 0        // Always set to 0 when running on Arduino
 
 #endif
@@ -45,7 +52,7 @@ typedef uint32_t system_tick_t;
 #define LoRaSPREADING_FACTOR 11  // default 9;  7 - 11  larger is better for range but slower
                                 // SF7 - SF9 at 125kHz, SF7 - SF10 at 250kHz, and SF7 - SF11 at 500kHz
 
-#define LoRaCODING_RATE 1       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] This can result in
+#define LoRaCODING_RATE 4       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] This can result in
                                 // small signal gains at the limit of reception, but more symbols are sent for each character.
 
 #define LoRaPREAMBLE 24         // 12 max unless network number is 18; 
