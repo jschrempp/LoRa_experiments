@@ -67,7 +67,7 @@
 
 #define VERSION 1.00
 
-// #define DEBUG
+#define DEBUG
 
 // CONSTANTS
 const int BUTTON_PIN = 2; // the pushbutton is on digital pin 2 which is chip pin 4

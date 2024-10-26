@@ -42,7 +42,7 @@ SYSTEM_THREAD(ENABLED);
 #define VERSION 1.00
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
-#define THIS_LORA_SENSOR_ADDRESS -1 // the address of the sensor
+#define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
 
 // Show system, cloud connectivity, and application logs over USB
 // View logs with CLI using 'particle serial monitor --follow'
