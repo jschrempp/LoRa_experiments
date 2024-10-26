@@ -44,6 +44,11 @@ SYSTEM_THREAD(ENABLED);
 
 #define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
 
+//Jim's addresses
+//#define THIS_LORA_SENSOR_ADDRESS 12648 // the address of the sensor LoRaSensor
+//#define THIS_LORA_SENSOR_ADDRESS 11139 // the address of the sensor  lora3
+
+
 // Show system, cloud connectivity, and application logs over USB
 // View logs with CLI using 'particle serial monitor --follow'
 SerialLogHandler logHandler(LOG_LEVEL_INFO);
@@ -91,10 +96,16 @@ void loop() {
         Serial.println("--------------------");
         msgNum++;
         String payload = "";
-        if (msgNum == 1){
-            payload = "HELLO m: " + String(msgNum) + " p: " + LoRa.parameters;
-        } else {
-            payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+        switch (msgNum) {
+            case 1:
+                payload = "HELLO m: " + String(msgNum) + " uid: " + LoRa.UID;
+                break;
+            case 2:
+                payload = "HELLO m: " + String(msgNum) + " p: " + LoRa.parameters;
+                break;
+            default:
+                payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+                break;
         }
         LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), payload);
         awaitingResponse = true;
