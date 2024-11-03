@@ -59,24 +59,27 @@
  *      - 74HC14 pin 2 is connected to 74HC14 pin 3 (INV 1 output to INV 2 input)
  *      - 74HC14 pin 4 is connected to microcontroller pin 4 (intrurrupt 0, Arduino DIO pin 2).
  *    
- *    version 1.00, by: Bob Glicksman, 08/14/24
+ *    version 1.10, by: Bob Glicksman, 11/03/24
+ *      this version adds support for green and red LEDs
  *    (c) 2024, Bob Glicksman, Jim Schrempp, Team Practical Projects.  All rights reserved.
  */
 
 #include <avr/sleep.h>  // the official avr sleep library
 
-#define VERSION 1.00
+#define VERSION 1.10
 
-#define DEBUG
+//#define DEBUG
 
 // CONSTANTS
 const int BUTTON_PIN = 2; // the pushbutton is on digital pin 2 which is chip pin 4
-const int LED_PIN = 9;  // the LED is on digital pin 9 which is chip pin 15
+const int GRN_LED_PIN = 9;  // the Green LED is on digital pin 9 which is chip pin 15
+const int RED_LED_PIN = 8;  // the Red LED is on digital pin 8 which is chip pin 14
 
 void setup() {
 
   pinMode(BUTTON_PIN, INPUT); // Interrupt 0 is Arduino pin 2 is chip pin 4, external pullup with schmitt trigger is used.
-  pinMode(LED_PIN, OUTPUT); // the LED pin is Arduino DIO 9, chip pin 15.
+  pinMode(GRN_LED_PIN, OUTPUT); // the green LED pin is Arduino DIO 9, chip pin 15.
+  pinMode(RED_LED_PIN, OUTPUT); // the red LED pin is Arduino DIO 8, chip pin 14.
 
   Serial.begin(38400);  // the LoRa device baud rate
   Serial.setTimeout(10);  // a full string is received after 10 ms of no new data from the LoRa device
@@ -87,13 +90,17 @@ void setup() {
   Serial.println("AT+MODE=1"); 
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
-    blinkLed(3);
+    blinkLed(RED_LED_PIN, 3);
     #endif
   }
- 
-  blinkLed(2);  // blink the LED to show that setup() is complete
+
+  // blink the LEDs to show that setup() is complete
+  blinkLed(GRN_LED_PIN, 2);
+  blinkLed(RED_LED_PIN, 2);
   
-  pinMode(LED_PIN, INPUT);  // change the LED pin for lowest power consumption while sleeping
+  // change the LED pins for lowest power consumption while sleeping
+  pinMode(GRN_LED_PIN, INPUT);  
+  pinMode(RED_LED_PIN, INPUT);
 
 } // end of setup()
 
@@ -123,7 +130,8 @@ void loop() {
   // Interrupt 0 wakes up the ATmega328 - send the message and go back to sleep
 
   #ifdef DEBUG
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(GRN_LED_PIN, OUTPUT);
+  pinMode(RED_LED_PIN, OUTPUT);
   #endif
   
   // wake up the LoRa module
@@ -133,7 +141,7 @@ void loop() {
   Serial.println("AT+MODE=0");    
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
-    blinkLed(1);
+    blinkLed(RED_LED_PIN, 1);
     #endif
   }
 
@@ -141,7 +149,7 @@ void loop() {
   Serial.println("AT+SEND=57248,28,HELLO m: 2 rssi: -21 snr: 11");  // just a dummy message for testing
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
-    blinkLed(2);
+    blinkLed(RED_LED_PIN, 2);
     #endif
   }
 
@@ -149,28 +157,30 @@ void loop() {
   Serial.println("AT+MODE=1");
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
-    blinkLed(3);
+    blinkLed(RED_LED_PIN, 3);
     #endif
   }
     
   // indicate that the message sending process is complete
   #ifdef DEBUG
-  blinkLed(5); 
+  blinkLed(GRN_LED_PIN, 5); 
   #endif
 
   #ifdef DEBUG
-  pinMode(LED_PIN, INPUT);  // set the LED_PIN to INPUT for the lowest power consumption when sleeping
+  // set the led pins to INPUT for the lowest power consumption when sleeping
+  pinMode(GRN_LED_PIN, INPUT);  // set the LED_PIN to INPUT for the lowest power consumption when sleeping
+  pinMode(RED_LED_PIN, INPUT);
   #endif
   
 } // end of loop()
 
-// blinkLed(): blinks the indicator LED "times" number of times
+// blinkLed(): blinks the indicated LED "times" number of times
 
-void blinkLed(int times) {
+void blinkLed(int ledpin, int times) {
   for(int i = 0; i < times; i++) {
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(ledpin, HIGH);
     delay(250);
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(ledpin, LOW);
     delay(250);
   }
   return;
