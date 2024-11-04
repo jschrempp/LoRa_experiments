@@ -7,14 +7,14 @@
  *  The interrupt used is interrupt 0, which is pin 2 on Arduino or pin 4 on
  *    the ATmega328.
  *    
- *  This is a low power test, based upon published workm by Nick Gammon (https://www.gammon.com.au/power). 
+ *  This is a low power test, based upon published work by Nick Gammon (https://www.gammon.com.au/power). 
  *  
- *  If the line "#define DEBUG" is not ocmmented out, the LED will flash out the status of LoRa command responses and also
+ *  If the line "#define DEBUG" is not ocmmented out, the LEDs will flash out the status of LoRa command responses and also
  *    indicate when the message is sent and the circuit is about to return to low power.  Normally, this line of code is 
- *    commented out, in which case the only use of the LED is to blink twice when setup() is complete.  The LoRa module
+ *    commented out, in which case the only use of the LEDs is to blink twice when setup() is complete.  The LoRa module
  *    is put into its sleep mode in setup().
  *    
- *    After setup(), the initial code in loop put the microcontroller itself to sleep.  When interrupted by a falling edge on
+ *    After setup(), the initial code in loop puts the microcontroller itself to sleep.  When interrupted by a falling edge on
  *    interrupt 0, the microcontroller wakes up.  Upon waking up, the microcontroller:
  *    - wakes up the LoRa module
  *    - sends out the contact closed LoRa message
@@ -25,18 +25,18 @@
  *    closed and generate a falling edge interrupt.
  *  
  *  HARDWARE SETUP:
- *    A 3.3 volt (nominal) power supply powers all electronics.  Note that the LoRa module consumes huge spikes in power, so
+ *    A 3 volt (nominal) power supply powers all electronics.  Note that the LoRa module consumes huge spikes in power, so
  *    good power and ground distribution as well as copious decoupling is essental for reliable hardware operation.
  *    
  *    WIRING:
  *    
  *      Power Connections.
  *    
- *    - Microcontroller pins 7 and 20 are connected to Vcc (3.3 volt supply)
+ *    - Microcontroller pins 7 and 20 are connected to Vcc (3 volt supply)
  *    - Microcontroller pins 8 and 22 are connected to GND
- *    - LoRa VDD pin is connected to Vcc (3.3 volt supply)
+ *    - LoRa VDD pin is connected to Vcc (3 volt supply)
  *    - LoRa GND pin is connected to GND
- *    - 74HC14 chip pin 14 is connected to Vcc (3.3 volt supply)
+ *    - 74HC14 chip pin 14 is connected to Vcc (3 volt supply)
  *    - 74HC14 chip pin 7 is connected to GND
  *    
  *      LoRa connections.
@@ -53,7 +53,7 @@
  *      
  *      - one end of the contact sensor is connected to GND
  *      - the other end of the contact sensor is connected to a 1 Mohm resistor.
- *      - the other end of the 1 Mohm resistor is connected to VCC (3.3 volt supply)
+ *      - the other end of the 1 Mohm resistor is connected to VCC (3 volt supply)
  *      - a 0.1 uF capacitor is connected across the contact sensor (between the sense line and GND)
  *      - the sense line (junction of contact sensor, 1 Mohm resistor and 0.1 uF capacitor) is connected to 74HC14 pin 1 (INV 1 input)
  *      - 74HC14 pin 2 is connected to 74HC14 pin 3 (INV 1 output to INV 2 input)
@@ -61,12 +61,15 @@
  *    
  *    version 1.10, by: Bob Glicksman, 11/03/24
  *      this version adds support for green and red LEDs
+ *    
+ *    version 1.20, by Bob Glicksman, 11/03/24
+ *      this version delays 500 ms after transmission before puting LoRa module to sleep
  *    (c) 2024, Bob Glicksman, Jim Schrempp, Team Practical Projects.  All rights reserved.
  */
 
 #include <avr/sleep.h>  // the official avr sleep library
 
-#define VERSION 1.10
+#define VERSION 1.20
 
 //#define DEBUG
 
@@ -152,6 +155,8 @@ void loop() {
     blinkLed(RED_LED_PIN, 2);
     #endif
   }
+
+  delay(500); // need to wait for xmit to complete before sleeping the LoRa module
 
   // put the LoRa module to sleep
   Serial.println("AT+MODE=1");
