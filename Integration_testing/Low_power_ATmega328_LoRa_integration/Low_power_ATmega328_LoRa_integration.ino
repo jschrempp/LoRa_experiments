@@ -71,7 +71,7 @@
 
 #define VERSION 1.20
 
-//#define DEBUG
+#define DEBUG
 
 // CONSTANTS
 const int BUTTON_PIN = 2; // the pushbutton is on digital pin 2 which is chip pin 4
@@ -156,7 +156,7 @@ void loop() {
     #endif
   }
 
-  delay(500); // need to wait for xmit to complete before sleeping the LoRa module
+  // delay(1); // need to wait for xmit to complete before sleeping the LoRa module
 
   // put the LoRa module to sleep
   Serial.println("AT+MODE=1");
