@@ -29,118 +29,111 @@
  */
 
 #include "Particle.h"
+#include "LoRa_common/tpp_LoRa.h"
 
 // The following system directives are for Particle devices.  Not needed for Arduino.
-SYSTEM_MODE(SEMI_AUTOMATIC);
 SYSTEM_THREAD(ENABLED);
+//SerialLogHandler logHandler(LOG_LEVEL_TRACE);
 
 #define VERSION 1.00
 #define STATION_NUM 1 // housekeeping; not used ini the code
 
-// function to send AT commands to the LoRa module
-// returns 0 if successful, -1 if not successful
-// prints message and result to the serial monitor
-int LoRaCommand(String command) {
-    Serial.println("");
-    Serial.println(command);
-    Serial1.println(command);
-    delay(50); // wait for the response
-    int retcode = 0;
-    if(Serial1.available()) {
-        String receivedData = Serial1.readString();
-        // received data has a newline at the end
-        Serial.print("received data = " + receivedData);
-        if(receivedData.indexOf("ERR") > 0) {
-            Serial.println("LoRa error");
-            retcode = -1;
-        } else {
-            Serial.println("command worked");
-            retcode = 0;
-        }
-    } else {
-        Serial.println("No response from LoRa");
-        retcode =  -1;
-    }
-    return retcode;
-};
+String NODATA = "NODATA";
+tpp_LoRa LoRa;
+
+
+void logToParticle(String message, String deviceNum, String payload, String SNRhub1, String RSSIHub1) {
+    // create a JSON string to send to the cloud
+    String data = "message=" + message
+        + "|deviceNum=" + deviceNum + "|payload=" + payload 
+        + "|SNRhub1=" + String(SNRhub1) + "|RSSIHub1=" + String(RSSIHub1);
+
+    Serial.println("cloudLogging:" + data);
+    long rtn = Particle.publish("LoRaHubLogging", data, PRIVATE);
+    Serial.println("cloudLogging return: " + String(rtn));
+}
 
 void setup() {
 
-  pinMode(D7, OUTPUT);
-  Serial.begin(9600); // the USB serial port 
-  Serial1.begin(115200);  // the LoRa device
-
-  // READ LoRa Settings
-    Serial.println("");
-    Serial.println("");
-    Serial.println("-----------------");
-    Serial.println("Reading back the settings");
-
-    bool error = false;
-    if(LoRaCommand("AT+NETWORKID?") != 0) {
-        Serial.println("error reading network id");
-        error = true;
-    }
-    if(LoRaCommand("AT+ADDRESS?") != 0) {
-        Serial.println("error reading device address");
-        error = true;
-    }
-    if(LoRaCommand("AT+PARAMETER?") != 0) {
-        Serial.println("error reading parameters");
-        error = true;
-    }
-
-    if(error) {
-        while(true){
-            blinkTimes(2, 100);
-        }
-    }
-
+    pinMode(D7, OUTPUT);
     digitalWrite(D7, HIGH);
-    delay(500);
+    Serial.begin(9600); // the USB serial port 
+    Serial1.begin(115200);  // the LoRa device
+
+    if (LoRa.initDevice(TPP_LORA_HUB_ADDRESS) != 0) {  // initialize the LoRa device
+        Serial.println("Error initializing LoRa device");
+        while(1) {blinkTimes(50);};
+        return;
+    }
+    
+    if (LoRa.readSettings() != 0) {
+        Serial.println("Error reading LoRa settings");
+        blinkTimes(50);
+        while(1) {blinkTimes(50);};
+        return;
+    }
+
+    Serial.println("Hub ready for testing ...");
+    Serial.print("waiting for data ...\n");
+
     digitalWrite(D7, LOW);
-    delay(1000);
-    Serial.println("Hub ready for testing .../n");
-    Serial.print("waiting for data ...");
 
 } // end of setup()
 
 
 void loop() {
 
-    String receivedData = "";  // string to hold the received LoRa dat
+    
+    static String receivedData = "";  // string to hold the received LoRa dat
 
     // wait for a message from the tester
-    if(Serial1.available()) { // data is in the Serial1 buffer
-        Serial.println("");
-        Serial.println("--------------------");
-        delay(5); // wait a bit for the complete message to have been received
-        receivedData = Serial1.readString();
-        Serial.println("received data = " + receivedData);
-
-        // test for received data from the hub (denoted by "+RCV")
-        if(receivedData.indexOf("HELLO") > 0) { // will be -1 if "HELLO" not in the string
-
-        digitalWrite(D7, HIGH);
-        Serial1.println("AT+SEND=0,6,TESTOK");
-        Serial.println("sent:  TESTOK");
-        digitalWrite(D7, LOW);
-
-        } else if(receivedData.indexOf("+OK") == 0) {
-            
-            Serial.println("received data is +OK");
-       
-        } else {
-
+    LoRa.checkForReceivedMessage();
+    switch (LoRa.receivedMessageState) {
+        case -1: // error
+            Serial.println("Error reading data from LoRa module");
+            Serial.println("Waiting for messages");
+            break;
+        case 0: // no message
+            break;
+        case 1: // message received
+            String logMessage = "";
+            String messageSent = "";
+            String deviceNum = LoRa.deviceNum;
             digitalWrite(D7, HIGH);
-            Serial.println("received data is not HELLO or +OK");
-            Serial1.println("AT+SEND=0,4,NOPE");
-            Serial.println("sent:  NOPE");
+            Serial.println("payload: " + LoRa.payload);
+
+            if(LoRa.payload.indexOf("HELLO") >= 0) { // will be -1 if "HELLO" not in the string
+
+                // HELLO is the message from our sensors
+                // send a message back to the sensor
+                if (LoRa.transmitMessage(deviceNum, "TESTOK") == 0) {
+                    Serial.println("sent TESTOK to sensor");
+                    logMessage = "TESTOK";
+                    messageSent = "TESTOK";
+                } else {
+                    Serial.println("error sending TESTOK to sensor");
+                    logMessage = "Send of TESTOK failed";
+                };
+
+            } else {
+
+                Serial.println("received data is not HELLO or +OK");
+                LoRa.transmitMessage(deviceNum, "NOPE");
+                logMessage = "NOPE";
+                messageSent = "NOPE";
+
+            } // end of if(receivedData.indexOf("HELLO") > 0)
+
+            // log the data to the cloud
+            Serial.println("sent message: " + messageSent);
+            logToParticle(logMessage, LoRa.deviceNum, LoRa.payload, LoRa.SNR, LoRa.RSSI);
+
             digitalWrite(D7, LOW);
+            Serial.println("Waiting for messages");
 
-        }
+            break;
+    } // end of switch
 
-    } 
 } // end of loop()
 
 void blinkTimes(int number) {
