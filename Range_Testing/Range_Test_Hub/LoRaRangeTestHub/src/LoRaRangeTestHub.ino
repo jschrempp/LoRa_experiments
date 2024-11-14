@@ -58,9 +58,12 @@ void setup() {
     pinMode(D7, OUTPUT);
     digitalWrite(D7, HIGH);
     Serial.begin(9600); // the USB serial port 
-    Serial1.begin(115200);  // the LoRa device
+    Serial1.begin(38400); // (115200);  // the LoRa device
 
-    if (LoRa.initDevice(TPP_LORA_HUB_ADDRESS) != 0) {  // initialize the LoRa device
+    waitUntil(Particle.connected);  // wait for the cloud to connect
+    Serial.println("Hub version: " + String(VERSION));
+
+    if (LoRa.initDevice(TPP_LORA_HUB_ADDRESS) != 0) {  // initialize the LoRa device 
         Serial.println("Error initializing LoRa device");
         while(1) {blinkTimes(50);};
         return;
