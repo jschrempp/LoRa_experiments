@@ -60,7 +60,7 @@ void setup() {
     pinMode(D7, OUTPUT);
     digitalWrite(D7, HIGH);
     Serial.begin(9600); // the USB serial port 
-    Serial1.begin(115200);  // the LoRa device
+    Serial1.begin(38400);  // the LoRa device
 
     if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
         Serial.println("error initializing LoRa device - Stopping");

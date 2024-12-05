@@ -22,16 +22,16 @@
 
 #define LoRaNETWORK_NUM 18
 
-#define LoRaBANDWIDTH 9         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range but requires better
+#define LoRaBANDWIDTH 7         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range but requires better
                                 // frequency stability between the two devices
 
-#define LoRaSPREADING_FACTOR 11  // default 9;  7 - 11  larger is better for range but slower
+#define LoRaSPREADING_FACTOR 9  // default 9;  7 - 11  larger is better for range but slower
                                 // SF7 - SF9 at 125kHz, SF7 - SF10 at 250kHz, and SF7 - SF11 at 500kHz
 
 #define LoRaCODING_RATE 1       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] This can result in
                                 // small signal gains at the limit of reception, but more symbols are sent for each character.
 
-#define LoRaPREAMBLE 24         // 12 max unless network number is 18; 
+#define LoRaPREAMBLE 12         // 12 max unless network number is 18; 
 
 // class for the LoRa module
 class tpp_LoRa
@@ -40,7 +40,11 @@ private:
     /* data */
     void clearClassVariabels();
 
+    String LoRaStringBuffer;
+
 public:
+    // Do some class initialization stuff
+    void begin();
     
     // Initialize the LoRa module with settings found in the tpp_LoRa.h file
     bool initDevice(int devAddress);
@@ -57,12 +61,12 @@ public:
     // function to send AT commands to the LoRa module
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
-    int sendCommand(String command);
+    int sendCommand(const String& command);
 
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
-    int transmitMessage(String devAddress, String message);
+    int transmitMessage(const String& devAddress, const String& message);
 
     int receivedMessageState = 0; // 0 = no message, 1 = message received, -1 = error
     String UID = "";
