@@ -55,25 +55,38 @@ SerialLogHandler logHandler(LOG_LEVEL_INFO);
 
 tpp_LoRa LoRa; // create an instance of the LoRa class
 
+// module global scope for mimimal string memboery allocation
+String mglastRSSI;
+String mglastSNR;
+String mgpayload;
+
 void setup() {
+
     pinMode(D0, INPUT_PULLUP);
     pinMode(D7, OUTPUT);
     digitalWrite(D7, HIGH);
+
+    mglastRSSI.reserve(5);
+    mglastSNR.reserve(5);
+    mgpayload.reserve(50);
+
+    LoRa.begin();  // initialize the LoRa class
+
     Serial.begin(9600); // the USB serial port 
     Serial1.begin(38400);  // the LoRa device
 
     if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
-        Serial.println("error initializing LoRa device - Stopping");
-        Serial.println("hint: did you change the LoRaSensorAddress?");
+        Serial.println(F("error initializing LoRa device - Stopping"));
+        Serial.println(F("hint: did you change the LoRaSensorAddress?"));
         while(1) {blinkTimes(50);};
     }; 
 
     if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
-        Serial.println("error reading LoRa settings - Stopping");
+        Serial.println(F("error reading LoRa settings - Stopping"));
         while(1) {blinkTimes(50);};
     }; 
     
-    Serial.println("Sensor ready for testing ...\n" );    
+    Serial.println(F("Sensor ready for testing ...\n" ));    
     digitalWrite(D7, LOW);
 
 } // end of setup()
@@ -81,33 +94,39 @@ void setup() {
 
 void loop() {
 
-    String receivedData = "";  // string to hold the received LoRa data
-    String cmd = "";  // string to hold the command to send to the LoRa
     static bool awaitingResponse = false; // when waiting for a response from the hub
     static unsigned long startTime = 0;
-    static String lastRSSI = "";
-    static String lastSNR = "";
     static int msgNum = 0;
 
   // test for button to be pressed and no transmission in progress
     if(digitalRead(D0) == LOW && !awaitingResponse) { // button press detected
         digitalWrite(D7, HIGH);
-        Serial.println("");
-        Serial.println("--------------------");
+        Serial.println(F("\n\r--------------------"));
         msgNum++;
-        String payload = "";
+        mgpayload = F("");
         switch (msgNum) {
             case 1:
-                payload = "HELLO m: " + String(msgNum) + " uid: " + LoRa.UID;
+                mgpayload = F("HELLO m: ");
+                mgpayload += String(msgNum);
+                mgpayload += F(" uid: ");
+                mgpayload += LoRa.UID;
                 break;
             case 2:
-                payload = "HELLO m: " + String(msgNum) + " p: " + LoRa.parameters;
+                mgpayload = F("HELLO m: ");
+                mgpayload += String(msgNum);
+                mgpayload += F(" p: ");
+                mgpayload += LoRa.parameters;
                 break;
             default:
-                payload = "HELLO m: " + String(msgNum) + " rssi: " + lastRSSI + " snr: " + lastSNR;
+                mgpayload = F("HELLO m: ");
+                mgpayload += String(msgNum);
+                mgpayload += F(" rssi: ");
+                mgpayload += mglastRSSI;
+                mgpayload += F(" snr: ");
+                mgpayload += mglastSNR;
                 break;
         }
-        LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), payload);
+        LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), mgpayload);
         awaitingResponse = true;
         startTime = millis();
         digitalWrite(D7, LOW);
@@ -119,37 +138,37 @@ void loop() {
         if (millis() - startTime > 5000 ) { // wait 5 seconds for a response from the hub
             awaitingResponse = false;  // timed out
             blinkTimes(1);
-            Serial.println("timeout waiting for hub response");
+            Serial.println(F("timeout waiting for hub response"));
         }
         LoRa.checkForReceivedMessage();
         switch (LoRa.receivedMessageState) {
             case -1: // error
                 awaitingResponse = false;  // error
                 blinkTimes(7);
-                Serial.println("error while waiting for response");
+                Serial.println(F("error while waiting for response"));
                 break;
             case 0: // no message
                 delay(5); // wait a little while before checking again
                 break;
             case 1: // message received
-                Serial.println("received data = " + LoRa.receivedData);
-                lastRSSI = LoRa.RSSI;
-                lastSNR = LoRa.SNR;
+                Serial.println(F("received data = " + LoRa.receivedData));
+                mglastRSSI = LoRa.RSSI;
+                mglastSNR = LoRa.SNR;
 
                 // test for received data from the hub (denoted by "+RCV")
-                if(LoRa.receivedData.indexOf("+RCV") >= 0) { // will be -1 of "+RCV" not in the string
+                if(LoRa.receivedData.indexOf(F("+RCV")) >= 0) { // will be -1 of "+RCV" not in the string
                     
                     awaitingResponse = false; // we got a response
-                    Serial.println("response received");
+                    Serial.println(F("response received"));
 
-                    if (LoRa.receivedData.indexOf("TESTOK") >= 0) {
-                        Serial.println("response is TESTOK");
+                    if (LoRa.receivedData.indexOf(F("TESTOK")) >= 0) {
+                        Serial.println(F("response is TESTOK"));
                         blinkTimes(3, 150);
-                    } else if (LoRa.receivedData.indexOf("NOPE") >= 0) {
-                        Serial.println("response is NOPE");
+                    } else if (LoRa.receivedData.indexOf(F("NOPE")) >= 0) {
+                        Serial.println(F("response is NOPE"));
                         blinkTimes(4);
                     } else {
-                        Serial.println("response is unrecognized");
+                        Serial.println(F("response is unrecognized"));
                         blinkTimes(5);
                     }
                 } 
