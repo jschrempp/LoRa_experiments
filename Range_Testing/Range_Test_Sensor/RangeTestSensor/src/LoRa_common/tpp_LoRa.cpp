@@ -163,10 +163,10 @@ bool tpp_LoRa::readSettings() {
                     debugPrintln(F("error reading parameters"));
                     error = true;
                 } else {
-                    // replace commas with backslashes in the parameters string
-                    parameters = receivedData.trim();
-                    parameters.replace(",", ":");
-                    parameters = "[" + parameters + "]";
+                    // replace commas with colons in the parameters string
+                    parameters = F("[");
+                    parameters += receivedData.trim().replace(F(","), F(":"));
+                    parameters += F("]");
                 }
             }
         }
