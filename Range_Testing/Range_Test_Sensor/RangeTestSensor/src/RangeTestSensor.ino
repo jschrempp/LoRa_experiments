@@ -32,12 +32,18 @@
  * version 1.0; 4/25/24
  */
 
-#include "Particle.h"
-#include "LoRa_common/tpp_LoRa.h"
+#include "tpp_LoRaGlobals.h"
+
+#include "tpp_loRa.h" // include the LoRa class
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
-SYSTEM_MODE(SEMI_AUTOMATIC);
-SYSTEM_THREAD(ENABLED);
+#if PARTICLEPHOTON
+    SYSTEM_MODE(SEMI_AUTOMATIC);
+    SYSTEM_THREAD(ENABLED);
+    // Show system, cloud connectivity, and application logs over USB
+    // View logs with CLI using 'particle serial monitor --follow'
+    SerialLogHandler logHandler(LOG_LEVEL_INFO);
+#endif
 
 #define VERSION 1.00
 #define STATION_NUM 0 // housekeeping; not used ini the code
@@ -48,46 +54,84 @@ SYSTEM_THREAD(ENABLED);
 //#define THIS_LORA_SENSOR_ADDRESS 12648 // the address of the sensor LoRaSensor
 //#define THIS_LORA_SENSOR_ADDRESS 11139 // the address of the sensor  lora3
 
-
-// Show system, cloud connectivity, and application logs over USB
-// View logs with CLI using 'particle serial monitor --follow'
-SerialLogHandler logHandler(LOG_LEVEL_INFO);
-
 tpp_LoRa LoRa; // create an instance of the LoRa class
 
 // module global scope for mimimal string memboery allocation
 String mglastRSSI;
 String mglastSNR;
 String mgpayload;
+String mgTemp;
+
+// all debug prints through here so it can be disabled when ATmega328 is used
+void debugPrintln(const String& message) {
+    #if PARTICLEPHOTON
+        String tempString = F("tpp_LoRa: ");
+        tempString += message;
+        DEBUG_SERIAL.println(tempString);
+    #endif
+}
+
+// blinkLED(): blinks the indicated LED "times" number of times
+void blinkLED(int ledpin, int number, int delayTimeMS) {
+    for(int i = 0; i < number; i++) {
+        digitalWrite(ledpin, HIGH);
+        delay(delayTimeMS);
+        digitalWrite(ledpin, LOW);
+        delay(delayTimeMS);
+    }
+    return;
+} // end of blinkLED()
 
 void setup() {
 
-    pinMode(D0, INPUT_PULLUP);
-    pinMode(D7, OUTPUT);
-    digitalWrite(D7, HIGH);
+    if (PARTICLEPHOTON) {
+        pinMode(BUTTON_PIN, INPUT_PULLUP);
+    } else {
+        pinMode(BUTTON_PIN, INPUT);
+    }                                 
+    pinMode(GRN_LED_PIN, OUTPUT); 
+    pinMode(RED_LED_PIN, OUTPUT); 
+
+    digitalWrite(GRN_LED_PIN, HIGH);
+    digitalWrite(RED_LED_PIN, HIGH);
 
     mglastRSSI.reserve(5);
     mglastSNR.reserve(5);
     mgpayload.reserve(50);
+    mgTemp.reserve(50);
 
-    LoRa.begin();  // initialize the LoRa class
+    #if PARTICLEPHOTON
+        DEBUG_SERIAL.begin(9600); // the USB serial port
+    #else
+        // ATMega328 has only one serial port, so no debug serial port
+    #endif
 
-    Serial.begin(9600); // the USB serial port 
-    Serial1.begin(38400);  // the LoRa device
+    int err = LoRa.begin();  // initialize the LoRa class
+    if (err) {
+        if (PARTICLEPHOTON) {
+            debugPrintln(F("error initializing LoRa device - Stopping"));
+        }
+        while(1) {blinkLED(RED_LED_PIN, 500, 20);};
+    }
 
-    if (LoRa.initDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
-        Serial.println(F("error initializing LoRa device - Stopping"));
-        Serial.println(F("hint: did you change the LoRaSensorAddress?"));
-        while(1) {blinkTimes(50);};
-    }; 
 
-    if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
-        Serial.println(F("error reading LoRa settings - Stopping"));
-        while(1) {blinkTimes(50);};
-    }; 
+    if (PARTICLEPHOTON) {
+        if (LoRa.configDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
+                debugPrintln(F("error configuring LoRa device - Stopping"));
+                debugPrintln(F("hint: did you set THIS_LORA_SENSOR_ADDRESS?"));
+            while(1) {blinkLED(RED_LED_PIN, 500, 50);};
+        }; 
+
+        if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
+            debugPrintln(F("error reading LoRa settings - Stopping"));
+            while(1) {blinkLED(RED_LED_PIN, 500, 75);};
+        }; 
+    }
     
-    Serial.println(F("Sensor ready for testing ...\n" ));    
-    digitalWrite(D7, LOW);
+    debugPrintln(F("Sensor ready for testing ...\n" ));   
+    
+    digitalWrite(GRN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
 
 } // end of setup()
 
@@ -99,9 +143,9 @@ void loop() {
     static int msgNum = 0;
 
   // test for button to be pressed and no transmission in progress
-    if(digitalRead(D0) == LOW && !awaitingResponse) { // button press detected
-        digitalWrite(D7, HIGH);
-        Serial.println(F("\n\r--------------------"));
+    if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
+        digitalWrite(GRN_LED_PIN, HIGH);
+        debugPrintln(F("\n\r--------------------")); 
         msgNum++;
         mgpayload = F("");
         switch (msgNum) {
@@ -129,7 +173,7 @@ void loop() {
         LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), mgpayload);
         awaitingResponse = true;
         startTime = millis();
-        digitalWrite(D7, LOW);
+        digitalWrite(GRN_LED_PIN, LOW);
     }
 
 
@@ -137,21 +181,23 @@ void loop() {
 
         if (millis() - startTime > 5000 ) { // wait 5 seconds for a response from the hub
             awaitingResponse = false;  // timed out
-            blinkTimes(1);
-            Serial.println(F("timeout waiting for hub response"));
+            blinkLED(RED_LED_PIN, 1, 250);
+            debugPrintln(F("timeout waiting for hub response"));
         }
         LoRa.checkForReceivedMessage();
         switch (LoRa.receivedMessageState) {
             case -1: // error
                 awaitingResponse = false;  // error
-                blinkTimes(7);
-                Serial.println(F("error while waiting for response"));
+                blinkLED(RED_LED_PIN, 7, 250);
+                debugPrintln(F("error while waiting for response"));
                 break;
             case 0: // no message
                 delay(5); // wait a little while before checking again
                 break;
             case 1: // message received
-                Serial.println(F("received data = " + LoRa.receivedData));
+                mgTemp = F("received data = ");
+                mgTemp += LoRa.receivedData;
+                debugPrintln(mgTemp);
                 mglastRSSI = LoRa.RSSI;
                 mglastSNR = LoRa.SNR;
 
@@ -159,17 +205,17 @@ void loop() {
                 if(LoRa.receivedData.indexOf(F("+RCV")) >= 0) { // will be -1 of "+RCV" not in the string
                     
                     awaitingResponse = false; // we got a response
-                    Serial.println(F("response received"));
+                    debugPrintln(F("response received"));
 
                     if (LoRa.receivedData.indexOf(F("TESTOK")) >= 0) {
-                        Serial.println(F("response is TESTOK"));
-                        blinkTimes(3, 150);
+                        debugPrintln(F("response is TESTOK"));
+                        blinkLED(GRN_LED_PIN, 3, 150);
                     } else if (LoRa.receivedData.indexOf(F("NOPE")) >= 0) {
-                        Serial.println(F("response is NOPE"));
-                        blinkTimes(4);
+                        debugPrintln(F("response is NOPE"));
+                        blinkLED(GRN_LED_PIN, 4, 250);
                     } else {
-                        Serial.println(F("response is unrecognized"));
-                        blinkTimes(5);
+                        debugPrintln(F("response is unrecognized"));
+                        blinkLED(RED_LED_PIN, 5, 250);
                     }
                 } 
                 break;
@@ -183,16 +229,3 @@ void loop() {
 
 } // end of loop()
 
-void blinkTimes(int number) {
-    blinkTimes(number, 250);
-}
-
-void blinkTimes(int number, int delayTimeMS) {
-    for(int i = 0; i < number; i++) {
-        digitalWrite(D7, HIGH);
-        delay(delayTimeMS);
-        digitalWrite(D7, LOW);
-        delay(delayTimeMS);
-    }
-    return;
-} // end of blinkTimes()

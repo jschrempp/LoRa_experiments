@@ -5,27 +5,34 @@
 
 */
 
-#include "Particle.h"
+//xxx #include "Particle.h"
 #include "tpp_LoRa.h"
 
-#define TPP_LORA_DEBUG 1
+#define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
 
 bool mg_LoRaBusy = false;
 
-void debugPrint(const String& message) {
-    if(TPP_LORA_DEBUG) {
-        Serial.print(F("tpp_LoRa: ") + message);
-    }
+String tempString; // xxx
+
+
+void tpp_LoRa::debugPrint(const String& message) {
+    #if TPP_LORA_DEBUG 
+        tempString = F("tpp_LoRa: ");
+        tempString += message;
+        Serial.print(tempString);
+    #endif
 }
-void debugPrintNoHeader(const String& message) {
-    if(TPP_LORA_DEBUG) {
+void tpp_LoRa::debugPrintNoHeader(const String& message) {
+    #if TPP_LORA_DEBUG
         Serial.print(message);
-    }
+    #endif
 }
-void debugPrintln(const String& message) {
-    if(TPP_LORA_DEBUG) {
-        Serial.println(F("tpp_LoRa: ") + message);
-    }
+void tpp_LoRa::debugPrintln(const String& message) {
+    #if TPP_LORA_DEBUG
+        tempString = F("tpp_LoRa: ");
+        tempString += message;
+        Serial.println(tempString);
+    #endif
 }
 
 void tpp_LoRa::clearClassVariabels() {
@@ -40,7 +47,8 @@ void tpp_LoRa::clearClassVariabels() {
 }   
 
 // Do some class initialization stuff
-void tpp_LoRa::begin() {
+// and make sure LoRa will respond
+int tpp_LoRa::begin() {
     LoRaStringBuffer.reserve(200);  // reserve some space for the LoRa string buffer so it is not constantly reallocating
     UID.reserve(5);
     parameters.reserve(50);
@@ -51,73 +59,77 @@ void tpp_LoRa::begin() {
     RSSI.reserve(5);
     SNR.reserve(5);
     clearClassVariabels();
-}
+    tempString.reserve(50); // xxx
 
-
-// Initialize the LoRa module with settings 
-// rtn True if successful
-
-bool tpp_LoRa::initDevice(int deviceAddress) {
+    LORA_SERIAL.begin(38400);
 
     bool error = false;
-
     // check that LoRa is ready
     LoRaStringBuffer = F("AT");
     if(sendCommand(LoRaStringBuffer) != 0) {
         debugPrintln(F("LoRa reply bad, trying again"));
+        delay(1000);
 
         if(sendCommand(LoRaStringBuffer) != 0) { // try again for photon 1
             debugPrintln(F("LoRa is not ready"));
             error = true;
         } 
     }
-    
-    if(!error) {
 
-        debugPrintln(F("LoRa is ready"));
+    return error;
 
-        LoRaStringBuffer = F("AT+NETWORKID=");
-        LoRaStringBuffer += String(LoRaNETWORK_NUM);
-        // Set the network number
+}
+
+
+// Configure the LoRa module with settings 
+// rtn True if successful
+
+bool tpp_LoRa::configDevice(int deviceAddress) {
+
+    debugPrintln(F("LoRa is ready"));
+    bool error = false;
+
+    LoRaStringBuffer = F("AT+NETWORKID=");
+    LoRaStringBuffer += String(LoRaNETWORK_NUM);
+    // Set the network number
+    if(sendCommand(LoRaStringBuffer) != 0) {
+            debugPrintln(F("Network ID not set"));
+            error = true;
+    } else {
+        LoRaStringBuffer = F("AT+ADDRESS=");
+        LoRaStringBuffer += String(deviceAddress);
         if(sendCommand(LoRaStringBuffer) != 0) {
-                debugPrintln(F("Network ID not set"));
-                error = true;
+            debugPrintln(F("Device number not set"));
+            error = true;
         } else {
-            LoRaStringBuffer = F("AT+ADDRESS=");
-            LoRaStringBuffer += String(deviceAddress);
+            LoRaStringBuffer = F("AT+PARAMETER=");
+            LoRaStringBuffer += String(LoRaSPREADING_FACTOR);
+            LoRaStringBuffer += F(",");
+            LoRaStringBuffer += String(LoRaBANDWIDTH);
+            LoRaStringBuffer += F(",");
+            LoRaStringBuffer += String(LoRaCODING_RATE);
+            LoRaStringBuffer += F(",");
+            LoRaStringBuffer += String(LoRaPREAMBLE);
             if(sendCommand(LoRaStringBuffer) != 0) {
-                debugPrintln(F("Device number not set"));
+                debugPrintln(F("Parameters not set"));
                 error = true;
-            } else {
-                LoRaStringBuffer = F("AT+PARAMETER=");
-                LoRaStringBuffer += String(LoRaSPREADING_FACTOR);
-                LoRaStringBuffer += F(",");
-                LoRaStringBuffer += String(LoRaBANDWIDTH);
-                LoRaStringBuffer += F(",");
-                LoRaStringBuffer += String(LoRaCODING_RATE);
-                LoRaStringBuffer += F(",");
-                LoRaStringBuffer += String(LoRaPREAMBLE);
-                if(sendCommand(LoRaStringBuffer) != 0) {
-                    debugPrintln(F("Parameters not set"));
+            } else  {
+                LoRaStringBuffer = F("AT+MODE=0");
+                if (sendCommand(LoRaStringBuffer) != 0) {
+                    debugPrintln(F("Tranciever mode not set"));
                     error = true;
-                } else  {
-                    LoRaStringBuffer = F("AT+MODE=0");
-                    if (sendCommand(LoRaStringBuffer) != 0) {
-                        debugPrintln(F("Tranciever mode not set"));
+                } else {
+                    LoRaStringBuffer = F("AT+BAND=915000000");
+                        if (sendCommand(LoRaStringBuffer) != 0) {
+                        debugPrintln(F("Band not set"));
                         error = true;
-                    } else {
-                        LoRaStringBuffer = F("AT+BAND=915000000");
-                         if (sendCommand(LoRaStringBuffer) != 0) {
-                            debugPrintln(F("Band not set"));
+                    } else { 
+                        LoRaStringBuffer = F("AT+CRFOP=22");
+                        if (sendCommand(LoRaStringBuffer) != 0) {
+                            debugPrintln(F("Power not set"));
                             error = true;
-                        } else { 
-                            LoRaStringBuffer = F("AT+CRFOP=22");
-                            if (sendCommand(LoRaStringBuffer) != 0) {
-                                debugPrintln(F("Power not set"));
-                                error = true;
-                            } else {
-                                debugPrintln(F("LoRo module is initialized"));
-                            }
+                        } else {
+                            debugPrintln(F("LoRo module is initialized"));
                         }
                     }
                 }
@@ -144,7 +156,8 @@ bool tpp_LoRa::readSettings() {
         debugPrintln(F("error reading UID"));
         error = true;
     } else {
-        UID = receivedData.substring(5, receivedData.length()).trim();
+        UID = receivedData.substring(5, receivedData.length());
+        UID.trim();
     }
     
     if(sendCommand(F("AT+CRFOP?")) != 0) {
@@ -164,9 +177,12 @@ bool tpp_LoRa::readSettings() {
                     error = true;
                 } else {
                     // replace commas with colons in the parameters string
-                    parameters = F("[");
-                    parameters += receivedData.trim().replace(F(","), F(":"));
-                    parameters += F("]");
+                    tempString = F("[");
+                    parameters.replace(F(","), F(":"));
+                    parameters.trim();  // xxx
+                    tempString += parameters;
+                    tempString += F("]");
+                    parameters = tempString;
                 }
             }
         }
@@ -187,14 +203,16 @@ int tpp_LoRa::sendCommand(const String& command) {
     mg_LoRaBusy = true;
 
     int retcode = 0;
-    system_tick_t timeoutMS = 1000;
+    unsigned int timeoutMS = 1000; // xxx
     receivedData = "";
 
-    debugPrintln(F("\n\rcmd: ") + command);
+    tempString = F("\n\rcmd: ");
+    tempString += command;
+    debugPrintln(tempString);
     LORA_SERIAL.println(command);
     
     // wait for data available, which should be +OK or +ERR
-    system_tick_t starttimeMS = millis();
+    unsigned int starttimeMS = millis();  // xxx
     int dataAvailable = 0;
     debugPrint(F("waiting "));
     do {
@@ -208,10 +226,13 @@ int tpp_LoRa::sendCommand(const String& command) {
 
     // Get the response if there is one
     if(dataAvailable > 0) {
+
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
         receivedData.trim();
-        debugPrintln(F("received data = ") + receivedData);
+        tempString = F("received data = ");
+        tempString += receivedData;
+        debugPrintln(tempString);
         if(receivedData.indexOf(F("+ERR")) >= 0) {
             debugPrintln(F("LoRa error"));
             retcode = 1;
@@ -265,7 +286,9 @@ void tpp_LoRa::checkForReceivedMessage() {
         receivedData = LORA_SERIAL.readString();
         // received data has a newline at the end
         receivedData.trim();
-        debugPrintln(F("received data = ") + receivedData);
+        tempString = F("received data = ");
+        tempString += receivedData;
+        debugPrintln(tempString);
 
         if ((receivedData.indexOf(F("+OK")) == 0) && receivedData.length() == 3) {
 
@@ -286,7 +309,7 @@ void tpp_LoRa::checkForReceivedMessage() {
 
                 // find first comma
                 for(unsigned int i = 0; i < receivedData.length(); i++) {
-                    if(receivedData.charAt(i) == F(',')) {   
+                    if(receivedData.charAt(i) == ',') {   
                         commas[0] = i;
                         break;
                     }
@@ -295,7 +318,7 @@ void tpp_LoRa::checkForReceivedMessage() {
                 // find other commas from the end to the front
                 int commaCount = 5;
                 for(unsigned int i = receivedData.length()-1; i >= commas[0]; i--) {
-                    if(receivedData.charAt(i) == F(',')) {
+                    if(receivedData.charAt(i) == ',') {
                         commaCount--;
                         if (commaCount < 1) {
                             // should never happen
@@ -339,5 +362,7 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     return;
 }
+
+
 
 

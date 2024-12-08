@@ -14,11 +14,24 @@
 #ifndef tpp_LoRa_h 
 #define tpp_LoRa_h
 
+#include <arduino.h> // xxx
+#include "tpp_LoRaGlobals.h"
+
 #define VERSION 1.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 
-#define LORA_SERIAL Serial1
+
+#if PARTICLEPHOTON
+    #include "Particle.h"
+    #define LORA_SERIAL Serial1
+    #define DebugSerial Serial
+#else
+    #include "arduino.h" // xxx
+    // ATMega328 has only one serial port, so no debug serial port
+    #define LORA_SERIAL Serial
+#endif
+
 
 #define LoRaNETWORK_NUM 18
 
@@ -39,6 +52,7 @@ class tpp_LoRa
 private:
     /* data */
     void clearClassVariabels();
+    void blinkLED(int ledpin, int number, int delayTimeMS) ;
 
     String LoRaStringBuffer;
 
@@ -47,12 +61,17 @@ private:
     // prints message and result to the serial monitor
     int sendCommand(const String& command);
 
+    void debugPrint(const String& message);
+    void debugPrintNoHeader(const String& message);
+    void debugPrintln(const String& message);
+
 public:
     // Do some class initialization stuff
-    void begin();
+    // and test communication to the LoRa
+    int begin();
     
     // Initialize the LoRa module with settings found in the tpp_LoRa.h file
-    bool initDevice(int devAddress);
+    bool configDevice(int devAddress);
 
     // Read current settings and print them to the serial monitor
     //  If error then return false
