@@ -2,9 +2,12 @@
     "extensions.ignoreRecommendations": true,
     "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
     "files.associations": {
-        "*.ino": "cpp"
+        "*.ino": "cpp",
+        "__locale": "cpp",
+        "ostream": "cpp",
+        "print": "cpp"
     },
-    "particle.targetDevice": "Dryer",
-    "particle.firmwareVersion": "3.3.0",
-    "particle.targetPlatform": "photon"
+    "particle.targetDevice": "LoRaSensor",
+    "particle.firmwareVersion": "5.8.0",
+    "particle.targetPlatform": "p2"
 }

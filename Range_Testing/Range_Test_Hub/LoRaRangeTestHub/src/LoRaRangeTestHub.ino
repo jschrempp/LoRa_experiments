@@ -38,6 +38,9 @@ SYSTEM_THREAD(ENABLED);
 #define VERSION 1.00
 #define STATION_NUM 1 // housekeeping; not used ini the code
 
+const int DEBUG_LED_PIN = D7;
+const int LORA_ADDRESS_PIN = D0;
+
 String NODATA = "NODATA";
 tpp_LoRa LoRa;
 
@@ -55,12 +58,23 @@ void logToParticle(String message, String deviceNum, String payload, String SNRh
 
 void setup() {
 
-    pinMode(D7, OUTPUT);
+    pinMode(DEBUG_LED_PIN, OUTPUT); // control the onboard LED
+    pinMode(LORA_ADDRESS_PIN, INPUT_PULLUP); // used to set LoRa address on boot
+
     digitalWrite(D7, HIGH);
     Serial.begin(9600); // the USB serial port 
-    Serial1.begin(115200);  // the LoRa device
+    Serial1.begin(38400); // (115200);  // the LoRa device
 
-    if (LoRa.initDevice(TPP_LORA_HUB_ADDRESS) != 0) {  // initialize the LoRa device
+    waitUntil(Particle.connected);  // wait for the cloud to connect
+    Serial.println("Hub version: " + String(VERSION));
+
+    int addressForLoRa = TPP_LORA_HUB_ADDRESS;
+    int setAddressForHub = digitalRead(LORA_ADDRESS_PIN);
+    if (setAddressForHub == LOW) {
+        addressForLoRa = (rand() % 10) + 1;  // D0 is low, so set the address to 1
+    } 
+
+    if (LoRa.initDevice(addressForLoRa) != 0) {  // initialize the LoRa device 
         Serial.println("Error initializing LoRa device");
         while(1) {blinkTimes(50);};
         return;
@@ -76,7 +90,7 @@ void setup() {
     Serial.println("Hub ready for testing ...");
     Serial.print("waiting for data ...\n");
 
-    digitalWrite(D7, LOW);
+    digitalWrite(DEBUG_LED_PIN, LOW);
 
 } // end of setup()
 
@@ -99,7 +113,7 @@ void loop() {
             String logMessage = "";
             String messageSent = "";
             String deviceNum = LoRa.deviceNum;
-            digitalWrite(D7, HIGH);
+            digitalWrite(DEBUG_LED_PIN, HIGH);
             Serial.println("payload: " + LoRa.payload);
 
             if(LoRa.payload.indexOf("HELLO") >= 0) { // will be -1 if "HELLO" not in the string
@@ -128,7 +142,7 @@ void loop() {
             Serial.println("sent message: " + messageSent);
             logToParticle(logMessage, LoRa.deviceNum, LoRa.payload, LoRa.SNR, LoRa.RSSI);
 
-            digitalWrite(D7, LOW);
+            digitalWrite(DEBUG_LED_PIN, LOW);
             Serial.println("Waiting for messages");
 
             break;
@@ -142,9 +156,9 @@ void blinkTimes(int number) {
 
 void blinkTimes(int number, int delayTimeMS) {
     for(int i = 0; i < number; i++) {
-        digitalWrite(D7, HIGH);
+        digitalWrite(DEBUG_LED_PIN, HIGH);
         delay(delayTimeMS);
-        digitalWrite(D7, LOW);
+        digitalWrite(DEBUG_LED_PIN, LOW);
         delay(delayTimeMS);
     }
     return;
