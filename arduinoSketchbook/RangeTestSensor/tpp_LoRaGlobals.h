@@ -1,8 +1,10 @@
-#ifndef tpp_LoRaGlobals_h 
+#ifndef tpp_LoRaGlobals_h
 #define tpp_LoRaGlobals_h
 
 
-//#define PARTICLEPHOTON 1
+// #define PARTICLEPHOTON 1		// this line should be removed and replaced with the next line or the one after
+// #define PARTICLEPHOTON true
+#define PARTICLEPHOTON false
 
 
 #if PARTICLEPHOTON
@@ -11,7 +13,7 @@
     // CONSTANTS  // xxx
     const int BUTTON_PIN = D0;   // the pushbutton is on digital pin 2 which is chip pin 4
     const int GRN_LED_PIN = D7;  // the Green LED is on digital pin 7 which is the onboard LED
-    const int RED_LED_PIN = D8;  // the Red LED is on digital pin 8 
+    const int RED_LED_PIN = D8;  // the Red LED is on digital pin 8
 #else
     #include "arduino.h" // xxx
     // ATMega328 has only one serial port, so no debug serial port
