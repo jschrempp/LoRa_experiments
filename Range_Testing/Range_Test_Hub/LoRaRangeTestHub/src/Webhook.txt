@@ -1,0 +1,9 @@
+{
+    "name": "LoRaHubLogging",
+    "event": "LoRaHubLogging",
+    "template": "google-sheets",
+    "url": "https://script.google.com/<<Your app here>>/exec",
+    "requestType": "POST",
+    "noDefaults": false,
+    "rejectUnauthorized": true
+}
