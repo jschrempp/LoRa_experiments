@@ -43,6 +43,7 @@ private:
     void blinkLED(int ledpin, int number, int delayTimeMS) ;
 
     String LoRaStringBuffer;
+    int isLoRaAwake = true; // true = awake, false = asleep
 
     // function to send AT commands to the LoRa module
     // returns 0 if successful, 1 if error, -1 if no response
@@ -76,9 +77,14 @@ public:
     int transmitMessage(const String& devAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
 
-    // xxx add lora power down function
-    // xxx add lora power up function
-    // xxx in other calls implicitly power up the lora module if needed
+    // function puts LoRa to sleep. LoRa will awaken when sent
+    // a command.  Returns 0 if successful, 1 if error
+    int sleep();
+
+    // function to wake up the LoRa module from a low power sleep
+    // returns 0 if successful, 1 if error
+    // called implicitly by other methods when needed
+    int wake();
     
     // xxx review all these to see what we really need in ATmega and can these be ints instead of strings
     int receivedMessageState = 0; // 0 = no message, 1 = message received, -1 = error

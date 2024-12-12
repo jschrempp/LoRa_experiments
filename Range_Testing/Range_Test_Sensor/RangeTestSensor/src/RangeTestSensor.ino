@@ -150,6 +150,8 @@ void setup() {
 
     }
     
+    LoRa.sleep(); // put the LoRa module to sleep
+
     debugPrintln(F("Sensor ready for testing ...\n" ));   
     
     digitalWrite(GRN_LED_PIN, LOW);
@@ -179,7 +181,7 @@ void loop() {
                 break;
             case 2:
                 mgpayload += F(" p: ");
-                mgpayload =  F("LoRa parameters = ");
+                mgpayload +=  F("LoRa parameters = ");
                 mgpayload += LoRa.LoRaSpreadingFactor;
                 mgpayload += F(":");
                 mgpayload += LoRa.LoRaBandwidth;
@@ -195,12 +197,11 @@ void loop() {
                 mgpayload += mglastSNR;
                 break;
         }
-        LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), mgpayload);
+        LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), mgpayload); /// send the address as an int 
         awaitingResponse = true;
         startTime = millis();
         digitalWrite(GRN_LED_PIN, LOW);
     }
-
 
     if(awaitingResponse) {
 
@@ -215,6 +216,7 @@ void loop() {
                 awaitingResponse = false;  // error
                 blinkLED(RED_LED_PIN, 7, 250);
                 debugPrintln(F("error while waiting for response"));
+                LoRa.sleep();
                 break;
             case 0: // no message
                 delay(5); // wait a little while before checking again
@@ -243,9 +245,10 @@ void loop() {
                         blinkLED(RED_LED_PIN, 5, 250);
                     }
                 } 
+                LoRa.sleep();
                 break;
 
-        } // end of if(Serial1.available())
+        } // end of switch(LoRa.receivedMessageState)
 
 
 

@@ -5,10 +5,9 @@
 
 */
 
-//xxx #include "Particle.h"
 #include "tpp_LoRa.h"
 
-#define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
+#define TPP_LORA_DEBUG 1  // Do NOT enable this for ATmega328
 
 bool mg_LoRaBusy = false;
 
@@ -77,6 +76,7 @@ int tpp_LoRa::begin() {
         } 
     }
 
+    isLoRaAwake = true;
     return false;
 
 }
@@ -84,8 +84,11 @@ int tpp_LoRa::begin() {
 
 // Configure the LoRa module with settings 
 // rtn True if failure
-
 bool tpp_LoRa::configDevice(int deviceAddress) {
+
+    if(wake() != 0) {
+        return true;
+    }
 
     debugPrintln(F("Start LoRa configuration"));
 
@@ -134,7 +137,7 @@ bool tpp_LoRa::configDevice(int deviceAddress) {
         return true;
     } 
     
-    debugPrintln(F("LoRo module is initialized"));
+    debugPrintln(F("LoRa module is initialized"));
 
     return false;
 
@@ -144,6 +147,11 @@ bool tpp_LoRa::configDevice(int deviceAddress) {
 //  If error then the D7 will blink twice
 //  Return true if error
 bool tpp_LoRa::readSettings() {
+
+    if(wake() != 0) {
+        return true;
+    }
+
     // READ LoRa Settings
     LoRaStringBuffer = F("\r\n\r\n-----------------\r\nReading back the settings");
     debugPrintln(LoRaStringBuffer);
@@ -193,10 +201,50 @@ bool tpp_LoRa::readSettings() {
     return false;
 }
 
+// function puts LoRa to sleep and turns off the power. LoRa will awaken when sent
+// a message.  Returns 0 if successful, 1 if error
+int tpp_LoRa::sleep(){
+
+    if(sendCommand(F("AT+MODE=1")) != 0) {
+        debugPrintln(F("error sleeping LoRa"));
+        return true;
+    } else { 
+        debugPrintln(F("LoRa is now asleep vvvvvvvv"));
+        isLoRaAwake = false; 
+        return false;
+    }
+};
+
+// function to wake up the LoRa module from a low power sleep
+// returns 0 if successful, 1 if error
+int tpp_LoRa::wake(){
+
+    if (isLoRaAwake) {
+        return false;
+    }
+
+    if(sendCommand("AT") != 0) {    // XXX what is the problem here???
+        debugPrintln(F("error waking up LoRa"));
+        return true;
+    }
+
+    if(sendCommand(F("AT+MODE=0")) != 0) {    // XXX what is the problem here???
+        debugPrintln(F("error setting LoRa to mode 0"));
+        return true;
+    } else { 
+        debugPrintln(F("LoRa is now awake ^^^^^^^"));
+        isLoRaAwake = true; 
+        return false;
+    }
+};
+
 // function to send AT commands to the LoRa module
 // returns 0 if successful, 1 if error, -1 if no response
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(const String& command) {
+
+    // DO NOT check for wake here. This is called by wake and sleep
+    // and will cause a recursive loop.
 
     if (mg_LoRaBusy) {
         debugPrintln(F("LoRa is busy"));
@@ -255,10 +303,14 @@ int tpp_LoRa::sendCommand(const String& command) {
 // prints message and result to the serial monitor
 int tpp_LoRa::transmitMessage(const String& devAddress, const String& message){
 
+    if(wake() != 0) {
+        return true;
+    }
+
     LoRaStringBuffer = F("AT+SEND=");
     LoRaStringBuffer += devAddress;
     LoRaStringBuffer += F(",");
-    LoRaStringBuffer += String(message.length());
+    LoRaStringBuffer += message.length();
     LoRaStringBuffer += F(",");
     LoRaStringBuffer += message;
 
@@ -273,6 +325,10 @@ int tpp_LoRa::transmitMessage(const String& devAddress, const String& message){
 void tpp_LoRa::checkForReceivedMessage() {
 
     ReceivedDeviceAddress = 0;
+
+    if(wake() != 0) {
+        return;
+    }
 
     if (mg_LoRaBusy) {
         debugPrintln(F("LoRa is busy"));
