@@ -42,7 +42,7 @@
     SYSTEM_THREAD(ENABLED);
     // Show system, cloud connectivity, and application logs over USB
     // View logs with CLI using 'particle serial monitor --follow'
-    // SerialLogHandler logHandler(LOG_LEVEL_INFO);
+    SerialLogHandler logHandler(LOG_LEVEL_INFO);
 #endif
 
 #define VERSION 1.00
@@ -57,17 +57,17 @@
 tpp_LoRa LoRa; // create an instance of the LoRa class
 
 // module global scope for mimimal string memboery allocation
-int mglastRSSI = 0;
-int mglastSNR = 0;
-bool mgFatalError = false;
-volatile bool mgButtonPressed = false;  // set true in the ISR_buttonPressed() function
+String mglastRSSI;
+String mglastSNR;
 String mgpayload;
 String mgTemp;
 
 // all debug prints through here so it can be disabled when ATmega328 is used
-void debugPrintln(const String message) {
+void debugPrintln(const String& message) {
     #if PARTICLEPHOTON
-        DEBUG_SERIAL.println(message);
+        String tempString = F("tpp_LoRa: ");
+        tempString += message;
+        DEBUG_SERIAL.println(tempString);
     #endif
 }
 
@@ -82,32 +82,26 @@ void blinkLED(int ledpin, int number, int delayTimeMS) {
     return;
 } // end of blinkLED()
 
-void ISR_buttonPressed() {
-    mgButtonPressed = true;
-}
-
 void setup() {
 
-    #if PARTICLEPHOTON
+    if (PARTICLEPHOTON) {
         pinMode(BUTTON_PIN, INPUT_PULLUP);
-        attachInterrupt(BUTTON_PIN, ISR_buttonPressed, FALLING);
-    #else
+    } else {
         pinMode(BUTTON_PIN, INPUT);
-        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_buttonPressed, FALLING)
-    #endif
-
+    }                                 
     pinMode(GRN_LED_PIN, OUTPUT); 
     pinMode(RED_LED_PIN, OUTPUT); 
 
     digitalWrite(GRN_LED_PIN, HIGH);
     digitalWrite(RED_LED_PIN, HIGH);
 
+    mglastRSSI.reserve(5);
+    mglastSNR.reserve(5);
     mgpayload.reserve(50);
     mgTemp.reserve(50);
 
     #if PARTICLEPHOTON
-        DEBUG_SERIAL.begin(115200); // the USB serial port
-        waitFor(DEBUG_SERIAL.isConnected, 15000);
+        DEBUG_SERIAL.begin(9600); // the USB serial port
     #else
         // ATMega328 has only one serial port, so no debug serial port
     #endif
@@ -117,57 +111,27 @@ void setup() {
         if (PARTICLEPHOTON) {
             debugPrintln(F("error initializing LoRa device - Stopping"));
         }
-        mgFatalError = true;
-        blinkLED(RED_LED_PIN, 20, 50);
+        while(1) {blinkLED(RED_LED_PIN, 500, 20);};
     }
 
 
-    if (!mgFatalError && PARTICLEPHOTON) {
+    if (PARTICLEPHOTON) {
         if (LoRa.configDevice(THIS_LORA_SENSOR_ADDRESS) != 0) {  // initialize the LoRa device
-            debugPrintln(F("error configuring LoRa device - Stopping"));
-            debugPrintln(F("hint: did you set THIS_LORA_SENSOR_ADDRESS?"));
-            mgFatalError = true;
-            blinkLED(RED_LED_PIN, 20, 50);
-        } else {
-            if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
-                debugPrintln(F("error reading LoRa settings - Stopping"));
-                mgFatalError = true;
-                blinkLED(RED_LED_PIN, 20, 75);      
-            }; 
+                debugPrintln(F("error configuring LoRa device - Stopping"));
+                debugPrintln(F("hint: did you set THIS_LORA_SENSOR_ADDRESS?"));
+            while(1) {blinkLED(RED_LED_PIN, 500, 50);};
+        }; 
 
-            mgTemp =  F("LoRa Network ID = ");
-            mgTemp += LoRa.LoRaNetworkID;
-            debugPrintln(mgTemp);
-            mgTemp =  F("LoRa UID = ");
-            mgTemp += LoRa.UID;
-            debugPrintln(mgTemp);
-            mgTemp =  F("LoRa device address = ");
-            mgTemp += LoRa.LoRaDeviceAddress;
-            debugPrintln(mgTemp);
-            mgTemp =  F("LoRa parameters = ");
-            mgTemp += LoRa.LoRaSpreadingFactor;
-            mgTemp += F(", ");
-            mgTemp += LoRa.LoRaBandwidth;
-            mgTemp += F(", ");
-            mgTemp += LoRa.LoRaCodingRate;
-            mgTemp += F(", ");
-            mgTemp += LoRa.LoRaPreamble;
-            debugPrintln(mgTemp);
-            mgTemp = F("LoRa CRFOP = ");
-            mgTemp += LoRa.LoRaCRFOP;
-            debugPrintln(mgTemp);
-        }
+        if (LoRa.readSettings() != 0) {  // read the settings from the LoRa device
+            debugPrintln(F("error reading LoRa settings - Stopping"));
+            while(1) {blinkLED(RED_LED_PIN, 500, 75);};
+        }; 
     }
     
-    if (!mgFatalError) {
-        LoRa.sleep(); // put the LoRa module to sleep
-
-        debugPrintln(F("Sensor ready for testing ...\n" ));   
-        
-        digitalWrite(GRN_LED_PIN, LOW);
-        digitalWrite(RED_LED_PIN, LOW);
-    }
+    debugPrintln(F("Sensor ready for testing ...\n" ));   
     
+    digitalWrite(GRN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
 
 } // end of setup()
 
@@ -177,52 +141,41 @@ void loop() {
     static bool awaitingResponse = false; // when waiting for a response from the hub
     static unsigned long startTime = 0;
     static int msgNum = 0;
-    bool needToSleep = false;
 
-    // XXX if fatal error then power down the ATmega328
-    if (mgFatalError) {
-        delay(1000);
-        return;
-    }   
-
-    // test for button to be pressed and no transmission in progress
-    // this is where the power down code will go
-    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
-    if(mgButtonPressed && !awaitingResponse) { // button press detected 
+  // test for button to be pressed and no transmission in progress
+    if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
         digitalWrite(GRN_LED_PIN, HIGH);
         debugPrintln(F("\n\r--------------------")); 
         msgNum++;
-        mgpayload = F("HELLO m: ");
-        mgpayload += msgNum;
+        mgpayload = F("");
         switch (msgNum) {
             case 1:
+                mgpayload = F("HELLO m: ");
+                mgpayload += String(msgNum);
                 mgpayload += F(" uid: ");
                 mgpayload += LoRa.UID;
                 break;
             case 2:
+                mgpayload = F("HELLO m: ");
+                mgpayload += String(msgNum);
                 mgpayload += F(" p: ");
-                mgpayload +=  F("LoRa parameters = ");
-                mgpayload += LoRa.LoRaSpreadingFactor;
-                mgpayload += F(":");
-                mgpayload += LoRa.LoRaBandwidth;
-                mgpayload += F(":");
-                mgpayload += LoRa.LoRaCodingRate;
-                mgpayload += F(":");
-                mgpayload += LoRa.LoRaPreamble;
+                mgpayload += LoRa.parameters;
                 break;
             default:
+                mgpayload = F("HELLO m: ");
+                mgpayload += String(msgNum);
                 mgpayload += F(" rssi: ");
                 mgpayload += mglastRSSI;
                 mgpayload += F(" snr: ");
                 mgpayload += mglastSNR;
                 break;
         }
-        LoRa.transmitMessage(TPP_LORA_HUB_ADDRESS, mgpayload); /// send the address as an int 
-        mgButtonPressed = false;
-        awaitingResponse = true;  
+        LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), mgpayload);
+        awaitingResponse = true;
         startTime = millis();
         digitalWrite(GRN_LED_PIN, LOW);
     }
+
 
     if(awaitingResponse) {
 
@@ -230,16 +183,13 @@ void loop() {
             awaitingResponse = false;  // timed out
             blinkLED(RED_LED_PIN, 1, 250);
             debugPrintln(F("timeout waiting for hub response"));
-            needToSleep = true;
         }
-
         LoRa.checkForReceivedMessage();
         switch (LoRa.receivedMessageState) {
             case -1: // error
                 awaitingResponse = false;  // error
                 blinkLED(RED_LED_PIN, 7, 250);
                 debugPrintln(F("error while waiting for response"));
-                needToSleep = true;
                 break;
             case 0: // no message
                 delay(5); // wait a little while before checking again
@@ -268,17 +218,14 @@ void loop() {
                         blinkLED(RED_LED_PIN, 5, 250);
                     }
                 } 
-                needToSleep = true;
                 break;
 
-        } // end of switch(LoRa.receivedMessageState)
+        } // end of if(Serial1.available())
 
     } // end of if(awaitingResponse)
 
-    // xxx this is where the power down code goes
-    if (needToSleep) {
-        LoRa.sleep(); // put the LoRa module to sleep
-    }
+    //while(digitalRead(D0) == LOW); // wait for button to be released
+    //delay(1); // wait a little while before sampling the button again
 
 } // end of loop()
 
