@@ -60,6 +60,7 @@ tpp_LoRa LoRa; // create an instance of the LoRa class
 int mglastRSSI = 0;
 int mglastSNR = 0;
 bool mgFatalError = false;
+volatile bool mgButtonPressed = false;  // set true in the ISR_buttonPressed() function
 String mgpayload;
 String mgTemp;
 
@@ -81,13 +82,20 @@ void blinkLED(int ledpin, int number, int delayTimeMS) {
     return;
 } // end of blinkLED()
 
+void ISR_buttonPressed() {
+    mgButtonPressed = true;
+}
+
 void setup() {
 
-    if (PARTICLEPHOTON) {
+    #if PARTICLEPHOTON
         pinMode(BUTTON_PIN, INPUT_PULLUP);
-    } else {
+        attachInterrupt(BUTTON_PIN, ISR_buttonPressed, FALLING);
+    #else
         pinMode(BUTTON_PIN, INPUT);
-    }                                 
+        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_buttonPressed, FALLING)
+    #endif
+
     pinMode(GRN_LED_PIN, OUTPUT); 
     pinMode(RED_LED_PIN, OUTPUT); 
 
@@ -179,7 +187,8 @@ void loop() {
 
     // test for button to be pressed and no transmission in progress
     // this is where the power down code will go
-    if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
+    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
+    if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
         debugPrintln(F("\n\r--------------------")); 
         msgNum++;
@@ -209,7 +218,8 @@ void loop() {
                 break;
         }
         LoRa.transmitMessage(TPP_LORA_HUB_ADDRESS, mgpayload); /// send the address as an int 
-        awaitingResponse = true;
+        mgButtonPressed = false;
+        awaitingResponse = true;  
         startTime = millis();
         digitalWrite(GRN_LED_PIN, LOW);
     }

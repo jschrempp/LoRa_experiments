@@ -5,7 +5,10 @@
         "*.ino": "cpp",
         "__locale": "cpp",
         "ostream": "cpp",
-        "print": "cpp"
+        "print": "cpp",
+        "__hash_table": "cpp",
+        "initializer_list": "cpp",
+        "unordered_map": "cpp"
     },
     "particle.targetDevice": "LoRaSensor",
     "particle.firmwareVersion": "5.8.0",
