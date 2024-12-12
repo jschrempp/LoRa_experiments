@@ -301,7 +301,7 @@ int tpp_LoRa::sendCommand(const String& command) {
 // function to transmit a message to another LoRa device
 // returns 0 if successful, 1 if error, -1 if no response
 // prints message and result to the serial monitor
-int tpp_LoRa::transmitMessage(const String& devAddress, const String& message){
+int tpp_LoRa::transmitMessage(int devAddress, const String& message){
 
     if(wake() != 0) {
         return true;

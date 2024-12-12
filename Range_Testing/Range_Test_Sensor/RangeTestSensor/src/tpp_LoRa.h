@@ -74,7 +74,7 @@ public:
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
-    int transmitMessage(const String& devAddress, const String& message);
+    int transmitMessage(int devAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
 
     // function puts LoRa to sleep. LoRa will awaken when sent
