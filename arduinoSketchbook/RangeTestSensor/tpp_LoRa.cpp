@@ -3,11 +3,13 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
+    20241212 - works on ATmega328
+
 */
 
 #include "tpp_LoRa.h"
 
-#define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
+#define TPP_LORA_DEBUG 0 // Do NOT enable this for ATmega328
 
 bool mg_LoRaBusy = false;
 
@@ -223,12 +225,12 @@ int tpp_LoRa::wake(){
         return false;
     }
 
-    if(sendCommand("AT") != 0) {    // XXX what is the problem here???
+    if(sendCommand("AT") != 0) {    
         debugPrintln(F("error waking up LoRa"));
         return true;
     }
 
-    if(sendCommand(F("AT+MODE=0")) != 0) {    // XXX what is the problem here???
+    if(sendCommand(F("AT+MODE=0")) != 0) {    
         debugPrintln(F("error setting LoRa to mode 0"));
         return true;
     } else { 

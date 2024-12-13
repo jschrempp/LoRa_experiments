@@ -1,3 +1,12 @@
+/*
+    tpp_LoRaGlobals.h
+
+    Include this in all modules of the LoRa sensor and hub
+    
+    (c) 2024 Bob Glicksmand and Jim Schrempp
+
+    20241212 - works on ATmega328
+*/
 #ifndef tpp_LoRaGlobals_h 
 #define tpp_LoRaGlobals_h
 

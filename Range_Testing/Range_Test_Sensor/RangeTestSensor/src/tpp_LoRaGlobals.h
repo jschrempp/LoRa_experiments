@@ -1,3 +1,14 @@
+/*
+    tpp_LoRaGlobals.h
+
+    Include this in all modules of the LoRa sensor and hub
+
+    20241212 - works on Particle Photon 2
+    
+    (c) 2024 Bob Glicksmand and Jim Schrempp
+
+*/
+
 #ifndef tpp_LoRaGlobals_h 
 #define tpp_LoRaGlobals_h
 

@@ -3,6 +3,8 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
+    20241212 - works on ATmega328
+
 */
 /*
     The block below was recommended by CoPilo. It has nothing to do with our libary.
@@ -10,13 +12,14 @@
     Created by Bennett Marsh, 2021.
     Released into the public domain.
 
+
 */
 #ifndef tpp_LoRa_h 
 #define tpp_LoRa_h
 
 #include "tpp_LoRaGlobals.h"
 
-#define VERSION 1.00
+#define VERSION 2.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 // xxx make this an int and convert to string as needed

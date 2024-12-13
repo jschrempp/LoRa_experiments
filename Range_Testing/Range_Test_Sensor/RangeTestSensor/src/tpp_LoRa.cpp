@@ -3,11 +3,13 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
+    20241212 - works on Particle Photon 2
+
 */
 
 #include "tpp_LoRa.h"
 
-#define TPP_LORA_DEBUG 1  // Do NOT enable this for ATmega328
+#define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
 
 bool mg_LoRaBusy = false;
 
@@ -223,12 +225,12 @@ int tpp_LoRa::wake(){
         return false;
     }
 
-    if(sendCommand("AT") != 0) {    // XXX what is the problem here???
+    if(sendCommand("AT") != 0) {    
         debugPrintln(F("error waking up LoRa"));
         return true;
     }
 
-    if(sendCommand(F("AT+MODE=0")) != 0) {    // XXX what is the problem here???
+    if(sendCommand(F("AT+MODE=0")) != 0) {    
         debugPrintln(F("error setting LoRa to mode 0"));
         return true;
     } else { 
@@ -301,7 +303,7 @@ int tpp_LoRa::sendCommand(const String& command) {
 // function to transmit a message to another LoRa device
 // returns 0 if successful, 1 if error, -1 if no response
 // prints message and result to the serial monitor
-int tpp_LoRa::transmitMessage(int devAddress, const String& message){
+int tpp_LoRa::transmitMessage(const String& devAddress, const String& message){
 
     if(wake() != 0) {
         return true;

@@ -3,6 +3,8 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
+    20241212 - version 2. works on Particle Photon 2
+
 */
 /*
     The block below was recommended by CoPilo. It has nothing to do with our libary.
@@ -16,7 +18,7 @@
 
 #include "tpp_LoRaGlobals.h"
 
-#define VERSION 1.00
+#define VERSION 2.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 // xxx make this an int and convert to string as needed
@@ -74,7 +76,7 @@ public:
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
-    int transmitMessage(int devAddress, const String& message);
+    int transmitMessage(const String& devAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
 
     // function puts LoRa to sleep. LoRa will awaken when sent
