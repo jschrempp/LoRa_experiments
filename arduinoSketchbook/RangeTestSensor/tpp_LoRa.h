@@ -3,7 +3,7 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
-    20241212 - works on ATmega328
+    20241212 - version 2. works on Particle Photon 2  Verified on ATMega328
 
 */
 /*
@@ -11,7 +11,6 @@
     tpp_LoRa.h - Library for LoRa communication with the Things Plus Plus board.
     Created by Bennett Marsh, 2021.
     Released into the public domain.
-
 
 */
 #ifndef tpp_LoRa_h 
@@ -22,7 +21,6 @@
 #define VERSION 2.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
-// xxx make this an int and convert to string as needed
 
 #define LoRa_NETWORK_ID 18
 
@@ -77,8 +75,11 @@ public:
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
+    // XXX NOTE: when I changed this to an int for the address, the ATmega328 code broke
+    // XXX so I changed it back to a string. I don't know why yet.
     int transmitMessage(const String& devAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
+    // xxx we need to discuss this
 
     // function puts LoRa to sleep. LoRa will awaken when sent
     // a command.  Returns 0 if successful, 1 if error
@@ -89,7 +90,7 @@ public:
     // called implicitly by other methods when needed
     int wake();
     
-    // xxx review all these to see what we really need in ATmega and can these be ints instead of strings
+    // class variables
     int receivedMessageState = 0; // 0 = no message, 1 = message received, -1 = error
     String UID;
     String receivedData; // xxx why do we need a receive buffer? Reuse the LoRaStringBuffer

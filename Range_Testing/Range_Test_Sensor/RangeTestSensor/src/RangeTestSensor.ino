@@ -218,7 +218,7 @@ void loop() {
 
     // test for button to be pressed and no transmission in progress
     // this is where the power down code will go
-    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
+    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  
     if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
         debugPrintln(F("\n\r--------------------")); 
