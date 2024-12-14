@@ -3,6 +3,8 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
+    20241212 - works on Particle Photon 2  Verified on ATMega328
+
 */
 
 #include "tpp_LoRa.h"
@@ -223,12 +225,12 @@ int tpp_LoRa::wake(){
         return false;
     }
 
-    if(sendCommand("AT") != 0) {    // XXX what is the problem here???
+    if(sendCommand("AT") != 0) {    
         debugPrintln(F("error waking up LoRa"));
         return true;
     }
 
-    if(sendCommand(F("AT+MODE=0")) != 0) {    // XXX what is the problem here???
+    if(sendCommand(F("AT+MODE=0")) != 0) {    
         debugPrintln(F("error setting LoRa to mode 0"));
         return true;
     } else { 
@@ -253,7 +255,7 @@ int tpp_LoRa::sendCommand(const String& command) {
     mg_LoRaBusy = true;
 
     int retcode = 0;
-    unsigned int timeoutMS = 1000; // xxx
+    unsigned int timeoutMS = 1000; // xxx see below - do we still need this?
     receivedData = "";
 
     tempString = F("cmd: ");
@@ -262,7 +264,8 @@ int tpp_LoRa::sendCommand(const String& command) {
     LORA_SERIAL.println(command);
     
     // wait for data available, which should be +OK or +ERR
-    unsigned int starttimeMS = millis();  // xxx
+    unsigned int starttimeMS = millis();  // xxx do we still need this timeout now that we use the
+                                          // xxx timeout in the serial port? Is this a good safety?
     int dataAvailable = 0;
     debugPrint(F("waiting "));
     do {
@@ -272,7 +275,7 @@ int tpp_LoRa::sendCommand(const String& command) {
     } while ((dataAvailable == 0) && (millis() - starttimeMS < timeoutMS)) ;
     debugPrintNoHeader(F("\n"));
 
-    delay(100); // wait for the full response
+    delay(100); // wait for the full response  //xxx we might not need this any more
 
     // Get the response if there is one
     if(dataAvailable > 0) {

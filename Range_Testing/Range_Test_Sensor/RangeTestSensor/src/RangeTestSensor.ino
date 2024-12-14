@@ -1,35 +1,48 @@
 /* 
- * Project RangeTestTx
+ * Project RangeTestSensor
  * Author: Bob Glicksman
  * Date: 4/25/24
  * 
  * Description:  This is code for a tester of LoRa signal range.  The tester is based upon
- *  a Particle Photon that is set up to not need Wifi (any Arduino can be used in its place).
+ *  a Particle Photon that is set up to not need Wifi (an ATmega328 can be used in its place).
  *  In addition to the Photon, a N.O. pushbutton switch is connected to ground at one end
- *  and Photon pin D0 on the other.  The LoRa module (RYLR998) is connected as follows:
+ *  and Photon pin D0 on the other.  On the ATMega a N.O. pushbutton is connected to Vcc at one
+ *  end and pin D2 on the other.
+ 
+    The LoRa module (RYLR998) is connected as follows:
  *  * Vcc to Photon 3.3v
  *  * GND to Photon GND
- *  * Tx to Photon Rx (Serial1)
- *  * Rx to Photon Tx (Serial1)
+ *  * Tx to Photon Rx (Serial1) (Serial on ATmega)
+ *  * Rx to Photon Tx (Serial1) (Serial on ATmega) 
  *  * Reset is not connected
  * 
- * The testing concept is to produce a companion device - the "hub".  The hub uses its LoRa module
+ *  The testing concept is to produce a companion device - the "hub".  The hub uses its LoRa module
  *  to listen for a message from the tester.  When a message is received, the hub responds with a
  *  message of its own.  If the tester receives the response message, it is still in range of the
  *  hub.
  * 
- * The tester is assigned device number 0 and the hub is assigned device number 1.  The network
- *  number used for testing is 3 and the baud rate to/from the LoRa modem is 115200.  Otherwise,
- *  the default LoRa module values are used.  NOTE:  the tester code does not set up these
- *  values.  The LoRa modules are set up using a PC and an FTDI USB-serial board.
+ * The tester is assigned any device number and the hub is assigned device number 57248, as defined
+    in tpp_LoRa.h   (it can be any arbitrary number in the range  0 - 65535).  The network
+ *  number used for testing is 18 and the baud rate to/from the LoRa modem is 38400 to be 
+    compatible with the ATmega328.  Otherwise,
+ *  the default LoRa module values are used.  NOTE:  the sensor code does not set up these
+ *  values if run on an ATmega.  The LoRa modules can be set up using a PC and an FTDI USB-serial
+    board. If the LoRa module is already set to 38400 baud, then they can be further configured
+    by connecting one to a Particle Photon 2 sensor. LoRa modules can also be set up using 
+    the Particle Photon 2 hub. 
  * 
- * The software senses pressing of the pushbutton and sends a short message to a companion LoRa
+ *  The software senses the falling (P2) or rising (ATmega) signal from the pressing of 
+    the pushbutton and sends a short message to a companion LoRa
  *  module in the hub.  The message is also printed on the Photon's USB serial port for debugging
  *  purposes.  The unit then waits 3 seconds for a response.  If a response is received 
- *  (data received from the hub, beginning with +RCV), the D7 LED is flashed three times.  If no
- *  data is received from the hub (distance too far), the D7 LED is flashed once.
+ *  (data received from the hub, beginning with +RCV), the Green LED (onboard D7 of the Photon) 
+    is flashed three times.  If no
+ *  data is received from the hub, the Green LED (onboard D7 of the Photon) is flashed once.
  * 
- * version 1.0; 4/25/24
+ * version 2.0; 4/25/24
+
+    20241212 - version 2. works on Particle Photon 2 
+
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -45,7 +58,7 @@
     // SerialLogHandler logHandler(LOG_LEVEL_INFO);
 #endif
 
-#define VERSION 1.00
+#define VERSION 2.00
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
@@ -82,6 +95,22 @@ void blinkLED(int ledpin, int number, int delayTimeMS) {
     return;
 } // end of blinkLED()
 
+// blinkLEDsOnBoot() blinks the LEDs to indicate the system is booting
+void blinkLEDsOnBoot() {
+    digitalWrite(GRN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
+    delay(100);
+    for(int i = 0; i < 3; i++) {
+        digitalWrite(GRN_LED_PIN, HIGH);
+        digitalWrite(RED_LED_PIN, HIGH);
+        delay(150);
+        digitalWrite(GRN_LED_PIN, LOW);
+        digitalWrite(RED_LED_PIN, LOW);
+        delay(100);
+    }
+    return;
+}
+
 void ISR_buttonPressed() {
     mgButtonPressed = true;
 }
@@ -93,7 +122,7 @@ void setup() {
         attachInterrupt(BUTTON_PIN, ISR_buttonPressed, FALLING);
     #else
         pinMode(BUTTON_PIN, INPUT);
-        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_buttonPressed, FALLING)
+        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_buttonPressed, FALLING);
     #endif
 
     pinMode(GRN_LED_PIN, OUTPUT); 
@@ -164,6 +193,8 @@ void setup() {
 
         debugPrintln(F("Sensor ready for testing ...\n" ));   
         
+        blinkLEDsOnBoot();
+
         digitalWrite(GRN_LED_PIN, LOW);
         digitalWrite(RED_LED_PIN, LOW);
     }
@@ -187,7 +218,7 @@ void loop() {
 
     // test for button to be pressed and no transmission in progress
     // this is where the power down code will go
-    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  // xxx
+    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  
     if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
         debugPrintln(F("\n\r--------------------")); 
@@ -217,7 +248,7 @@ void loop() {
                 mgpayload += mglastSNR;
                 break;
         }
-        LoRa.transmitMessage(TPP_LORA_HUB_ADDRESS, mgpayload); /// send the address as an int 
+        LoRa.transmitMessage(String(TPP_LORA_HUB_ADDRESS), mgpayload); /// send the address as an int 
         mgButtonPressed = false;
         awaitingResponse = true;  
         startTime = millis();
