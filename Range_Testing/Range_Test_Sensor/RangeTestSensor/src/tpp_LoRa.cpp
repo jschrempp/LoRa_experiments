@@ -4,10 +4,13 @@
     as part of Team Practical Projects (tpp)
 
     20241212 - works on Particle Photon 2
+    v 2.1 pulled all string searches out of if() clause
 
 */
 
 #include "tpp_LoRa.h"
+
+#define VERSION 2.10
 
 #define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
 
@@ -286,7 +289,8 @@ int tpp_LoRa::sendCommand(const String& command) {
         tempString = F("received data = ");
         tempString += receivedData;
         debugPrintln(tempString);
-        if(receivedData.indexOf(F("+ERR")) >= 0) {
+        int errIndex = receivedData.indexOf(F("+ERR"));
+        if(errIndex >= 0) {
             debugPrintln(F("LoRa error"));
             retcode = 1;
         } else {
@@ -353,7 +357,8 @@ void tpp_LoRa::checkForReceivedMessage() {
         tempString += receivedData;
         debugPrintln(tempString);
 
-        if ((receivedData.indexOf(F("+OK")) == 0) && receivedData.length() == 3) {
+        int okIndex = receivedData.indexOf(F("+OK"));
+        if ((okIndex == 0) && receivedData.length() == 3) {
 
             // this is the normal OK from LoRa that the previous command succeeded
             debugPrintln(F("received data is +OK"));
@@ -361,7 +366,8 @@ void tpp_LoRa::checkForReceivedMessage() {
 
         } else {
 
-            if (receivedData.indexOf(F("+RCV")) < 0) {
+            int rcvIndex = receivedData.indexOf(F("+RCV"));
+            if (rcvIndex < 0) {
                 // We are expecting a +RCV message
                 debugPrintln(F("received data is not +RCV"));
                 receivedMessageState = -1;

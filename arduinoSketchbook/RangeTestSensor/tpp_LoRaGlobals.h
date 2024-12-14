@@ -3,7 +3,7 @@
 
     Include this in all modules of the LoRa sensor and hub
 
-    20241212 - works on Particle Photon 2. Verified on ATMega328
+    20241212 - works on Particle Photon 2
     
     (c) 2024 Bob Glicksmand and Jim Schrempp
 

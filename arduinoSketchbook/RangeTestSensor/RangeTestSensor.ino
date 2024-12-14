@@ -41,7 +41,8 @@
  * 
  * version 2.0; 4/25/24
 
-    20241212 - version 2. works on Particle Photon 2 Verified on ATMega328
+    20241212 - version 2. works on Particle Photon 2 
+    v 2.1 pulled all string searches out of if() clauses
 
  */
 
@@ -58,7 +59,7 @@
     // SerialLogHandler logHandler(LOG_LEVEL_INFO);
 #endif
 
-#define VERSION 2.00
+#define VERSION 2.10
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
@@ -210,15 +211,26 @@ void loop() {
     static int msgNum = 0;
     bool needToSleep = false;
 
-    // XXX if fatal error then power down the ATmega328
+    // if fatal error then 
     if (mgFatalError) {
-        delay(1000);
-        return;
-    }   
+        if (PARTICLEPHOTON) {
+            delay(10); // loop forever
+            return;
+        } else { 
+            //power down the ATmega328
+        } 
+    }
+           
+/*
+    // XXXXX TESTING CODE FOR CONTINUOUS TRANSMISSIONS
+    if (!awaitingResponse) {
+        delay(200);
+        mgButtonPressed = true;
+    }
+*/
+    // this is where the power down the ATmega code will go and we wait for an interrupt
 
     // test for button to be pressed and no transmission in progress
-    // this is where the power down code will go
-    //if(digitalRead(BUTTON_PIN) == LOW && !awaitingResponse) { // button press detected  
     if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
         debugPrintln(F("\n\r--------------------")); 
@@ -283,20 +295,24 @@ void loop() {
                 mglastSNR = LoRa.SNR;
 
                 // test for received data from the hub (denoted by "+RCV")
-                if(LoRa.receivedData.indexOf(F("+RCV")) >= 0) { // will be -1 of "+RCV" not in the string
+                int rcvIndex = LoRa.receivedData.indexOf(F("+RCV"));
+                if(rcvIndex >= 0) { // will be -1 of "+RCV" not in the string
                     
                     awaitingResponse = false; // we got a response
                     debugPrintln(F("response received"));
-
-                    if (LoRa.receivedData.indexOf(F("TESTOK")) >= 0) {
+                    int testokIndex = LoRa.receivedData.indexOf(F("TESTOK"));
+                    if (testokIndex >= 0) {
                         debugPrintln(F("response is TESTOK"));
                         blinkLED(GRN_LED_PIN, 3, 150);
-                    } else if (LoRa.receivedData.indexOf(F("NOPE")) >= 0) {
-                        debugPrintln(F("response is NOPE"));
-                        blinkLED(GRN_LED_PIN, 4, 250);
                     } else {
-                        debugPrintln(F("response is unrecognized"));
-                        blinkLED(RED_LED_PIN, 5, 250);
+                        int nopeIndex = LoRa.receivedData.indexOf(F("NOPE"));
+                        if (nopeIndex >= 0) {
+                            debugPrintln(F("response is NOPE"));
+                            blinkLED(GRN_LED_PIN, 4, 250);
+                        } else {
+                            debugPrintln(F("response is unrecognized"));
+                            blinkLED(RED_LED_PIN, 5, 250);
+                        }
                     }
                 } 
                 needToSleep = true;
@@ -308,7 +324,7 @@ void loop() {
 
     // xxx this is where the power down code goes
     if (needToSleep) {
-        LoRa.sleep(); // put the LoRa module to sleep
+        //LoRa.sleep(); // put the LoRa module to sleep
     }
 
 } // end of loop()

@@ -3,7 +3,7 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
-    20241212 - works on Particle Photon 2  Verified on ATMega328
+    20241212 - works on Particle Photon 2
 
 */
 
