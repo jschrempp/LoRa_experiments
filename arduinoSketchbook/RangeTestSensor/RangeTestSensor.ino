@@ -221,13 +221,13 @@ void loop() {
         } 
     }
            
-
+/*
     // XXXXX TESTING CODE FOR CONTINUOUS TRANSMISSIONS
     if (!awaitingResponse) {
         delay(200);
         mgButtonPressed = true;
     }
-
+*/
     // this is where the power down the ATmega code will go and we wait for an interrupt
 
     // test for button to be pressed and no transmission in progress
