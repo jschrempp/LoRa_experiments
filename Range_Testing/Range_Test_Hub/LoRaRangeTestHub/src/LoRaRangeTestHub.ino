@@ -35,7 +35,7 @@
 #include "Particle.h"
 #include "tpp_LoRa.h"
 
-#define LOG_TO_CLOUD 1 // set to 1 to log to the cloud; 0 to not log to the cloud
+#define LOG_TO_CLOUD 0 // set to 1 to log to the cloud; 0 to not log to the cloud
 
 // The following system directives are for Particle devices.  Not needed for Arduino.
 SYSTEM_THREAD(ENABLED);
@@ -128,13 +128,11 @@ void loop() {
             Serial.println("payload: " + LoRa.payload);
 
             int helloIndex = LoRa.payload.indexOf("HELLO");
-            Serial.println("helloIndex: " + String(helloIndex));
             if(helloIndex >= 0) { // will be -1 if "HELLO" not in the string
 
                 // HELLO is the message from our sensors
                 // send a message back to the sensor
                 if (LoRa.transmitMessage(deviceNum, "TESTOK") == 0) {
-                    Serial.println("sent TESTOK to sensor");
                     logMessage = "TESTOK";
                     messageSent = "TESTOK";
                 } else {
