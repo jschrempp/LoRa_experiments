@@ -5,12 +5,12 @@
 
     20241212 - works on Particle Photon 2
     v 2.1 pulled all string searches out of if() clause
+    v 2.2 removed version as a #define
 
 */
 
 #include "tpp_LoRa.h"
 
-#define VERSION 2.10
 
 #define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
 

@@ -3,6 +3,8 @@
     created by Bob Glicksman and Jim Schrempp 2024
     as part of Team Practical Projects (tpp)
 
+    20241212 - version 2. works on Particle Photon 2
+
 */
 /*
     The block below was recommended by CoPilo. It has nothing to do with our libary.
@@ -14,47 +16,35 @@
 #ifndef tpp_LoRa_h 
 #define tpp_LoRa_h
 
-#include <arduino.h> // xxx
 #include "tpp_LoRaGlobals.h"
 
-#define VERSION 1.00
+// VERSION 2.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 
+#define LoRa_NETWORK_ID 18
 
-#if PARTICLEPHOTON
-    #include "Particle.h"
-    #define LORA_SERIAL Serial1
-    #define DebugSerial Serial
-#else
-    #include "arduino.h" // xxx
-    // ATMega328 has only one serial port, so no debug serial port
-    #define LORA_SERIAL Serial
-#endif
-
-
-#define LoRaNETWORK_NUM 18
-
-#define LoRaBANDWIDTH 7         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range but requires better
+#define LoRa_BANDWIDTH 7         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range but requires better
                                 // frequency stability between the two devices
 
-#define LoRaSPREADING_FACTOR 9  // default 9;  7 - 11  larger is better for range but slower
+#define LoRa_SPREADING_FACTOR 9  // default 9;  7 - 11  larger is better for range but slower
                                 // SF7 - SF9 at 125kHz, SF7 - SF10 at 250kHz, and SF7 - SF11 at 500kHz
 
-#define LoRaCODING_RATE 1       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] This can result in
+#define LoRa_CODING_RATE 1       // default 1; 1 is faster; [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] This can result in
                                 // small signal gains at the limit of reception, but more symbols are sent for each character.
 
-#define LoRaPREAMBLE 12         // 12 max unless network number is 18; 
+#define LoRa_PREAMBLE 12         // 12 max unless network number is 18; 
 
 // class for the LoRa module
 class tpp_LoRa
 {
 private:
     /* data */
-    void clearClassVariabels();
+    void clearClassVariables();
     void blinkLED(int ledpin, int number, int delayTimeMS) ;
 
     String LoRaStringBuffer;
+    int isLoRaAwake = true; // true = awake, false = asleep
 
     // function to send AT commands to the LoRa module
     // returns 0 if successful, 1 if error, -1 if no response
@@ -85,18 +75,36 @@ public:
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
+    // XXX NOTE: when I changed this to an int for the address, the ATmega328 code broke
+    // XXX so I changed it back to a string. I don't know why yet.
     int transmitMessage(const String& devAddress, const String& message);
+    // xxx add number or retries and a string refernce for the response
+    // xxx we need to discuss this
 
+    // function puts LoRa to sleep. LoRa will awaken when sent
+    // a command.  Returns 0 if successful, 1 if error
+    int sleep();
+
+    // function to wake up the LoRa module from a low power sleep
+    // returns 0 if successful, 1 if error
+    // called implicitly by other methods when needed
+    int wake();
+    
+    // class variables
     int receivedMessageState = 0; // 0 = no message, 1 = message received, -1 = error
-    String UID = "";
-    String thisDeviceNetworkID = "";
-    String parameters = "";
-    String receivedData = "";
-    String loraStatus = "";
-    String deviceNum = "";
-    String payload = "";
-    String RSSI = "";
-    String SNR = "";
+    String UID;
+    String receivedData; // xxx why do we need a receive buffer? Reuse the LoRaStringBuffer
+    String payload;
+    int RSSI; 
+    int SNR; 
+    int LoRaNetworkID;
+    int LoRaBandwidth;
+    int LoRaSpreadingFactor;
+    int LoRaCodingRate;
+    int LoRaPreamble;  
+    int LoRaCRFOP;
+    int LoRaDeviceAddress;
+    int ReceivedDeviceAddress;
 
 };
 

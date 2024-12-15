@@ -3,40 +3,45 @@
  * Author: Bob Glicksman
  * Date: 4/25/24
  * 
- * Description:  This is code for a tester of LoRa signal range.  This code is for the hub, the code 
- *  for the range test sensor is in a companion folder.  The tester is based upona Particle Photon 
- *  (any Arduino can be used in its place).  The LoRa module (RYLR998) is connected as follows:
+ * Description:  This code is for the hub, the code 
+ *  for the sensor is in a companion folder, range test.  The hub is based upona Particle Photon 
+ *  The LoRa module (RYLR998) is connected as follows:
  *  * Vcc to Photon 3.3v
  *  * GND to Photon GND
  *  * Tx to Photon Rx (Serial1)
  *  * Rx to Photon Tx (Serial1)
  *  * Reset is not connected
  * 
- * The hub uses its LoRa module to listen for a message from the tester.  When a message is 
- *  received, the hub responds with a message of its own.  If the tester receives the response 
- *  message, it is still in range of the hub.
+ * The hub uses its LoRa module to listen for a message from the sensor.  When a message is 
+ *  received the hub responds with a message of its own. If the message contains "HELLO" then
+ *  the hub's response is "TESTOK".  If the message does not contain "HELLO" then the hub's
+ *  response is "NOPE".  The hub echos its LoRa communications to the USB serial port for debugging 
  * 
- * The tester is assigned device number 0 and the hub is assigned device number 1.  The network
- *  number used for testing is 3 and the baud rate to/from the LoRa modem is 115200.  Otherwise,
- *  the default LoRa module values are used.  NOTE:  the hub code does not set up these
- *  values.  The LoRa modules are set up using a PC and an FTDI USB-serial board.
+ * The sensor is assigned any device number and the hub is assigned device number 57248 (an arbitrary
+ *  choice in the range  0 - 65535). See the tpp_LoRa.h file.  The network
+ *  number used for testing is 18 and the baud rate to/from the LoRa modem is 38400.  Otherwise,
+ *  the default LoRa module values are used.  NOTE: the hub code will set up these
+ *  values in the LoRa module when it boots - with the exception of baud rate.  The LoRa modules 
+ *  baud rate are set up using a laptop and an FTDI USB-serial board.
  * 
- * The hub software waits for a received message from the tester.  It then sends back (to the tester)
- *  a response message.  The hub echos its LoRa communications to the USB serial port for debugging
- *  purposes.
  * 
  * version 1.0; 4/25/24
+ * ver 2.0 12/14/2024 
+ *      now uses the same tpp_LoRa library as the sensor. 
+ *      #define added to disable cloud logging LOG_TO_CLOUD. This is useful for continuous
+ *      testing without filling up the cloud log.
  */
 
 #include "Particle.h"
-#include "LoRa_common/tpp_LoRa.h"
+#include "tpp_LoRa.h"
+
+#define LOG_TO_CLOUD 0 // set to 1 to log to the cloud; 0 to not log to the cloud
 
 // The following system directives are for Particle devices.  Not needed for Arduino.
 SYSTEM_THREAD(ENABLED);
 //SerialLogHandler logHandler(LOG_LEVEL_TRACE);
 
-#define VERSION 1.00
-#define STATION_NUM 1 // housekeeping; not used ini the code
+#define VERSION 2.00
 
 const int DEBUG_LED_PIN = D7;
 const int LORA_ADDRESS_PIN = D0;
@@ -45,10 +50,10 @@ String NODATA = "NODATA";
 tpp_LoRa LoRa;
 
 
-void logToParticle(String message, String deviceNum, String payload, String SNRhub1, String RSSIHub1) {
+void logToParticle(String message, int deviceNum, String payload, int SNRhub1, int RSSIHub1) {   
     // create a JSON string to send to the cloud
     String data = "message=" + message
-        + "|deviceNum=" + deviceNum + "|payload=" + payload 
+        + "|deviceNum=" + String(deviceNum) + "|payload=" + payload 
         + "|SNRhub1=" + String(SNRhub1) + "|RSSIHub1=" + String(RSSIHub1);
 
     Serial.println("cloudLogging:" + data);
@@ -74,8 +79,14 @@ void setup() {
         addressForLoRa = (rand() % 10) + 1;  // D0 is low, so set the address to 1
     } 
 
-    if (LoRa.initDevice(addressForLoRa) != 0) {  // initialize the LoRa device 
+    if (LoRa.begin() != 0) {
         Serial.println("Error initializing LoRa device");
+        while(1) {blinkTimes(50);};
+        return;
+    }
+
+    if (LoRa.configDevice(addressForLoRa) != 0) {  // initialize the LoRa device 
+        Serial.println("Error configuring LoRa device");
         while(1) {blinkTimes(50);};
         return;
     }
@@ -112,16 +123,16 @@ void loop() {
         case 1: // message received
             String logMessage = "";
             String messageSent = "";
-            String deviceNum = LoRa.deviceNum;
+            String deviceNum = String(LoRa.LoRaDeviceAddress);
             digitalWrite(DEBUG_LED_PIN, HIGH);
             Serial.println("payload: " + LoRa.payload);
 
-            if(LoRa.payload.indexOf("HELLO") >= 0) { // will be -1 if "HELLO" not in the string
+            int helloIndex = LoRa.payload.indexOf("HELLO");
+            if(helloIndex >= 0) { // will be -1 if "HELLO" not in the string
 
                 // HELLO is the message from our sensors
                 // send a message back to the sensor
                 if (LoRa.transmitMessage(deviceNum, "TESTOK") == 0) {
-                    Serial.println("sent TESTOK to sensor");
                     logMessage = "TESTOK";
                     messageSent = "TESTOK";
                 } else {
@@ -138,9 +149,13 @@ void loop() {
 
             } // end of if(receivedData.indexOf("HELLO") > 0)
 
-            // log the data to the cloud
+
             Serial.println("sent message: " + messageSent);
-            logToParticle(logMessage, LoRa.deviceNum, LoRa.payload, LoRa.SNR, LoRa.RSSI);
+
+            if (LOG_TO_CLOUD){
+                // log the data to the cloud
+                logToParticle(logMessage, LoRa.ReceivedDeviceAddress, LoRa.payload, LoRa.SNR, LoRa.RSSI);
+            }
 
             digitalWrite(DEBUG_LED_PIN, LOW);
             Serial.println("Waiting for messages");
