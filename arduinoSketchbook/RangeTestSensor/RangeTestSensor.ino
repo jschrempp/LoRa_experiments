@@ -43,12 +43,15 @@
 
     20241212 - version 2. works on Particle Photon 2 
     v 2.1 pulled all string searches out of if() clauses
+    v 2.2 #define for continuous test mode
 
  */
 
 #include "tpp_LoRaGlobals.h"
 
 #include "tpp_loRa.h" // include the LoRa class
+
+#define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
 #if PARTICLEPHOTON
@@ -221,13 +224,13 @@ void loop() {
         } 
     }
            
-/*
-    // XXXXX TESTING CODE FOR CONTINUOUS TRANSMISSIONS
-    if (!awaitingResponse) {
-        delay(200);
-        mgButtonPressed = true;
+    if (CONTINUOUS_TEST_MODE) {
+        if (!awaitingResponse) {
+            delay(100);
+            mgButtonPressed = true;
+        }
     }
-*/
+
     // this is where the power down the ATmega code will go and we wait for an interrupt
 
     // test for button to be pressed and no transmission in progress

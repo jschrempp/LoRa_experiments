@@ -4,6 +4,7 @@
     as part of Team Practical Projects (tpp)
 
     20241212 - version 2. works on Particle Photon 2
+    version 2.1 removed version as a #define
 
 */
 /*
@@ -17,8 +18,6 @@
 #define tpp_LoRa_h
 
 #include "tpp_LoRaGlobals.h"
-
-#define VERSION 2.00
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
 
