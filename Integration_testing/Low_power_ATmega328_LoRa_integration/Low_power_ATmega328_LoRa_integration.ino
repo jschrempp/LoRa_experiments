@@ -101,7 +101,7 @@ void setup() {
   Serial.setTimeout(10);  // a full string is received after 10 ms of no new data from the LoRa device
 
   // reserve space in a message buffer string for message assembly
-  messageBuffer.reserve(16);  // this is larger than the sensor trip message will ever be
+  messageBuffer.reserve(32);  // this is larger than the sensor trip message will ever be
 
   // put the LoRa module to sleep
   Serial.println("AT");
