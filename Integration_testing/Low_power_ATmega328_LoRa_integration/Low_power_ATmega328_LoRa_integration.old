@@ -64,32 +64,19 @@
  *    
  *    version 1.20, by Bob Glicksman, 11/03/24
  *      this version delays 500 ms after transmission before puting LoRa module to sleep
- *
- *    
- *    Version 1.30, by Bob Glicksman, 12/16/24
- *      this version eliminates the delay after transmission, as it is not necessary.  This version changes
- *      the sensor message to shorten it and to include a "one up" number so that we can check for missed
- *      messages at the hub (or upstream of the hub).
- *      
  *    (c) 2024, Bob Glicksman, Jim Schrempp, Team Practical Projects.  All rights reserved.
  */
 
 #include <avr/sleep.h>  // the official avr sleep library
 
-#define VERSION 1.30
+#define VERSION 1.20
 
 #define DEBUG
-
-#define HUB_ADDRESS 57248 // hub address for mailbox/door/gate sensor
 
 // CONSTANTS
 const int BUTTON_PIN = 2; // the pushbutton is on digital pin 2 which is chip pin 4
 const int GRN_LED_PIN = 9;  // the Green LED is on digital pin 9 which is chip pin 15
 const int RED_LED_PIN = 8;  // the Red LED is on digital pin 8 which is chip pin 14
-
-// Globals
-String messageBuffer;
-uint8_t msgNum = 0; // one up message number
 
 void setup() {
 
@@ -99,9 +86,6 @@ void setup() {
 
   Serial.begin(38400);  // the LoRa device baud rate
   Serial.setTimeout(10);  // a full string is received after 10 ms of no new data from the LoRa device
-
-  // reserve space in a message buffer string for message assembly
-  messageBuffer.reserve(32);  // this is larger than the sensor trip message will ever be
 
   // put the LoRa module to sleep
   Serial.println("AT");
@@ -164,15 +148,8 @@ void loop() {
     #endif
   }
 
-  // assemble the sensor trip message in the message buffer
-  messageBuffer = "AT+SEND="; // the message preamble
-  messageBuffer += HUB_ADDRESS;
-  messageBuffer += ",6,G m: ";
-  messageBuffer += (msgNum++)%10;
-   
   // send out the contact closed message
-  //Serial.println("AT+SEND=57248,28,HELLO m: 2 rssi: -21 snr: 11");  // just a dummy message for testing
-  Serial.println(messageBuffer);
+  Serial.println("AT+SEND=57248,28,HELLO m: 2 rssi: -21 snr: 11");  // just a dummy message for testing
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
     blinkLed(RED_LED_PIN, 2);
