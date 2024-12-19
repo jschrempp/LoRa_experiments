@@ -71,39 +71,21 @@
  *      the sensor message to shorten it and to include a "one up" number so that we can check for missed
  *      messages at the hub (or upstream of the hub).
  *      
- *    Version 1.40, by Bob Glicksman, 12/17/24
- *      this version adds in jumper-determined device addressing.  3 pins are used to create a 0 - 7 offset to a base
- *      device address (base device address is a defined constant).  Arduino pin 10 (chip pin 16) adds 1 to the base
- *      device address when not grounded.  Arduino pin 11 (chip pin 17) adds 2 to the base device address when not grounded,
- *      and Arduino pin 12 (chip pin 18) adds 4 to the base device address when not grounded.  The device address is written
- *      to the LoRa module during setup(), so the device must be reset in order to change addresses.
- *      
- *      After reading these I/O pins, the pinMode is changed from INPUT_PULLUP to INPUT to conserve power.
- *      
- *      This version of the code also uses the F() macro for all string literals which avoids them being copied 
- *      from program memory to RAM an extra time.
- *      
  *    (c) 2024, Bob Glicksman, Jim Schrempp, Team Practical Projects.  All rights reserved.
  */
 
 #include <avr/sleep.h>  // the official avr sleep library
 
-#define VERSION 1.40
+#define VERSION 1.30
 
 #define DEBUG
 
 #define HUB_ADDRESS 57248 // hub address for mailbox/door/gate sensor
 
-#define BASE_DEVICE_ADDRESS 12000 // the base address for this class of sensor.  Jumpers will modify the actual device address. 
-
 // CONSTANTS
 const int BUTTON_PIN = 2; // the pushbutton is on digital pin 2 which is chip pin 4
 const int GRN_LED_PIN = 9;  // the Green LED is on digital pin 9 which is chip pin 15
 const int RED_LED_PIN = 8;  // the Red LED is on digital pin 8 which is chip pin 14
-
-const int ADR1_PIN = 10;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
-const int ADR2_PIN = 11;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
-const int ADR4_PIN = 12;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
 
 // Globals
 String messageBuffer;
@@ -115,54 +97,16 @@ void setup() {
   pinMode(GRN_LED_PIN, OUTPUT); // the green LED pin is Arduino DIO 9, chip pin 15.
   pinMode(RED_LED_PIN, OUTPUT); // the red LED pin is Arduino DIO 8, chip pin 14.
 
-  // set address line pin mode for pullup temporarily
-  uint16_t deviceAddress = BASE_DEVICE_ADDRESS;
-  
-  pinMode(ADR4_PIN, INPUT_PULLUP);
-  pinMode(ADR2_PIN, INPUT_PULLUP);
-  pinMode(ADR1_PIN, INPUT_PULLUP);
-
-  // compute the device's address based upon jumpers
-  if(digitalRead(ADR4_PIN) == HIGH) {
-    deviceAddress += 4;
-  }
-  if(digitalRead(ADR2_PIN) == HIGH) {
-    deviceAddress += 2;
-  }
-  if(digitalRead(ADR1_PIN) == HIGH) {
-    deviceAddress += 1;
-  }
-
-  // change the address pins to eliminate pullups for lowest power consumption when sleeping
-  pinMode(ADR4_PIN, INPUT);
-  pinMode(ADR2_PIN, INPUT);
-  pinMode(ADR1_PIN, INPUT);
-
-  // set up the serial port to talk to the LoRa module
-  
   Serial.begin(38400);  // the LoRa device baud rate
   Serial.setTimeout(10);  // a full string is received after 10 ms of no new data from the LoRa device
 
   // reserve space in a message buffer string for message assembly
   messageBuffer.reserve(32);  // this is larger than the sensor trip message will ever be
 
-  // initial comms with the LoRa module
-  Serial.println(F("AT"));
-  waitForOK();
-
-  // set the device address into the LoRa module
-  
-  messageBuffer = F("AT+ADDRESS=");
-  messageBuffer += deviceAddress;
-  Serial.println(messageBuffer);
-  if(waitForOK() == -1) { // only flash the LED if did not get +OK
-    #ifdef DEBUG
-    blinkLed(RED_LED_PIN, 2);
-    #endif
-  }
-
   // put the LoRa module to sleep
-  Serial.println(F("AT+MODE=1")); 
+  Serial.println("AT");
+  waitForOK();
+  Serial.println("AT+MODE=1"); 
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
     blinkLed(RED_LED_PIN, 3);
@@ -210,10 +154,10 @@ void loop() {
   #endif
   
   // wake up the LoRa module
-  Serial.println(F("AT+MODE=0"));  // mode 0 is the normal tranceiver mode of the LoRa module
+  Serial.println("AT+MODE=0");  // mode 0 is the normal tranceiver mode of the LoRa module
   waitForOK();  // something other than +OK comes back after the LoRa is powered down
   //  try again to make sure that we are powered up - got +OK
-  Serial.println(F("AT+MODE=0"));    
+  Serial.println("AT+MODE=0");    
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
     blinkLed(RED_LED_PIN, 1);
@@ -221,12 +165,13 @@ void loop() {
   }
 
   // assemble the sensor trip message in the message buffer
-  messageBuffer = F("AT+SEND="); // the message preamble
+  messageBuffer = "AT+SEND="; // the message preamble
   messageBuffer += HUB_ADDRESS;
   messageBuffer += ",6,G m: ";
   messageBuffer += (msgNum++)%10;
    
   // send out the contact closed message
+  //Serial.println("AT+SEND=57248,28,HELLO m: 2 rssi: -21 snr: 11");  // just a dummy message for testing
   Serial.println(messageBuffer);
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
@@ -234,8 +179,10 @@ void loop() {
     #endif
   }
 
+  // delay(1); // need to wait for xmit to complete before sleeping the LoRa module
+
   // put the LoRa module to sleep
-  Serial.println(F("AT+MODE=1"));
+  Serial.println("AT+MODE=1");
   if(waitForOK() == -1) { // only flash the LED if did not get +OK
     #ifdef DEBUG
     blinkLed(RED_LED_PIN, 3);
@@ -287,7 +234,7 @@ int waitForOK() {
   String receivedData = Serial.readString();
 
   // test for "+OK"
-  if(receivedData.indexOf(F("+OK")) >= 0) { // got an +OK
+  if(receivedData.indexOf("+OK") >= 0) { // got an +OK
     return 0;
   } else {
     return -1;
