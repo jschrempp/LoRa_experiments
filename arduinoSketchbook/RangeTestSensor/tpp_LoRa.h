@@ -69,14 +69,14 @@ public:
     // check for a received message from the LoRa module. status in receivedMessageState
     // if successful, the received data is stored in the receivedData variable
     // and other class variables. If not, the class variables are set to default
-    void checkForReceivedMessage();
+    int checkForReceivedMessage();
 
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response
     // prints message and result to the serial monitor
     // XXX NOTE: when I changed this to an int for the address, the ATmega328 code broke
     // XXX so I changed it back to a string. I don't know why yet.
-    int transmitMessage(const String& devAddress, const String& message);
+    int transmitMessage(long int toAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
     // xxx we need to discuss this
 
