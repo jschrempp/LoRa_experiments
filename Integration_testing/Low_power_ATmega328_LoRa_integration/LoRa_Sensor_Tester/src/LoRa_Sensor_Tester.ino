@@ -22,7 +22,7 @@ SYSTEM_MODE(AUTOMATIC);
 // Run the application and system concurrently in separate threads
 SYSTEM_THREAD(ENABLED);
 
-#define NUMBER_OF_SENSOR_TRIPS 5
+#define NUMBER_OF_SENSOR_TRIPS 1000
 #define SENSOR_ON_TIME 2000
 #define SENSOR_OFF_TIME 8000
 
