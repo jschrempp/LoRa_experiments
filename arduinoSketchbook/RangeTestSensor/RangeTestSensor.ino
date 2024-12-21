@@ -51,7 +51,7 @@
 
 #include "tpp_loRa.h" // include the LoRa class
 
-#define CONTINUOUS_TEST_MODE 1 // set to 1 to enable continuous testing
+#define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
 #if PARTICLEPHOTON
@@ -60,6 +60,9 @@
     // Show system, cloud connectivity, and application logs over USB
     // View logs with CLI using 'particle serial monitor --follow'
     // SerialLogHandler logHandler(LOG_LEVEL_INFO);
+#else
+    // ATMega328
+    #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
 #define VERSION 2.3
@@ -132,7 +135,12 @@ void blinkLEDsOnBoot() {
     return;
 }
 
-void ISR_buttonPressed() {
+void ISR_wakeAndSend() {
+    if (!PARTICLEPHOTON) {
+        // ATMega328
+        sleep_disable();  // cancel sleep mode for now
+        detachInterrupt(digitalPinToInterrupt(BUTTON_PIN));  // preclude more interrupts due to bounce, or other
+    }
     mgButtonPressed = true;
 }
 
@@ -140,10 +148,11 @@ void setup() {
 
     #if PARTICLEPHOTON
         pinMode(BUTTON_PIN, INPUT_PULLUP);
-        attachInterrupt(BUTTON_PIN, ISR_buttonPressed, FALLING);
+        attachInterrupt(BUTTON_PIN, ISR_wakeAndSend, FALLING);
     #else
+        // ATmegs328
         pinMode(BUTTON_PIN, INPUT);
-        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_buttonPressed, FALLING);
+        // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_wakeAndSend, FALLING);
     #endif
 
     pinMode(GRN_LED_PIN, OUTPUT); 
@@ -206,11 +215,36 @@ void loop() {
         }
     }
 
+    if (!PARTICLEPHOTON){
+        // ATMega328
 
-    // this is where the power down the ATmega code will go and we wait for an interrupt
+        // the first thing that we do is put the microcontroller to deep sleep; awake only on falling edge on interrupt 0.
+        
+        // disable the adc
+        ADCSRA = 0;
+        
+        set_sleep_mode (SLEEP_MODE_PWR_DOWN); // the lowest possible low power mode
+        sleep_enable(); // not sleeping yet!
 
-    // test for button to be pressed and no transmission in progress
-    if(mgButtonPressed && !awaitingResponse) { // button press detected 
+        noInterrupts(); // disable interrupts until we actually go to sleep.
+        attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_wakeAndSend, FALLING); // ready the wakeup interrupt
+        EIFR = bit(INTF0);  // clear flag for interrupt 0
+
+        // turn off brown-out enable in software
+        // BODS must be set to one and and BODSE must be set to zero within 4 clock cycles
+        MCUCR = bit(BODS) | bit (BODSE);
+        // the BODS bit is automatically cleared after 3 clock cycles
+        MCUCR = bit(BODS);
+
+        interrupts(); // enable interrupts just before sleeping
+        sleep_cpu();
+
+        //  everything should now be in deep sleep.
+        // Interrupt 0 wakes up the ATmega328 - send the message and go back to sleep
+    }
+ 
+     // test for button to be pressed and no transmission in progress
+     if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
         debugPrintln(F("\n\r--------------------"));
         int errRtn = LoRa.wake();
@@ -253,7 +287,7 @@ void loop() {
         digitalWrite(GRN_LED_PIN, LOW);
     }
 
-    if(awaitingResponse) {
+    while(awaitingResponse) {
 
         if (millis() - startTime > 5000 ) { // wait 5 seconds for a response from the hub
             awaitingResponse = false;  // timed out
@@ -306,9 +340,8 @@ void loop() {
 
         } // end of switch(LoRa.receivedMessageState)
 
-    } // end of if(awaitingResponse)
+    } // end of while(awaitingResponse)
 
-    // xxx this is where the power down code goes
     if (needToSleep) {
         int errRtn = LoRa.sleep(); // put the LoRa module to sleep
         if (errRtn) {
