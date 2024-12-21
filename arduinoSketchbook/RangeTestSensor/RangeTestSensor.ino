@@ -45,6 +45,7 @@
     v 2.1 pulled all string searches out of if() clauses
     v 2.2 #define for continuous test mode
     v 2.3 works on ATmega328
+    v 2.4 integrates ATmega power down code
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -65,7 +66,7 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.3
+#define VERSION 2.4
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
