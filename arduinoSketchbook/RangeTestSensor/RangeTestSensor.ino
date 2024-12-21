@@ -66,7 +66,7 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.4
+#define VERSION 2.3
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
@@ -137,11 +137,13 @@ void blinkLEDsOnBoot() {
 }
 
 void ISR_wakeAndSend() {
-    if (!PARTICLEPHOTON) {
+    #if (PARTICLEPHOTON)
+        // nothing special to do
+    #else
         // ATMega328
         sleep_disable();  // cancel sleep mode for now
         detachInterrupt(digitalPinToInterrupt(BUTTON_PIN));  // preclude more interrupts due to bounce, or other
-    }
+    #endif
     mgButtonPressed = true;
 }
 
@@ -216,7 +218,9 @@ void loop() {
         }
     }
 
-    if (!PARTICLEPHOTON){
+    #if (PARTICLEPHOTON)
+        // nothing special to do
+    #else
         // ATMega328
 
         // the first thing that we do is put the microcontroller to deep sleep; awake only on falling edge on interrupt 0.
@@ -242,7 +246,7 @@ void loop() {
 
         //  everything should now be in deep sleep.
         // Interrupt 0 wakes up the ATmega328 - send the message and go back to sleep
-    }
+    #endif
  
      // test for button to be pressed and no transmission in progress
      if(mgButtonPressed && !awaitingResponse) { // button press detected 

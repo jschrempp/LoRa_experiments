@@ -69,7 +69,7 @@ public:
     // check for a received message from the LoRa module. status in receivedMessageState
     // if successful, the received data is stored in the receivedData variable
     // and other class variables. If not, the class variables are set to default
-    int checkForReceivedMessage();
+    void checkForReceivedMessage();
 
     // function to transmit a message to another LoRa device
     // returns 0 if successful, 1 if error, -1 if no response

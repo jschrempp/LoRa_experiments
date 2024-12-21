@@ -227,7 +227,7 @@ int tpp_LoRa::transmitMessage(long int toAddress, const String& message){
 // If there is data on Serial1 then read it and parse it into the class variables. 
 // Set receivedMessageState to 1 if successful, 0 if no message, -1 if error
 // If there is no data on Serial1 then clear the class variables.
-int tpp_LoRa::checkForReceivedMessage() {
+void tpp_LoRa::checkForReceivedMessage() {
 
     ReceivedDeviceAddress = 0;
 
