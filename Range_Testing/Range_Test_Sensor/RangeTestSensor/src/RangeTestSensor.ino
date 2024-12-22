@@ -46,6 +46,7 @@
     v 2.2 #define for continuous test mode
     v 2.3 works on ATmega328
     v 2.4 integrates ATmega power down code
+    v 2.5 now calls setAddress for the LoRa module in setup
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -69,7 +70,7 @@
 #define VERSION 2.3
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
-#define THIS_LORA_SENSOR_ADDRESS 5 // the address of the sensor
+#define THIS_LORA_DEFAULT_SENSOR_ADDRESS 5 // the address of the sensor
 
 //Jim's addresses
 //#define THIS_LORA_SENSOR_ADDRESS 12648 // the address of the sensor LoRaSensor
@@ -180,6 +181,11 @@ void setup() {
         blinkLEDsOnERROR(15,err);
     }
 
+    err = LoRa.setAddress(THIS_LORA_DEFAULT_SENSOR_ADDRESS);
+    if (err) {
+        mgFatalError = true;
+        blinkLEDsOnERROR(13,err);
+    }
     
     if (!mgFatalError) {
         int errRtn = LoRa.sleep(); // put the LoRa module to sleep

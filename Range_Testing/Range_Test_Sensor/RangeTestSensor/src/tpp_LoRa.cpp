@@ -7,6 +7,7 @@
     v 2.1 pulled all string searches out of if() clause
     v 2.2 removed version as a #define
     20241218 works on AMmega328 
+    20241222 added setAddress
 
 */
 
@@ -84,8 +85,144 @@ int tpp_LoRa::begin() {
     return 0;
 
 }
+// set just the device address
+// rtn True if failure
+bool tpp_LoRa::setAddress(int deviceAddress) {
 
+    if(wake() != 0) {
+        return 1;
+    }
 
+    debugPrintln(F("Start LoRa address set"));
+
+    LoRaStringBuffer = F("AT+ADDRESS=");
+    LoRaStringBuffer += deviceAddress;
+    if(sendCommand(LoRaStringBuffer) != 0) {   // xxx should this be &lorastirngbuffer;
+        debugPrintln(F("Device number not set"));
+        return 1;
+    } 
+
+    return 0;
+}
+
+// Configure the LoRa module with settings 
+// rtn True if failure
+bool tpp_LoRa::configDevice(int deviceAddress) {
+
+    if(wake() != 0) {
+        return true;
+    }
+
+    debugPrintln(F("Start LoRa configuration"));
+
+    LoRaStringBuffer = F("AT+NETWORKID=");
+    LoRaStringBuffer += LoRa_NETWORK_ID;
+    if(sendCommand(LoRaStringBuffer) != 0) {
+        debugPrintln(F("Network ID not set"));
+        return true;
+    }
+
+    LoRaStringBuffer = F("AT+ADDRESS=");
+    LoRaStringBuffer += deviceAddress;
+    if(sendCommand(LoRaStringBuffer) != 0) {   // xxx should this be &lorastirngbuffer;
+        debugPrintln(F("Device number not set"));
+        return true;
+    } 
+        
+    LoRaStringBuffer = F("AT+PARAMETER=");
+    LoRaStringBuffer += LoRa_SPREADING_FACTOR;
+    LoRaStringBuffer += F(",");
+    LoRaStringBuffer += LoRa_BANDWIDTH;
+    LoRaStringBuffer += F(",");
+    LoRaStringBuffer += LoRa_CODING_RATE;
+    LoRaStringBuffer += F(",");
+    LoRaStringBuffer += LoRa_PREAMBLE;
+    if(sendCommand(LoRaStringBuffer) != 0) {
+        debugPrintln(F("Parameters not set"));
+        return true;
+    } 
+
+    LoRaStringBuffer = F("AT+MODE=0");
+    if (sendCommand(LoRaStringBuffer) != 0) {
+        debugPrintln(F("Tranciever mode not set"));
+        return true;
+    } 
+
+    LoRaStringBuffer = F("AT+BAND=915000000");
+    if (sendCommand(LoRaStringBuffer) != 0) {
+        debugPrintln(F("Band not set"));
+        return true;
+    } 
+
+    LoRaStringBuffer = F("AT+CRFOP=22");
+    if (sendCommand(LoRaStringBuffer) != 0) {
+        debugPrintln(F("Power not set"));
+        return true;
+    } 
+    
+    debugPrintln(F("LoRa module is initialized"));
+
+    return false;
+
+}
+
+// Read current settings and print them to the serial monitor
+//  If error then the D7 will blink twice
+//  Return true if error
+bool tpp_LoRa::readSettings() {
+
+    if(wake() != 0) {
+        return true;
+    }
+
+    // READ LoRa Settings
+    LoRaStringBuffer = F("\r\n\r\n-----------------\r\nReading back the settings");
+    debugPrintln(LoRaStringBuffer);
+
+    if(sendCommand(F("AT+UID?")) != 0) {
+        debugPrintln(F("error reading UID"));
+        return true;
+    } else {
+        UID = receivedData.substring(5, receivedData.length());
+        UID.trim();
+    }
+    
+    if(sendCommand(F("AT+CRFOP?")) != 0) {
+        debugPrintln(F("error reading radio power"));
+        return true;
+    } else { 
+        LoRaCRFOP = receivedData.substring(7, receivedData.length()).toInt();
+    }
+
+    if (sendCommand(F("AT+NETWORKID?")) != 0) {
+        debugPrintln(F("error reading network id"));
+        return true;
+    } else  { 
+        LoRaNetworkID = receivedData.substring(11, receivedData.length()).toInt();
+    }
+
+    if(sendCommand(F("AT+ADDRESS?")) != 0) {
+        debugPrintln(F("error reading device address"));
+        return true;
+    } else {  
+        LoRaDeviceAddress = receivedData.substring(9, receivedData.length()).toInt();
+    }
+
+    if(sendCommand(F("AT+PARAMETER?")) != 0) {
+        debugPrintln(F("error reading parameters"));
+        return true;
+    } else {
+        int firstComma = receivedData.indexOf(F(","));
+        int secondComma = receivedData.indexOf(F(","), firstComma + 1);
+        int thirdComma = receivedData.indexOf(F(","), secondComma + 1);
+        LoRaSpreadingFactor = receivedData.substring(11, firstComma).toInt();
+        LoRaBandwidth = receivedData.substring(firstComma + 1, secondComma).toInt();
+        LoRaCodingRate = receivedData.substring(secondComma + 1, thirdComma).toInt();
+        LoRaPreamble = receivedData.substring(thirdComma + 1,receivedData.length()).toInt();
+    }
+
+    return false;
+}
 
 
 // function puts LoRa to sleep and turns off the power. LoRa will awaken when sent

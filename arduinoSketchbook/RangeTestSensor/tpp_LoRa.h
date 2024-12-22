@@ -5,6 +5,7 @@
 
     20241212 - version 2. works on Particle Photon 2
     version 2.1 removed version as a #define
+    20241222 added setAddress
 
 */
 /*
@@ -59,6 +60,9 @@ public:
     // and test communication to the LoRa
     int begin();
     
+    // set just the device address
+    bool setAddress(int deviceAddress);
+
     // Initialize the LoRa module with settings found in the tpp_LoRa.h file
     bool configDevice(int devAddress);
 
