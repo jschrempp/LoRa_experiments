@@ -47,6 +47,7 @@
     v 2.3 works on ATmega328
     v 2.4 integrates ATmega power down code
     v 2.5 now calls setAddress for the LoRa module in setup
+    v 2.6 processes address jumper pins to alter the sensor device address
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -67,7 +68,7 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.3
+#define VERSION 2.6
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define THIS_LORA_DEFAULT_SENSOR_ADDRESS 5 // the address of the sensor
@@ -181,7 +182,31 @@ void setup() {
         blinkLEDsOnERROR(15,err);
     }
 
-    err = LoRa.setAddress(THIS_LORA_DEFAULT_SENSOR_ADDRESS);
+    // xxx read the address jumers and compute the device's address
+    // set address line pin mode for pullup temporarily
+    unsigned int deviceAddress = THIS_LORA_DEFAULT_SENSOR_ADDRESS;
+  
+    pinMode(ADR4_PIN, INPUT_PULLUP);
+    pinMode(ADR2_PIN, INPUT_PULLUP);
+    pinMode(ADR1_PIN, INPUT_PULLUP);
+
+    // compute the device's address based upon jumpers
+    if(digitalRead(ADR4_PIN) == HIGH) {
+      deviceAddress += 4;
+    }
+    if(digitalRead(ADR2_PIN) == HIGH) {
+      deviceAddress += 2;
+    }
+    if(digitalRead(ADR1_PIN) == HIGH) {
+      deviceAddress += 1;
+    }
+
+    // change the address pins to eliminate pullups for lowest power consumption when sleeping
+    pinMode(ADR4_PIN, INPUT);
+    pinMode(ADR2_PIN, INPUT);
+    pinMode(ADR1_PIN, INPUT);
+
+    err = LoRa.setAddress(deviceAddress);
     if (err) {
         mgFatalError = true;
         blinkLEDsOnERROR(13,err);
@@ -362,4 +387,3 @@ void loop() {
     }
 
 } // end of loop()
-

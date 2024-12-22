@@ -23,6 +23,10 @@
     const int BUTTON_PIN = D0;   // the pushbutton is on digital pin 2 which is chip pin 4
     const int GRN_LED_PIN = D7;  // the Green LED is on digital pin 7 which is the onboard LED
     const int RED_LED_PIN = D8;  // the Red LED is on digital pin 8 
+    // xxx additional pins for device address customization
+    const int ADR1_PIN = D17;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR2_PIN = D15;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR4_PIN = D16;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
 #else
     #include "arduino.h" 
     // ATMega328 has only one serial port, so no debug serial port
@@ -31,6 +35,11 @@
     const int BUTTON_PIN = 2;   // Interrupt 0 is Arduino pin 2 is chip pin 4, external pullup with schmitt trigger is used.
     const int GRN_LED_PIN = 9;  // the Green LED is on digital pin 9 which is chip pin 15
     const int RED_LED_PIN = 8;  // the Red LED is on digital pin 8 which is chip pin 14
+    // xxx additional pins for device address customization
+    const int ADR1_PIN = 10;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR2_PIN = 11;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR4_PIN = 12;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+
 #endif
 
 #endif
