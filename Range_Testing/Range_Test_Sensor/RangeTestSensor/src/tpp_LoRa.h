@@ -76,7 +76,7 @@ public:
     // prints message and result to the serial monitor
     // XXX NOTE: when I changed this to an int for the address, the ATmega328 code broke
     // XXX so I changed it back to a string. I don't know why yet.
-    int transmitMessage(const String& devAddress, const String& message);
+    int transmitMessage(long int toAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
     // xxx we need to discuss this
 
