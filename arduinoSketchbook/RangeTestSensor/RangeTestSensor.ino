@@ -48,6 +48,7 @@
     v 2.4 integrates ATmega power down code
     v 2.5 now calls setAddress for the LoRa module in setup
     v 2.6 processes address jumper pins to alter the sensor device address
+    v 2.6.1 added transmission of a reset message to indicate setup run
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -68,7 +69,7 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.6
+#define VERSION 2.6.1
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define THIS_LORA_DEFAULT_SENSOR_ADDRESS 5 // the address of the sensor
@@ -211,6 +212,13 @@ void setup() {
         mgFatalError = true;
         blinkLEDsOnERROR(13,err);
     }
+
+    // XXX send out a message for testing resets.  Comment this out after stree testing.
+
+    mgpayload = F("The ATMega328 has reset");
+    LoRa.transmitMessage(TPP_LORA_HUB_ADDRESS, mgpayload);
+
+    // XXX end of reset test message
     
     if (!mgFatalError) {
         int errRtn = LoRa.sleep(); // put the LoRa module to sleep
