@@ -49,6 +49,7 @@
     v 2.5 now calls setAddress for the LoRa module in setup
     v 2.6 processes address jumper pins to alter the sensor device address
     v 2.7 address lines work for P2
+    v 2.8 #define to not wait for hub response
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -56,6 +57,7 @@
 #include "tpp_loRa.h" // include the LoRa class
 
 #define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
+#define WAIT_FOR_RESPONSE_FROM_HUB 0 // set ot 0 to disable waiting for a response from the hub
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
 #if PARTICLEPHOTON
@@ -69,7 +71,7 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.7
+#define VERSION 2.8
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define LORA_TRIP_SENSOR_ADDRESS_BASE 5 // the base address of the trip sensor type
@@ -283,7 +285,7 @@ void loop() {
      // test for button to be pressed and no transmission in progress
      if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
-        debugPrintln(F("\n\r--------------------"));
+        debugPrintln(F("\n\r----- button press ----------"));
         int errRtn = LoRa.wake();
         if (errRtn) {
             blinkLEDsOnERROR(2,errRtn);
@@ -322,6 +324,11 @@ void loop() {
         awaitingResponse = true;  
         startTime = millis();
         digitalWrite(GRN_LED_PIN, LOW);
+    }
+
+    if (WAIT_FOR_RESPONSE_FROM_HUB == 0) {
+        awaitingResponse = false;
+        needToSleep = true;
     }
 
     while(awaitingResponse) {
