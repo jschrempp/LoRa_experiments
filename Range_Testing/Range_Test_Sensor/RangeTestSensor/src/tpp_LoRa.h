@@ -61,7 +61,7 @@ public:
     int begin();
     
     // set just the device address
-    bool setAddress(int deviceAddress);
+    bool setAddress(unsigned int deviceAddress);
 
     // Initialize the LoRa module with settings found in the tpp_LoRa.h file
     bool configDevice(int devAddress);
