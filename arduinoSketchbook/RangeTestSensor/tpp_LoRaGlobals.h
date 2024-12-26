@@ -20,13 +20,13 @@
     #define LORA_SERIAL Serial1
     #define DEBUG_SERIAL Serial
     // CONSTANTS 
-    const int BUTTON_PIN = D0;   // the pushbutton is on digital pin 2 which is chip pin 4
-    const int GRN_LED_PIN = D7;  // the Green LED is on digital pin 7 which is the onboard LED
-    const int RED_LED_PIN = D8;  // the Red LED is on digital pin 8 
+    const int BUTTON_PIN = D0;   // the pushbutton is on digital pin 2 which is ATMega328 chip pin 4
+    const int GRN_LED_PIN = D2;  // the Green LED is on digital pin 7 which is the P2 onboard LED
+    const int RED_LED_PIN = D19;  // the Red LED is on digital pin 8 
     // xxx additional pins for device address customization
-    const int ADR1_PIN = D17;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
-    const int ADR2_PIN = D15;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
-    const int ADR4_PIN = D16;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR1_PIN = D3;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR2_PIN = D4;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR4_PIN = D5;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
 #else
     #include "arduino.h" 
     // ATMega328 has only one serial port, so no debug serial port
