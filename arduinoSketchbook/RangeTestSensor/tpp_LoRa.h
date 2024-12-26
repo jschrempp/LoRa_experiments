@@ -21,6 +21,7 @@
 #include "tpp_LoRaGlobals.h"
 
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
+#define TPP_LORA_MSG_GATE_SENSOR "G" // message from the sensor to the hub
 
 #define LoRa_NETWORK_ID 18
 

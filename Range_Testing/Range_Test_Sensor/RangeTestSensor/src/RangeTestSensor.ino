@@ -50,6 +50,7 @@
     v 2.6 processes address jumper pins to alter the sensor device address
     v 2.7 address lines work for P2
     v 2.8 #define to not wait for hub response
+    v 2.9 msg to hub starts with the character defined in TPP_LORA_MSG_GATE_SENSOR
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -57,7 +58,7 @@
 #include "tpp_loRa.h" // include the LoRa class
 
 #define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
-#define WAIT_FOR_RESPONSE_FROM_HUB 0 // set ot 0 to disable waiting for a response from the hub
+#define WAIT_FOR_RESPONSE_FROM_HUB 1 // set ot 0 to disable waiting for a response from the hub
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
 #if PARTICLEPHOTON
@@ -217,6 +218,7 @@ void setup() {
     
     if (!mgFatalError) {
         int errRtn = LoRa.sleep(); // put the LoRa module to sleep
+        errRtn = errRtn; // to avoid a warning
         
         blinkLEDsOnBoot();
 
@@ -291,7 +293,8 @@ void loop() {
             blinkLEDsOnERROR(2,errRtn);
         }
         msgNum++;
-        mgpayload = F("HELLO m: ");
+        mgpayload = TPP_LORA_MSG_GATE_SENSOR;
+        mgpayload += F(" m: ");
         mgpayload += msgNum;
         switch (msgNum) {
             case 1:
@@ -310,10 +313,7 @@ void loop() {
                 mgpayload += LoRa.LoRaPreamble;
                 break;
             default:
-                mgpayload += F(" rssi: ");
-                mgpayload += mglastRSSI;
-                mgpayload += F(" snr: ");
-                mgpayload += mglastSNR;
+
                 break;
         }
         errRtn = LoRa.transmitMessage(TPP_LORA_HUB_ADDRESS, mgpayload); /// send the address as an int 

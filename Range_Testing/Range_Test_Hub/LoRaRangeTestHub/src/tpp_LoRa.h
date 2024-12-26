@@ -4,6 +4,8 @@
     as part of Team Practical Projects (tpp)
 
     20241212 - version 2. works on Particle Photon 2
+    version 2.1 removed version as a #define
+    20241222 added setAddress
 
 */
 /*
@@ -18,9 +20,8 @@
 
 #include "tpp_LoRaGlobals.h"
 
-// VERSION 2.00
-
 #define TPP_LORA_HUB_ADDRESS 57248   // arbitrary  0 - 65535
+#define TPP_LORA_MSG_GATE_SENSOR "G" // message from the sensor to the hub
 
 #define LoRa_NETWORK_ID 18
 
@@ -60,6 +61,9 @@ public:
     // and test communication to the LoRa
     int begin();
     
+    // set just the device address
+    bool setAddress(unsigned int deviceAddress);
+
     // Initialize the LoRa module with settings found in the tpp_LoRa.h file
     bool configDevice(int devAddress);
 
@@ -77,7 +81,7 @@ public:
     // prints message and result to the serial monitor
     // XXX NOTE: when I changed this to an int for the address, the ATmega328 code broke
     // XXX so I changed it back to a string. I don't know why yet.
-    int transmitMessage(const String& devAddress, const String& message);
+    int transmitMessage(long int toAddress, const String& message);
     // xxx add number or retries and a string refernce for the response
     // xxx we need to discuss this
 

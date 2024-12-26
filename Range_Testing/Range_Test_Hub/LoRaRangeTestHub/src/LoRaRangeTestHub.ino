@@ -30,6 +30,8 @@
  *      now uses the same tpp_LoRa library as the sensor. 
  *      #define added to disable cloud logging LOG_TO_CLOUD. This is useful for continuous
  *      testing without filling up the cloud log.
+ * ver 2.1 12/15/2024 
+ *      Now uses the string defined in tpp_LoRa.h for the message from the sensor to the hub
  */
 
 #include "Particle.h"
@@ -41,7 +43,7 @@
 SYSTEM_THREAD(ENABLED);
 //SerialLogHandler logHandler(LOG_LEVEL_TRACE);
 
-#define VERSION 2.00
+#define VERSION 2.1
 
 const int DEBUG_LED_PIN = D7;
 const int LORA_ADDRESS_PIN = D0;
@@ -123,11 +125,11 @@ void loop() {
         case 1: // message received
             String logMessage = "";
             String messageSent = "";
-            String deviceNum = String(LoRa.LoRaDeviceAddress);
+            long int deviceNum = LoRa.ReceivedDeviceAddress;
             digitalWrite(DEBUG_LED_PIN, HIGH);
             Serial.println("payload: " + LoRa.payload);
 
-            int helloIndex = LoRa.payload.indexOf("HELLO");
+            int helloIndex = LoRa.payload.indexOf(TPP_LORA_MSG_GATE_SENSOR);
             if(helloIndex >= 0) { // will be -1 if "HELLO" not in the string
 
                 // HELLO is the message from our sensors
@@ -142,7 +144,7 @@ void loop() {
 
             } else {
 
-                Serial.println("received data is not HELLO or +OK");
+                Serial.println("received data does not start with a known character (see tpp_LoRa.h)");
                 LoRa.transmitMessage(deviceNum, "NOPE");
                 logMessage = "NOPE";
                 messageSent = "NOPE";
