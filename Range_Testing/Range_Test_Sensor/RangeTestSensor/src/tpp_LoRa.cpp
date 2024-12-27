@@ -87,7 +87,7 @@ int tpp_LoRa::begin() {
 }
 // set just the device address
 // rtn True if failure
-bool tpp_LoRa::setAddress(int deviceAddress) {
+bool tpp_LoRa::setAddress(unsigned int deviceAddress) {
 
     if(wake() != 0) {
         return 1;
@@ -465,7 +465,3 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     return;
 }
-
-
-
-

@@ -47,6 +47,10 @@
     v 2.3 works on ATmega328
     v 2.4 integrates ATmega power down code
     v 2.5 now calls setAddress for the LoRa module in setup
+    v 2.6 processes address jumper pins to alter the sensor device address
+    v 2.7 address lines work for P2
+    v 2.8 #define to not wait for hub response
+    v 2.9 msg to hub starts with the character defined in TPP_LORA_MSG_GATE_SENSOR
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -54,6 +58,7 @@
 #include "tpp_loRa.h" // include the LoRa class
 
 #define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
+#define WAIT_FOR_RESPONSE_FROM_HUB 1 // set ot 0 to disable waiting for a response from the hub
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
 #if PARTICLEPHOTON
@@ -67,10 +72,10 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.3
+#define VERSION 2.8
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
-#define THIS_LORA_DEFAULT_SENSOR_ADDRESS 5 // the address of the sensor
+#define LORA_TRIP_SENSOR_ADDRESS_BASE 5 // the base address of the trip sensor type
 
 //Jim's addresses
 //#define THIS_LORA_SENSOR_ADDRESS 12648 // the address of the sensor LoRaSensor
@@ -181,7 +186,31 @@ void setup() {
         blinkLEDsOnERROR(15,err);
     }
 
-    err = LoRa.setAddress(THIS_LORA_DEFAULT_SENSOR_ADDRESS);
+    // xxx read the address jumers and compute the device's address
+    // set address line pin mode for pullup temporarily
+    unsigned int deviceAddress = LORA_TRIP_SENSOR_ADDRESS_BASE;
+  
+    pinMode(ADR4_PIN, INPUT_PULLUP);
+    pinMode(ADR2_PIN, INPUT_PULLUP);
+    pinMode(ADR1_PIN, INPUT_PULLUP);
+
+    // compute the device's address based upon jumpers
+    if(digitalRead(ADR4_PIN) == HIGH) {
+      deviceAddress += 4;
+    }
+    if(digitalRead(ADR2_PIN) == HIGH) {
+      deviceAddress += 2;
+    }
+    if(digitalRead(ADR1_PIN) == HIGH) {
+      deviceAddress += 1;
+    }
+
+    // change the address pins to eliminate pullups for lowest power consumption when sleeping
+    pinMode(ADR4_PIN, INPUT);
+    pinMode(ADR2_PIN, INPUT);
+    pinMode(ADR1_PIN, INPUT);
+
+    err = LoRa.setAddress(deviceAddress);
     if (err) {
         mgFatalError = true;
         blinkLEDsOnERROR(13,err);
@@ -189,6 +218,7 @@ void setup() {
     
     if (!mgFatalError) {
         int errRtn = LoRa.sleep(); // put the LoRa module to sleep
+        errRtn = errRtn; // to avoid a warning
         
         blinkLEDsOnBoot();
 
@@ -257,13 +287,14 @@ void loop() {
      // test for button to be pressed and no transmission in progress
      if(mgButtonPressed && !awaitingResponse) { // button press detected 
         digitalWrite(GRN_LED_PIN, HIGH);
-        debugPrintln(F("\n\r--------------------"));
+        debugPrintln(F("\n\r----- button press ----------"));
         int errRtn = LoRa.wake();
         if (errRtn) {
             blinkLEDsOnERROR(2,errRtn);
         }
         msgNum++;
-        mgpayload = F("HELLO m: ");
+        mgpayload = TPP_LORA_MSG_GATE_SENSOR;
+        mgpayload += F(" m: ");
         mgpayload += msgNum;
         switch (msgNum) {
             case 1:
@@ -282,10 +313,7 @@ void loop() {
                 mgpayload += LoRa.LoRaPreamble;
                 break;
             default:
-                mgpayload += F(" rssi: ");
-                mgpayload += mglastRSSI;
-                mgpayload += F(" snr: ");
-                mgpayload += mglastSNR;
+
                 break;
         }
         errRtn = LoRa.transmitMessage(TPP_LORA_HUB_ADDRESS, mgpayload); /// send the address as an int 
@@ -296,6 +324,11 @@ void loop() {
         awaitingResponse = true;  
         startTime = millis();
         digitalWrite(GRN_LED_PIN, LOW);
+    }
+
+    if (WAIT_FOR_RESPONSE_FROM_HUB == 0) {
+        awaitingResponse = false;
+        needToSleep = true;
     }
 
     while(awaitingResponse) {
@@ -362,4 +395,3 @@ void loop() {
     }
 
 } // end of loop()
-

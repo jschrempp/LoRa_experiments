@@ -5,12 +5,14 @@
 
     20241212 - works on Particle Photon 2
     v 2.1 pulled all string searches out of if() clause
+    v 2.2 removed version as a #define
+    20241218 works on AMmega328 
+    20241222 added setAddress
 
 */
 
 #include "tpp_LoRa.h"
 
-// VERSION 2.10
 
 #define TPP_LORA_DEBUG 0  // Do NOT enable this for ATmega328
 
@@ -18,25 +20,25 @@ bool mg_LoRaBusy = false;
 
 String tempString; 
 
-void tpp_LoRa::debugPrint(const String& message) {
-    #if TPP_LORA_DEBUG 
-        String output = F("tpp_LoRa: ");
-        output += message;
-        DEBUG_SERIAL.print(output);
+void tpp_LoRa::debugPrintln(const String& message) {
+    #if TPP_LORA_DEBUG
+        tempString = F("tpp_LoRa: ");
+        tempString += message;
+        DEBUG_SERIAL.println(tempString);
     #endif
 }
-void tpp_LoRa::debugPrintNoHeader(const String& message) {
+void tpp_LoRa::debugPrintNoHeader(const String& message){
     #if TPP_LORA_DEBUG
         DEBUG_SERIAL.print(message);
     #endif
 }
-void tpp_LoRa::debugPrintln(const String& message) {
+void tpp_LoRa::debugPrint(const String& message){
     #if TPP_LORA_DEBUG
-        String output = F("tpp_LoRa: ");
-        output += message;
-        DEBUG_SERIAL.println(output);
+        tempString += message;
+        DEBUG_SERIAL.println(tempString);
     #endif
 }
+
 
 void tpp_LoRa::clearClassVariables() {
     LoRaStringBuffer = "";
@@ -59,33 +61,49 @@ void tpp_LoRa::clearClassVariables() {
 // Do some class initialization stuff
 // and make sure LoRa will respond
 int tpp_LoRa::begin() {
-    LoRaStringBuffer.reserve(200);  // reserve some space for the LoRa string buffer so it is not constantly reallocating
-    UID.reserve(5);
-    receivedData.reserve(200);
-    payload.reserve(100);
-    tempString.reserve(50); 
-    clearClassVariables();
+    LoRaStringBuffer.reserve(100);  // reserve some space for the LoRa string buffer so it is not constantly reallocating
+    UID.reserve(30);
+    receivedData.reserve(100);
+    payload.reserve(75);
+    tempString.reserve(50);
 
     LORA_SERIAL.begin(38400);
     LORA_SERIAL.setTimeout(10);
 
     // check that LoRa is ready
     LoRaStringBuffer = F("AT");
-    if(sendCommand(LoRaStringBuffer) != 0) {
-        debugPrintln(F("LoRa reply bad, trying again"));
+    int errRtn = sendCommand(LoRaStringBuffer);
+    if(errRtn) {
         delay(1000);
-
-        if(sendCommand(LoRaStringBuffer) != 0) { // try again for photon 1
-            debugPrintln(F("LoRa is not ready"));
-            return true;
+        errRtn = sendCommand(LoRaStringBuffer);
+        if(errRtn) { // try again for photon 1
+            return errRtn;
         } 
     }
 
     isLoRaAwake = true;
-    return false;
+    return 0;
 
 }
+// set just the device address
+// rtn True if failure
+bool tpp_LoRa::setAddress(unsigned int deviceAddress) {
 
+    if(wake() != 0) {
+        return 1;
+    }
+
+    debugPrintln(F("Start LoRa address set"));
+
+    LoRaStringBuffer = F("AT+ADDRESS=");
+    LoRaStringBuffer += deviceAddress;
+    if(sendCommand(LoRaStringBuffer) != 0) {   // xxx should this be &lorastirngbuffer;
+        debugPrintln(F("Device number not set"));
+        return 1;
+    } 
+
+    return 0;
+}
 
 // Configure the LoRa module with settings 
 // rtn True if failure
@@ -206,51 +224,63 @@ bool tpp_LoRa::readSettings() {
     return false;
 }
 
+
 // function puts LoRa to sleep and turns off the power. LoRa will awaken when sent
 // a message.  Returns 0 if successful, 1 if error
 int tpp_LoRa::sleep(){
 
-    if(sendCommand(F("AT+MODE=1")) != 0) {
-        debugPrintln(F("error sleeping LoRa"));
-        return true;
+    LoRaStringBuffer = F("AT");
+    int errRtn = sendCommand(LoRaStringBuffer);
+    if (errRtn) {
+        return errRtn;
+    }
+
+    LoRaStringBuffer = F("AT+MODE=1");
+    errRtn = sendCommand(LoRaStringBuffer);
+    if(errRtn) {
+        return errRtn;
     } else { 
-        debugPrintln(F("LoRa is now asleep vvvvvvvv"));
+        
         isLoRaAwake = false; 
-        return false;
+        return 0;
     }
 };
 
 // function to wake up the LoRa module from a low power sleep
-// returns 0 if successful, 1 if error
+// returns 0 if successful, otherwise error code
 int tpp_LoRa::wake(){
 
     if (isLoRaAwake) {
-        return false;
+        return 0;
     }
 
-    if(sendCommand("AT") != 0) {    
-        debugPrintln(F("error waking up LoRa"));
-        return true;
-    }
+    LoRaStringBuffer = F("AT");
+    int errRtn = sendCommand(LoRaStringBuffer);
+    if(errRtn) {
+        return errRtn;
+    } else {
 
-    if(sendCommand(F("AT+MODE=0")) != 0) {    
-        debugPrintln(F("error setting LoRa to mode 0"));
-        return true;
-    } else { 
-        debugPrintln(F("LoRa is now awake ^^^^^^^"));
-        isLoRaAwake = true; 
-        return false;
+        LoRaStringBuffer = F("AT+MODE=0");
+        errRtn = sendCommand(LoRaStringBuffer);
+        if(errRtn) {
+            return errRtn;
+
+        } else { 
+
+            isLoRaAwake = true; 
+            return 0;
+       }
     }
 };
 
 // function to send AT commands to the LoRa module
-// returns 0 if successful, 1 if error, -1 if no response
+// returns 0 if successful, error code if not
 // prints message and result to the serial monitor
 int tpp_LoRa::sendCommand(const String& command) {
 
     // DO NOT check for wake here. This is called by wake and sleep
     // and will cause a recursive loop.
-
+ 
     if (mg_LoRaBusy) {
         debugPrintln(F("LoRa is busy"));
         return 1;
@@ -258,7 +288,7 @@ int tpp_LoRa::sendCommand(const String& command) {
     mg_LoRaBusy = true;
 
     int retcode = 0;
-    unsigned int timeoutMS = 1000; // xxx see below - do we still need this?
+    unsigned long timeoutMS = 15000; // xxx see below - do we still need this?
     receivedData = "";
 
     tempString = F("cmd: ");
@@ -267,16 +297,15 @@ int tpp_LoRa::sendCommand(const String& command) {
     LORA_SERIAL.println(command);
     
     // wait for data available, which should be +OK or +ERR
-    unsigned int starttimeMS = millis();  // xxx do we still need this timeout now that we use the
+    unsigned long starttimeMS = millis();  // xxx do we still need this timeout now that we use the
                                           // xxx timeout in the serial port? Is this a good safety?
     int dataAvailable = 0;
-    debugPrint(F("waiting "));
+    // delay(100);
     do {
         dataAvailable = LORA_SERIAL.available();
         delay(10);
-        debugPrintNoHeader(F("."));
-    } while ((dataAvailable == 0) && (millis() - starttimeMS < timeoutMS)) ;
-    debugPrintNoHeader(F("\n"));
+    } while ((dataAvailable == 0) && ( millis() - starttimeMS < timeoutMS)) ;
+    
 
     delay(100); // wait for the full response  //xxx we might not need this any more
 
@@ -293,13 +322,18 @@ int tpp_LoRa::sendCommand(const String& command) {
         if(errIndex >= 0) {
             debugPrintln(F("LoRa error"));
             retcode = 1;
-        } else {
-            debugPrintln(F("command worked"));
-            retcode = 0;
+        } else { 
+            //int rcvIndex = receivedData.indexOf(F("+OK"));
+            //if (rcvIndex == 0) {
+                retcode = 0;
+            //} else {
+                // unknown string from LoRa
+              //  retcode = 2;
+            //}
         }
     } else {
         debugPrintln(F("No response from LoRa"));
-        retcode =  -1;
+        retcode =  3;
     }
     mg_LoRaBusy = false;
     return retcode;
@@ -308,20 +342,21 @@ int tpp_LoRa::sendCommand(const String& command) {
 // function to transmit a message to another LoRa device
 // returns 0 if successful, 1 if error, -1 if no response
 // prints message and result to the serial monitor
-int tpp_LoRa::transmitMessage(const String& devAddress, const String& message){
+int tpp_LoRa::transmitMessage(long int toAddress, const String& message){
 
     if(wake() != 0) {
         return true;
     }
 
     LoRaStringBuffer = F("AT+SEND=");
-    LoRaStringBuffer += devAddress;
+    LoRaStringBuffer += toAddress;
     LoRaStringBuffer += F(",");
-    LoRaStringBuffer += message.length();
+    LoRaStringBuffer += message.length(); 
     LoRaStringBuffer += F(",");
     LoRaStringBuffer += message;
 
-    return sendCommand(LoRaStringBuffer);
+    int errRtn = sendCommand(LoRaStringBuffer);
+    return errRtn;
 
 }
 
@@ -338,7 +373,6 @@ void tpp_LoRa::checkForReceivedMessage() {
     }
 
     if (mg_LoRaBusy) {
-        debugPrintln(F("LoRa is busy"));
         receivedMessageState = 0;
         return;
     }   
@@ -431,7 +465,3 @@ void tpp_LoRa::checkForReceivedMessage() {
 
     return;
 }
-
-
-
-
