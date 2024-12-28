@@ -127,7 +127,10 @@ void loop() {
             String messageSent = "";
             long int deviceNum = LoRa.ReceivedDeviceAddress;
             digitalWrite(DEBUG_LED_PIN, HIGH);
-            Serial.println("payload: " + LoRa.payload);
+
+            String debugMessage = "From device: " + String(deviceNum);
+            debugMessage += " payload: " + LoRa.payload;
+            Serial.println(debugMessage);
 
             int helloIndex = LoRa.payload.indexOf(TPP_LORA_MSG_GATE_SENSOR);
             if(helloIndex >= 0) { // will be -1 if "HELLO" not in the string
