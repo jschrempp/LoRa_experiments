@@ -51,6 +51,7 @@
     v 2.7 address lines work for P2
     v 2.8 #define to not wait for hub response
     v 2.9 msg to hub starts with the character defined in TPP_LORA_MSG_GATE_SENSOR
+    v 2.10 added pinSetDriveStrength for P2
  */
 
 #include "tpp_LoRaGlobals.h"
@@ -72,7 +73,7 @@
     #include <avr/sleep.h>  // the official avr sleep library
 #endif
 
-#define VERSION 2.8
+#define VERSION 2.10
 #define STATION_NUM 0 // housekeeping; not used ini the code
 
 #define LORA_TRIP_SENSOR_ADDRESS_BASE 5 // the base address of the trip sensor type
@@ -155,17 +156,20 @@ void ISR_wakeAndSend() {
 
 void setup() {
 
+    pinMode(GRN_LED_PIN, OUTPUT); 
+    pinMode(RED_LED_PIN, OUTPUT); 
+
     #if PARTICLEPHOTON
         pinMode(BUTTON_PIN, INPUT_PULLUP);
         attachInterrupt(BUTTON_PIN, ISR_wakeAndSend, FALLING);
+        pinSetDriveStrength(GRN_LED_PIN, DriveStrength::HIGH);
+        pinSetDriveStrength(RED_LED_PIN, DriveStrength::HIGH);
     #else
         // ATmegs328
         pinMode(BUTTON_PIN, INPUT);
         // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_wakeAndSend, FALLING);
     #endif
 
-    pinMode(GRN_LED_PIN, OUTPUT); 
-    pinMode(RED_LED_PIN, OUTPUT); 
 
     digitalWrite(GRN_LED_PIN, HIGH);
     digitalWrite(RED_LED_PIN, HIGH);
