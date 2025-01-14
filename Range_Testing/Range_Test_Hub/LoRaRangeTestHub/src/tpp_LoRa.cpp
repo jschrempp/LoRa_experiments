@@ -8,6 +8,7 @@
     v 2.2 removed version as a #define
     20241218 works on AMmega328 
     20241222 added setAddress
+    20250114 added CRFOP parameter to header file
 
 */
 
@@ -154,7 +155,8 @@ bool tpp_LoRa::configDevice(int deviceAddress) {
         return true;
     } 
 
-    LoRaStringBuffer = F("AT+CRFOP=22");
+    LoRaStringBuffer = F("AT+CRFOP=");
+    LoRaStringBuffer += LoRa_CRFOP;
     if (sendCommand(LoRaStringBuffer) != 0) {
         debugPrintln(F("Power not set"));
         return true;
