@@ -37,7 +37,7 @@
 #include "Particle.h"
 #include "tpp_LoRa.h"
 
-#define LOG_TO_CLOUD 0 // set to 1 to log to the cloud; 0 to not log to the cloud
+#define LOG_TO_CLOUD 1 // set to 1 to log to the cloud; 0 to not log to the cloud
 
 // The following system directives are for Particle devices.  Not needed for Arduino.
 SYSTEM_THREAD(ENABLED);
@@ -46,8 +46,8 @@ SYSTEM_THREAD(ENABLED);
 #define VERSION 2.1
 
 const int DEBUG_LED_PIN = D7;
-const int LORA_ADDRESS_PIN = D0;
-
+const int LORA_ADDRESS_PIN = D0;   // Ground this pin to set the LoRa module address for a sensor at boot
+                                   // Used to configure a LoRa module.
 String NODATA = "NODATA";
 tpp_LoRa LoRa;
 
