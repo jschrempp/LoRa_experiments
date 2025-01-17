@@ -58,9 +58,9 @@ void logToParticle(String message, int deviceNum, String payload, int SNRhub1, i
         + "|deviceNum=" + String(deviceNum) + "|payload=" + payload 
         + "|SNRhub1=" + String(SNRhub1) + "|RSSIHub1=" + String(RSSIHub1);
 
-    Serial.println("cloudLogging:" + data);
+    DEBUG_SERIAL.println("cloudLogging:" + data);
     long rtn = Particle.publish("LoRaHubLogging", data, PRIVATE);
-    Serial.println("cloudLogging return: " + String(rtn));
+    DEBUG_SERIAL.println("cloudLogging return: " + String(rtn));
 }
 
 void setup() {
@@ -69,11 +69,11 @@ void setup() {
     pinMode(LORA_ADDRESS_PIN, INPUT_PULLUP); // used to set LoRa address on boot
 
     digitalWrite(D7, HIGH);
-    Serial.begin(9600); // the USB serial port 
-    Serial1.begin(38400); // (115200);  // the LoRa device
+    DEBUG_SERIAL.begin(9600); // the USB serial port 
+    waitFor(DEBUG_SERIAL.isConnected, 15000);
 
     waitUntil(Particle.connected);  // wait for the cloud to connect
-    Serial.println("Hub version: " + String(VERSION));
+    DEBUG_SERIAL.println("Hub version: " + String(VERSION));
 
     int addressForLoRa = TPP_LORA_HUB_ADDRESS;
     int setAddressForHub = digitalRead(LORA_ADDRESS_PIN);
@@ -82,26 +82,26 @@ void setup() {
     } 
 
     if (LoRa.begin() != 0) {
-        Serial.println("Error initializing LoRa device");
+        DEBUG_SERIAL.println("Error initializing LoRa device");
         while(1) {blinkTimes(50);};
         return;
     }
 
     if (LoRa.configDevice(addressForLoRa) != 0) {  // initialize the LoRa device 
-        Serial.println("Error configuring LoRa device");
+        DEBUG_SERIAL.println("Error configuring LoRa device");
         while(1) {blinkTimes(50);};
         return;
     }
     
     if (LoRa.readSettings() != 0) {
-        Serial.println("Error reading LoRa settings");
+        DEBUG_SERIAL.println("Error reading LoRa settings");
         blinkTimes(50);
         while(1) {blinkTimes(50);};
         return;
     }
 
-    Serial.println("Hub ready for testing ...");
-    Serial.print("waiting for data ...\n");
+    DEBUG_SERIAL.println("Hub ready for testing ...");
+    DEBUG_SERIAL.print("waiting for data ...\n");
 
     digitalWrite(DEBUG_LED_PIN, LOW);
 
@@ -117,8 +117,8 @@ void loop() {
     LoRa.checkForReceivedMessage();
     switch (LoRa.receivedMessageState) {
         case -1: // error
-            Serial.println("Error reading data from LoRa module");
-            Serial.println("Waiting for messages");
+            DEBUG_SERIAL.println("Error reading data from LoRa module");
+            DEBUG_SERIAL.println("Waiting for messages");
             break;
         case 0: // no message
             break;
@@ -130,7 +130,7 @@ void loop() {
 
             String debugMessage = "From device: " + String(deviceNum);
             debugMessage += " payload: " + LoRa.payload;
-            Serial.println(debugMessage);
+            DEBUG_SERIAL.println(debugMessage);
 
             int helloIndex = LoRa.payload.indexOf(TPP_LORA_MSG_GATE_SENSOR);
             if(helloIndex >= 0) { // will be -1 if "HELLO" not in the string
@@ -141,13 +141,13 @@ void loop() {
                     logMessage = "TESTOK";
                     messageSent = "TESTOK";
                 } else {
-                    Serial.println("error sending TESTOK to sensor");
+                    DEBUG_SERIAL.println("error sending TESTOK to sensor");
                     logMessage = "Send of TESTOK failed";
                 };
 
             } else {
 
-                Serial.println("received data does not start with a known character (see tpp_LoRa.h)");
+                DEBUG_SERIAL.println("received data does not start with a known character (see tpp_LoRa.h)");
                 LoRa.transmitMessage(deviceNum, "NOPE");
                 logMessage = "NOPE";
                 messageSent = "NOPE";
@@ -155,7 +155,7 @@ void loop() {
             } // end of if(receivedData.indexOf("HELLO") > 0)
 
 
-            Serial.println("sent message: " + messageSent);
+            DEBUG_SERIAL.println("sent message: " + messageSent);
 
             if (LOG_TO_CLOUD){
                 // log the data to the cloud
@@ -163,7 +163,7 @@ void loop() {
             }
 
             digitalWrite(DEBUG_LED_PIN, LOW);
-            Serial.println("Waiting for messages");
+            DEBUG_SERIAL.println("Waiting for messages");
 
             break;
     } // end of switch

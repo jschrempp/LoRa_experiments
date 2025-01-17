@@ -19,24 +19,26 @@
 
 bool mg_LoRaBusy = false;
 
-String tempString; 
 
+// define the parameter as const String& to avoid copying the string
+// which important on the ATmega328
 void tpp_LoRa::debugPrintln(const String& message) {
     #if TPP_LORA_DEBUG
-        tempString = F("tpp_LoRa: ");
-        tempString += message;
-        DEBUG_SERIAL.println(tempString);
+        String msg = "tpp_LoRa: "; // if we don't declare a string here the println fails
+        msg += message;
+        DEBUG_SERIAL.println(msg);
     #endif
 }
 void tpp_LoRa::debugPrintNoHeader(const String& message){
     #if TPP_LORA_DEBUG
-        DEBUG_SERIAL.print(message);
+        String msg  = message;
+        DEBUG_SERIAL.println(msg);
     #endif
 }
 void tpp_LoRa::debugPrint(const String& message){
     #if TPP_LORA_DEBUG
-        tempString += message;
-        DEBUG_SERIAL.println(tempString);
+        String msg  = message;
+        DEBUG_SERIAL.print(msg);
     #endif
 }
 
@@ -67,6 +69,8 @@ int tpp_LoRa::begin() {
     receivedData.reserve(100);
     payload.reserve(75);
     tempString.reserve(50);
+
+    debugPrintln(F("Start LoRa initialization")); // so this AFTER tempString is reserved
 
     LORA_SERIAL.begin(38400);
     LORA_SERIAL.setTimeout(10);
@@ -322,7 +326,7 @@ int tpp_LoRa::sendCommand(const String& command) {
         debugPrintln(tempString);
         int errIndex = receivedData.indexOf(F("+ERR"));
         if(errIndex >= 0) {
-            debugPrintln(F("LoRa error"));
+            debugPrintln(F("LoRa returned +ERR"));
             retcode = 1;
         } else { 
             //int rcvIndex = receivedData.indexOf(F("+OK"));
