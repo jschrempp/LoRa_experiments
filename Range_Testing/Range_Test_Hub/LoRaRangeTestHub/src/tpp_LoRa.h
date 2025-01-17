@@ -46,6 +46,7 @@ private:
     void blinkLED(int ledpin, int number, int delayTimeMS) ;
 
     String LoRaStringBuffer;
+    String tempString; 
     int isLoRaAwake = true; // true = awake, false = asleep
 
     // function to send AT commands to the LoRa module
