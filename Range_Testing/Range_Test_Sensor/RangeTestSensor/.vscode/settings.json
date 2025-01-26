@@ -10,7 +10,7 @@
         "initializer_list": "cpp",
         "unordered_map": "cpp"
     },
-    "particle.targetDevice": "LoRaSensor",
-    "particle.firmwareVersion": "5.8.0",
+    "particle.targetDevice": "LoRa_P2",
+    "particle.firmwareVersion": "5.9.0",
     "particle.targetPlatform": "p2"
 }
