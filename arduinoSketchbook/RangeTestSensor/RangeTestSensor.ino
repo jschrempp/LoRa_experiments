@@ -58,7 +58,7 @@
 #include "tpp_loRa.h" // include the LoRa class
 
 #define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
-#define WAIT_FOR_RESPONSE_FROM_HUB 0 // set ot 0 to disable waiting for a response from the hub
+#define WAIT_FOR_RESPONSE_FROM_HUB 1 // set ot 0 to disable waiting for a response from the hub
 
 // The following system directives are to disregard WiFi for Particle devices.  Not needed for Arduino.
 #if PARTICLEPHOTON
