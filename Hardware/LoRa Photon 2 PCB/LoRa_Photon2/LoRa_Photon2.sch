@@ -6417,8 +6417,8 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 </class>
 </classes>
 <parts>
-<part name="GRN-D9" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="TLLG4400" device="" package3d_urn="urn:adsk.eagle:package:15797/1"/>
-<part name="RED-D8" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="TLLR4400" device="" package3d_urn="urn:adsk.eagle:package:15797/1"/>
+<part name="GRN" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="TLLG4400" device="" package3d_urn="urn:adsk.eagle:package:15797/1"/>
+<part name="RED" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="TLLR4400" device="" package3d_urn="urn:adsk.eagle:package:15797/1"/>
 <part name="CONTACT_SENSOR" library="SparkFun-Connectors" library_urn="urn:adsk.eagle:library:513" deviceset="CONN_02" device="3.5MM" package3d_urn="urn:adsk.eagle:package:38050/1"/>
 <part name="DIGITAL/ANALOG" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA08-1" device="" package3d_urn="urn:adsk.eagle:package:8343/1"/>
 <part name="IC1" library="74xx-eu" library_urn="urn:adsk.eagle:library:85" deviceset="74*14" device="N" package3d_urn="urn:adsk.eagle:package:16407/2" technology="HC"/>
@@ -6512,11 +6512,11 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <text x="45.72" y="73.66" size="1.778" layer="91">A0</text>
 </plain>
 <instances>
-<instance part="GRN-D9" gate="G$1" x="104.14" y="78.74" smashed="yes">
+<instance part="GRN" gate="G$1" x="104.14" y="78.74" smashed="yes">
 <attribute name="NAME" x="107.696" y="74.168" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="109.855" y="74.168" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="RED-D8" gate="G$1" x="-10.16" y="86.36" smashed="yes">
+<instance part="RED" gate="G$1" x="-10.16" y="86.36" smashed="yes">
 <attribute name="NAME" x="-6.604" y="81.788" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="-4.445" y="81.788" size="1.778" layer="96" rot="R90"/>
 </instance>
@@ -6731,12 +6731,12 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <junction x="20.32" y="167.64"/>
 </segment>
 <segment>
-<pinref part="GRN-D9" gate="G$1" pin="C"/>
+<pinref part="GRN" gate="G$1" pin="C"/>
 <pinref part="SUPPLY4" gate="GND" pin="GND"/>
 <wire x1="104.14" y1="73.66" x2="104.14" y2="66.04" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="RED-D8" gate="G$1" pin="C"/>
+<pinref part="RED" gate="G$1" pin="C"/>
 <pinref part="SUPPLY5" gate="GND" pin="GND"/>
 <wire x1="-10.16" y1="81.28" x2="-10.16" y2="78.74" width="0.1524" layer="91"/>
 </segment>
@@ -6904,7 +6904,7 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <net name="N$6" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="1"/>
-<pinref part="RED-D8" gate="G$1" pin="A"/>
+<pinref part="RED" gate="G$1" pin="A"/>
 <wire x1="-10.16" y1="88.9" x2="-10.16" y2="96.52" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -6967,7 +6967,7 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <net name="N$3" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
-<pinref part="GRN-D9" gate="G$1" pin="A"/>
+<pinref part="GRN" gate="G$1" pin="A"/>
 <wire x1="104.14" y1="86.36" x2="104.14" y2="81.28" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -7133,18 +7133,20 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <approved hash="101,2,22.86,27.94,IC1B,O,,,,"/>
 <approved hash="101,2,22.86,43.18,IC1C,O,,,,"/>
 <approved hash="101,2,66.04,43.18,IC1F,O,,,,"/>
-<approved hash="113,2,-107.357,185.583,POWER,,,,,"/>
+<approved hash="202,2,68.58,147.32,U1,!RST,,,,"/>
+<approved hash="104,2,68.58,144.78,U1,3V3,VCC,,,"/>
+<approved hash="204,2,93.98,132.08,U1,VUSB,,,,"/>
+<approved hash="202,2,93.98,134.62,U1,EN,,,,"/>
+<approved hash="204,2,93.98,137.16,U1,LI+,,,,"/>
 <approved hash="113,2,-114.469,99.2226,CONTACT_SENSOR,,,,,"/>
-<approved hash="113,2,109.262,124.274,DIGITAL/ANALOG,,,,,"/>
-<approved hash="113,2,-77.5674,183.113,POWER_SWITCH,,,,,"/>
-<approved hash="113,2,-32.2879,131.1,LORA_MODULE,,,,,"/>
-<approved hash="113,2,-39.0457,91.9378,SENSOR_POLARITY,,,,,"/>
-<approved hash="113,2,-43.2468,69.5604,INT1_EXTERNAL,,,,,"/>
-<approved hash="113,2,78.5876,145.864,I2C,,,,,"/>
-<approved hash="113,2,101.642,91.2537,SPI,,,,,"/>
-<approved hash="113,2,-12.9371,103.914,ADR1,,,,,"/>
-<approved hash="113,2,-12.9371,91.2139,ADR2,,,,,"/>
-<approved hash="113,2,-12.9371,78.5139,ADR4,,,,,"/>
+<approved hash="113,2,41.5553,75.9104,DIGITAL/ANALOG,,,,,"/>
+<approved hash="113,2,-19.5879,133.64,LORA_MODULE,,,,,"/>
+<approved hash="113,2,-34.7303,91.9378,POLARITY,,,,,"/>
+<approved hash="113,2,127.042,98.8737,I2C,,,,,"/>
+<approved hash="113,2,78.7823,77.2837,SPI,,,,,"/>
+<approved hash="113,2,137.397,127.226,ADR1,,,,,"/>
+<approved hash="113,2,137.397,139.926,ADR2,,,,,"/>
+<approved hash="113,2,137.397,152.626,ADR4,,,,,"/>
 </errors>
 </schematic>
 </drawing>
