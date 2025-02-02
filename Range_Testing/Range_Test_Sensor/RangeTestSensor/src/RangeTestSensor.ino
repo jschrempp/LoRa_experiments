@@ -56,7 +56,7 @@
 
 #include "tpp_LoRaGlobals.h"
 
-#include "tpp_loRa.h" // include the LoRa class
+#include "tpp_LoRa.h" // include the LoRa class
 
 #define CONTINUOUS_TEST_MODE 0 // set to 1 to enable continuous testing
 #define WAIT_FOR_RESPONSE_FROM_HUB 1 // set ot 0 to disable waiting for a response from the hub
