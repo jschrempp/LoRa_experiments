@@ -4,7 +4,7 @@
     "files.associations": {
         "*.ino": "cpp"
     },
-    "particle.targetDevice": "LoRaHub",
-    "particle.firmwareVersion": "5.8.0",
+    "particle.targetDevice": "LoRa_P2",
+    "particle.firmwareVersion": "5.9.0",
     "particle.targetPlatform": "p2"
 }
