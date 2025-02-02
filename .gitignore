@@ -3,3 +3,4 @@ Range_Testing/Range_Test_Hub/LoRaRangeTestHub/src/LoRaRangeTestHub.cpp
 Range_Testing/Range_Test_Hub/LoRaRangeTestHub/src/LoRaRangeTestHub.cpp
 arduinoSketchbook/hardware/*
 arduinoSketchbook/libraries/*
+arduinoSketchbook/Low_Power_Testing/LoRa_module_Low_Power_Testing_Tester/.vscode/settings.json
