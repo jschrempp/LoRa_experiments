@@ -51,9 +51,13 @@
     v 2.7 address lines work for P2
     v 2.8 #define to not wait for hub response
     v 2.9 messages are now shorter
+    v 2.10 added a reset flashing message
+           reports on CRFOP in transaction 2
+           reads LoRa settings in setup
  */
 
 #include "tpp_LoRaGlobals.h"
+
 
 #include "tpp_loRa.h" // include the LoRa class
 
@@ -70,6 +74,8 @@
 #else
     // ATMega328
     #include <avr/sleep.h>  // the official avr sleep library
+    #include <avr/io.h>
+    #include <avr/interrupt.h>
 #endif
 
 #define VERSION 2.9
@@ -142,6 +148,25 @@ void blinkLEDsOnBoot() {
     return;
 }
 
+// blinkLEDsOnReset() blinks the LEDs to indicate the system is resetting
+void blinkLEDsOnReset(int timesToBlink) {
+    digitalWrite(GRN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
+    delay(100);
+    for(int i = 0; i < timesToBlink; i++) {
+        digitalWrite(GRN_LED_PIN, HIGH);
+        digitalWrite(RED_LED_PIN, HIGH);
+        delay(150);
+        digitalWrite(GRN_LED_PIN, LOW);
+        digitalWrite(RED_LED_PIN, LOW);
+        delay(150);
+    }
+    digitalWrite(GRN_LED_PIN, LOW);
+    digitalWrite(RED_LED_PIN, LOW);
+    delay(1000);
+    return;
+}
+
 void ISR_wakeAndSend() {
     #if (PARTICLEPHOTON)
         // nothing special to do
@@ -155,17 +180,39 @@ void ISR_wakeAndSend() {
 
 void setup() {
 
+    // Read the MCU Status Register (MCUSR)
+    uint8_t mcusr = MCUSR;
+
+    // Clear the MCU Status Register
+    MCUSR = 0;
+
+    pinMode(GRN_LED_PIN, OUTPUT); 
+    pinMode(RED_LED_PIN, OUTPUT); 
+
+    // Check the reset flags
+    if (mcusr & (1 << PORF)) {
+        // Power-on Reset
+        blinkLEDsOnReset(10);
+    } else if (mcusr & (1 << EXTRF)) {
+        // External Reset (reset pin)
+        blinkLEDsOnReset(20);
+    } else if (mcusr & (1 << BORF)) {
+        // Brown-out Reset
+        blinkLEDsOnReset(30);
+    } else if (mcusr & (1 << WDRF)) {
+        // Watchdog Reset
+        blinkLEDsOnReset(40);
+    }
+
     #if PARTICLEPHOTON
         pinMode(BUTTON_PIN, INPUT_PULLUP);
         attachInterrupt(BUTTON_PIN, ISR_wakeAndSend, FALLING);
     #else
         // ATmegs328
         pinMode(BUTTON_PIN, INPUT);
-        // attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), ISR_wakeAndSend, FALLING);
+        // we attach to interrupt pin in main()
     #endif
 
-    pinMode(GRN_LED_PIN, OUTPUT); 
-    pinMode(RED_LED_PIN, OUTPUT); 
 
     digitalWrite(GRN_LED_PIN, HIGH);
     digitalWrite(RED_LED_PIN, HIGH);
@@ -214,6 +261,12 @@ void setup() {
     if (err) {
         mgFatalError = true;
         blinkLEDsOnERROR(13,err);
+    }
+
+    err = LoRa.readSettings();
+    if (err) {
+        mgFatalError = true;
+        blinkLEDsOnERROR(18,err);
     }
 
     // XXX send out a message for testing resets.  Comment this out after stree testing.
@@ -318,6 +371,8 @@ void loop() {
                 mgpayload += LoRa.LoRaCodingRate;
                 mgpayload += F(":");
                 mgpayload += LoRa.LoRaPreamble;
+                mgpayload += F(":");
+                mgpayload += LoRa.LoRaCRFOP;
                 break;
             default:
 
