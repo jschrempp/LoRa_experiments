@@ -6450,25 +6450,20 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <part name="SUPPLY19" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="VCC" device=""/>
 <part name="POLARITY" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA03-1" device="" package3d_urn="urn:adsk.eagle:package:8339/1"/>
 <part name="C8" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="0.1UF" device="-KIT-EZ-50V-20%" package3d_urn="urn:adsk.eagle:package:37428/1" value="0.1uF"/>
-<part name="C9" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="0.1UF" device="-KIT-EZ-50V-20%" package3d_urn="urn:adsk.eagle:package:37428/1" value="0.1uF"/>
-<part name="C10" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="0.1UF" device="-KIT-EZ-50V-20%" package3d_urn="urn:adsk.eagle:package:37428/1" value="0.1uF"/>
-<part name="INT1_EXTERNAL" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA03-1" device="" package3d_urn="urn:adsk.eagle:package:8339/1"/>
-<part name="SUPPLY20" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="VCC" device=""/>
-<part name="SUPPLY21" library="supply2" library_urn="urn:adsk.eagle:library:372" deviceset="GND" device=""/>
 <part name="I2C" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA05-1" device="" package3d_urn="urn:adsk.eagle:package:8332/1"/>
 <part name="SUPPLY22" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="VCC" device=""/>
 <part name="SUPPLY23" library="supply2" library_urn="urn:adsk.eagle:library:372" deviceset="GND" device=""/>
 <part name="SPI" library="con-lstb" library_urn="urn:adsk.eagle:library:162" deviceset="MA08-1" device="" package3d_urn="urn:adsk.eagle:package:8343/1"/>
-<part name="C11" library="SparkFun-Capacitors" library_urn="urn:adsk.eagle:library:510" deviceset="0.1UF" device="-KIT-EZ-50V-20%" package3d_urn="urn:adsk.eagle:package:37428/1" value="0.1uF"/>
 <part name="ADR1" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X2" device="" package3d_urn="urn:adsk.eagle:package:22435/2"/>
 <part name="ADR2" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X2" device="" package3d_urn="urn:adsk.eagle:package:22435/2"/>
 <part name="ADR4" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X2" device="" package3d_urn="urn:adsk.eagle:package:22435/2"/>
-<part name="SUPPLY28" library="supply2" library_urn="urn:adsk.eagle:library:372" deviceset="GND" device=""/>
 <part name="U1" library="Particle-Devices" deviceset="PHOTON2" device=""/>
 <part name="SUPPLY1" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="VCC" device=""/>
 <part name="SUPPLY7" library="supply2" library_urn="urn:adsk.eagle:library:372" deviceset="GND" device=""/>
 <part name="SUPPLY15" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="VCC" device=""/>
 <part name="SUPPLY17" library="supply2" library_urn="urn:adsk.eagle:library:372" deviceset="GND" device=""/>
+<part name="SUPPLY24" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="VCC" device=""/>
+<part name="SUPPLY20" library="supply2" library_urn="urn:adsk.eagle:library:372" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -6494,27 +6489,32 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <text x="66.04" y="27.94" size="1.778" layer="91">N/C</text>
 <text x="-30.48" y="91.44" size="1.778" layer="91">NO</text>
 <text x="-48.26" y="91.44" size="1.778" layer="91">NC</text>
-<text x="-50.8" y="73.66" size="1.778" layer="91">VCC</text>
-<text x="-50.8" y="71.12" size="1.778" layer="91">INT1</text>
-<text x="-50.8" y="68.58" size="1.778" layer="91">GND</text>
-<text x="111.76" y="101.6" size="1.778" layer="91">VCC</text>
-<text x="111.76" y="99.06" size="1.778" layer="91">SCL</text>
-<text x="111.76" y="96.52" size="1.778" layer="91">SDA</text>
-<text x="111.76" y="93.98" size="1.778" layer="91">GND</text>
-<text x="111.76" y="91.44" size="1.778" layer="91">GND</text>
-<text x="60.96" y="71.12" size="1.778" layer="91">MISO</text>
-<text x="60.96" y="73.66" size="1.778" layer="91">MOSI</text>
-<text x="60.96" y="76.2" size="1.778" layer="91">!SS</text>
-<text x="60.96" y="83.82" size="1.778" layer="91">VCC</text>
-<text x="60.96" y="81.28" size="1.778" layer="91">VCC</text>
-<text x="60.96" y="78.74" size="1.778" layer="91">S3</text>
-<text x="60.96" y="68.58" size="1.778" layer="91">GND</text>
-<text x="60.96" y="66.04" size="1.778" layer="91">GND</text>
+<text x="45.72" y="86.36" size="1.778" layer="91">VCC</text>
+<text x="45.72" y="83.82" size="1.778" layer="91">D6</text>
+<text x="45.72" y="71.12" size="1.778" layer="91">GND</text>
+<text x="134.62" y="101.6" size="1.778" layer="91">VCC</text>
+<text x="134.62" y="99.06" size="1.778" layer="91">SCL</text>
+<text x="134.62" y="96.52" size="1.778" layer="91">SDA</text>
+<text x="134.62" y="93.98" size="1.778" layer="91">GND</text>
+<text x="134.62" y="91.44" size="1.778" layer="91">GND</text>
+<text x="86.36" y="71.12" size="1.778" layer="91">MISO</text>
+<text x="86.36" y="73.66" size="1.778" layer="91">MOSI</text>
+<text x="86.36" y="76.2" size="1.778" layer="91">!SS</text>
+<text x="86.36" y="83.82" size="1.778" layer="91">VCC</text>
+<text x="86.36" y="81.28" size="1.778" layer="91">VCC</text>
+<text x="86.36" y="78.74" size="1.778" layer="91">S3</text>
+<text x="86.36" y="68.58" size="1.778" layer="91">GND</text>
+<text x="86.36" y="66.04" size="1.778" layer="91">GND</text>
+<text x="45.72" y="68.58" size="1.778" layer="91">GND</text>
+<text x="45.72" y="81.28" size="1.778" layer="91">A5</text>
+<text x="45.72" y="78.74" size="1.778" layer="91">A2</text>
+<text x="45.72" y="76.2" size="1.778" layer="91">A1</text>
+<text x="45.72" y="73.66" size="1.778" layer="91">A0</text>
 </plain>
 <instances>
-<instance part="GRN-D9" gate="G$1" x="73.66" y="73.66" smashed="yes">
-<attribute name="NAME" x="77.216" y="69.088" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="79.375" y="69.088" size="1.778" layer="96" rot="R90"/>
+<instance part="GRN-D9" gate="G$1" x="104.14" y="78.74" smashed="yes">
+<attribute name="NAME" x="107.696" y="74.168" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="109.855" y="74.168" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="RED-D8" gate="G$1" x="-10.16" y="86.36" smashed="yes">
 <attribute name="NAME" x="-6.604" y="81.788" size="1.778" layer="95" rot="R90"/>
@@ -6524,9 +6524,9 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <attribute name="VALUE" x="-119.38" y="91.694" size="1.778" layer="96" font="vector"/>
 <attribute name="NAME" x="-124.46" y="102.108" size="1.778" layer="95" font="vector"/>
 </instance>
-<instance part="DIGITAL/ANALOG" gate="1" x="134.62" y="162.56" smashed="yes" rot="R180">
-<attribute name="VALUE" x="135.89" y="175.26" size="1.778" layer="96" rot="R180"/>
-<attribute name="NAME" x="151.13" y="174.498" size="1.778" layer="95" rot="R180"/>
+<instance part="DIGITAL/ANALOG" gate="1" x="43.18" y="78.74" smashed="yes" rot="R180">
+<attribute name="VALUE" x="44.45" y="91.44" size="1.778" layer="96" rot="R180"/>
+<attribute name="NAME" x="52.07" y="65.278" size="1.778" layer="95" rot="R180"/>
 </instance>
 <instance part="IC1" gate="A" x="55.88" y="27.94" smashed="yes">
 <attribute name="NAME" x="57.15" y="31.115" size="1.778" layer="95"/>
@@ -6560,9 +6560,9 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <attribute name="NAME" x="-11.6586" y="97.79" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="-6.858" y="97.79" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="R2" gate="G$1" x="73.66" y="88.9" smashed="yes" rot="R90">
-<attribute name="NAME" x="72.1614" y="85.09" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="76.962" y="85.09" size="1.778" layer="96" rot="R90"/>
+<instance part="R2" gate="G$1" x="104.14" y="91.44" smashed="yes" rot="R90">
+<attribute name="NAME" x="102.6414" y="87.63" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="107.442" y="87.63" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="R3" gate="G$1" x="-91.44" y="124.46" smashed="yes" rot="R270">
 <attribute name="NAME" x="-89.9414" y="128.27" size="1.778" layer="95" rot="R270"/>
@@ -6592,14 +6592,14 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <attribute name="NAME" x="-82.296" y="101.981" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="-82.296" y="96.901" size="1.778" layer="96" font="vector"/>
 </instance>
-<instance part="SUPPLY2" gate="G$1" x="60.96" y="182.88" smashed="yes">
-<attribute name="VALUE" x="60.96" y="185.674" size="1.778" layer="96" align="bottom-center"/>
+<instance part="SUPPLY2" gate="G$1" x="33.02" y="182.88" smashed="yes">
+<attribute name="VALUE" x="33.02" y="185.674" size="1.778" layer="96" align="bottom-center"/>
 </instance>
-<instance part="SUPPLY3" gate="GND" x="60.96" y="165.1" smashed="yes">
-<attribute name="VALUE" x="59.055" y="161.925" size="1.778" layer="96"/>
+<instance part="SUPPLY3" gate="GND" x="27.94" y="165.1" smashed="yes">
+<attribute name="VALUE" x="26.035" y="161.925" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY4" gate="GND" x="73.66" y="63.5" smashed="yes">
-<attribute name="VALUE" x="71.755" y="60.325" size="1.778" layer="96"/>
+<instance part="SUPPLY4" gate="GND" x="104.14" y="63.5" smashed="yes">
+<attribute name="VALUE" x="102.235" y="60.325" size="1.778" layer="96"/>
 </instance>
 <instance part="SUPPLY5" gate="GND" x="-10.16" y="76.2" smashed="yes">
 <attribute name="VALUE" x="-12.065" y="73.025" size="1.778" layer="96"/>
@@ -6629,11 +6629,11 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <instance part="SUPPLY13" gate="GND" x="40.64" y="17.78" smashed="yes">
 <attribute name="VALUE" x="38.735" y="14.605" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY14" gate="G$1" x="20.32" y="149.86" smashed="yes">
-<attribute name="VALUE" x="20.32" y="152.654" size="1.778" layer="96" align="bottom-center"/>
+<instance part="SUPPLY14" gate="G$1" x="48.26" y="170.18" smashed="yes">
+<attribute name="VALUE" x="48.26" y="172.974" size="1.778" layer="96" align="bottom-center"/>
 </instance>
-<instance part="SUPPLY16" gate="GND" x="0" y="137.16" smashed="yes">
-<attribute name="VALUE" x="-1.905" y="133.985" size="1.778" layer="96"/>
+<instance part="SUPPLY16" gate="GND" x="5.08" y="137.16" smashed="yes">
+<attribute name="VALUE" x="3.175" y="133.985" size="1.778" layer="96"/>
 </instance>
 <instance part="IC1" gate="P" x="-12.7" y="33.02" smashed="yes">
 <attribute name="NAME" x="-13.335" y="32.385" size="1.778" layer="95"/>
@@ -6652,71 +6652,52 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <attribute name="NAME" x="21.844" y="180.721" size="1.778" layer="95" font="vector"/>
 <attribute name="VALUE" x="21.844" y="175.641" size="1.778" layer="96" font="vector"/>
 </instance>
-<instance part="C9" gate="G$1" x="33.02" y="177.8" smashed="yes">
-<attribute name="NAME" x="34.544" y="180.721" size="1.778" layer="95" font="vector"/>
-<attribute name="VALUE" x="34.544" y="175.641" size="1.778" layer="96" font="vector"/>
+<instance part="I2C" gate="G$1" x="132.08" y="96.52" smashed="yes" rot="R180">
+<attribute name="VALUE" x="133.35" y="106.68" size="1.778" layer="96" rot="R180"/>
+<attribute name="NAME" x="133.35" y="108.458" size="1.778" layer="95" rot="R180"/>
 </instance>
-<instance part="C10" gate="G$1" x="45.72" y="177.8" smashed="yes">
-<attribute name="NAME" x="47.244" y="180.721" size="1.778" layer="95" font="vector"/>
-<attribute name="VALUE" x="47.244" y="175.641" size="1.778" layer="96" font="vector"/>
+<instance part="SUPPLY22" gate="G$1" x="119.38" y="106.68" smashed="yes">
+<attribute name="VALUE" x="119.38" y="109.474" size="1.778" layer="96" align="bottom-center"/>
 </instance>
-<instance part="INT1_EXTERNAL" gate="G$1" x="-43.18" y="71.12" smashed="yes">
-<attribute name="VALUE" x="-44.45" y="63.5" size="1.778" layer="96"/>
-<attribute name="NAME" x="-34.29" y="65.278" size="1.778" layer="95" rot="R180"/>
+<instance part="SUPPLY23" gate="GND" x="119.38" y="81.28" smashed="yes">
+<attribute name="VALUE" x="117.475" y="78.105" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY20" gate="G$1" x="-30.48" y="76.2" smashed="yes">
-<attribute name="VALUE" x="-30.48" y="78.994" size="1.778" layer="96" align="bottom-center"/>
+<instance part="SPI" gate="1" x="83.82" y="76.2" smashed="yes" rot="R180">
+<attribute name="VALUE" x="85.09" y="88.9" size="1.778" layer="96" rot="R180"/>
+<attribute name="NAME" x="85.09" y="90.678" size="1.778" layer="95" rot="R180"/>
 </instance>
-<instance part="SUPPLY21" gate="GND" x="-30.48" y="63.5" smashed="yes">
-<attribute name="VALUE" x="-32.385" y="60.325" size="1.778" layer="96"/>
+<instance part="ADR1" gate="G$1" x="139.7" y="124.46" smashed="yes">
+<attribute name="NAME" x="133.35" y="130.175" size="1.778" layer="95"/>
+<attribute name="VALUE" x="133.35" y="119.38" size="1.778" layer="96"/>
 </instance>
-<instance part="I2C" gate="G$1" x="109.22" y="96.52" smashed="yes" rot="R180">
-<attribute name="VALUE" x="110.49" y="106.68" size="1.778" layer="96" rot="R180"/>
-<attribute name="NAME" x="110.49" y="108.458" size="1.778" layer="95" rot="R180"/>
+<instance part="ADR2" gate="G$1" x="139.7" y="137.16" smashed="yes">
+<attribute name="NAME" x="133.35" y="142.875" size="1.778" layer="95"/>
+<attribute name="VALUE" x="133.35" y="132.08" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY22" gate="G$1" x="99.06" y="106.68" smashed="yes">
-<attribute name="VALUE" x="99.06" y="109.474" size="1.778" layer="96" align="bottom-center"/>
+<instance part="ADR4" gate="G$1" x="139.7" y="149.86" smashed="yes">
+<attribute name="NAME" x="133.35" y="155.575" size="1.778" layer="95"/>
+<attribute name="VALUE" x="133.35" y="144.78" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY23" gate="GND" x="99.06" y="83.82" smashed="yes">
-<attribute name="VALUE" x="97.155" y="80.645" size="1.778" layer="96"/>
-</instance>
-<instance part="SPI" gate="1" x="58.42" y="76.2" smashed="yes" rot="R180">
-<attribute name="VALUE" x="59.69" y="88.9" size="1.778" layer="96" rot="R180"/>
-<attribute name="NAME" x="57.15" y="90.678" size="1.778" layer="95" rot="R180"/>
-</instance>
-<instance part="C11" gate="G$1" x="58.42" y="177.8" smashed="yes">
-<attribute name="NAME" x="59.944" y="180.721" size="1.778" layer="95" font="vector"/>
-<attribute name="VALUE" x="59.944" y="175.641" size="1.778" layer="96" font="vector"/>
-</instance>
-<instance part="ADR1" gate="G$1" x="96.52" y="124.46" smashed="yes">
-<attribute name="NAME" x="90.17" y="130.175" size="1.778" layer="95"/>
-<attribute name="VALUE" x="90.17" y="119.38" size="1.778" layer="96"/>
-</instance>
-<instance part="ADR2" gate="G$1" x="96.52" y="137.16" smashed="yes">
-<attribute name="NAME" x="90.17" y="142.875" size="1.778" layer="95"/>
-<attribute name="VALUE" x="90.17" y="132.08" size="1.778" layer="96"/>
-</instance>
-<instance part="ADR4" gate="G$1" x="96.52" y="149.86" smashed="yes">
-<attribute name="NAME" x="90.17" y="155.575" size="1.778" layer="95"/>
-<attribute name="VALUE" x="90.17" y="144.78" size="1.778" layer="96"/>
-</instance>
-<instance part="SUPPLY28" gate="GND" x="-5.08" y="55.88" smashed="yes">
-<attribute name="VALUE" x="-6.985" y="52.705" size="1.778" layer="96"/>
-</instance>
-<instance part="U1" gate="G$1" x="55.88" y="129.54" smashed="yes">
-<attribute name="NAME" x="45.72" y="105.41" size="1.4224" layer="95" align="top-left"/>
+<instance part="U1" gate="G$1" x="81.28" y="129.54" smashed="yes">
+<attribute name="NAME" x="71.12" y="105.41" size="1.4224" layer="95" align="top-left"/>
 </instance>
 <instance part="SUPPLY1" gate="G$1" x="-7.62" y="144.78" smashed="yes">
 <attribute name="VALUE" x="-7.62" y="147.574" size="1.778" layer="96" align="bottom-center"/>
 </instance>
-<instance part="SUPPLY7" gate="GND" x="86.36" y="111.76" smashed="yes">
-<attribute name="VALUE" x="84.455" y="108.585" size="1.778" layer="96"/>
+<instance part="SUPPLY7" gate="GND" x="129.54" y="114.3" smashed="yes">
+<attribute name="VALUE" x="127.635" y="111.125" size="1.778" layer="96"/>
 </instance>
-<instance part="SUPPLY15" gate="G$1" x="48.26" y="88.9" smashed="yes">
-<attribute name="VALUE" x="48.26" y="91.694" size="1.778" layer="96" align="bottom-center"/>
+<instance part="SUPPLY15" gate="G$1" x="73.66" y="88.9" smashed="yes">
+<attribute name="VALUE" x="73.66" y="91.694" size="1.778" layer="96" align="bottom-center"/>
 </instance>
-<instance part="SUPPLY17" gate="GND" x="48.26" y="60.96" smashed="yes">
-<attribute name="VALUE" x="46.355" y="57.785" size="1.778" layer="96"/>
+<instance part="SUPPLY17" gate="GND" x="73.66" y="58.42" smashed="yes">
+<attribute name="VALUE" x="71.755" y="55.245" size="1.778" layer="96"/>
+</instance>
+<instance part="SUPPLY24" gate="G$1" x="33.02" y="91.44" smashed="yes">
+<attribute name="VALUE" x="33.02" y="94.234" size="1.778" layer="96" align="bottom-center"/>
+</instance>
+<instance part="SUPPLY20" gate="GND" x="25.4" y="60.96" smashed="yes">
+<attribute name="VALUE" x="23.495" y="57.785" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -6730,10 +6711,7 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <wire x1="-20.32" y1="167.64" x2="-5.08" y2="167.64" width="0.1524" layer="91"/>
 <wire x1="-5.08" y1="167.64" x2="7.62" y2="167.64" width="0.1524" layer="91"/>
 <wire x1="7.62" y1="167.64" x2="20.32" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="20.32" y1="167.64" x2="33.02" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="33.02" y1="167.64" x2="45.72" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="167.64" x2="58.42" y2="167.64" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="167.64" x2="60.96" y2="167.64" width="0.1524" layer="91"/>
+<wire x1="20.32" y1="167.64" x2="27.94" y2="167.64" width="0.1524" layer="91"/>
 <pinref part="C2" gate="G$1" pin="2"/>
 <wire x1="-45.72" y1="175.26" x2="-45.72" y2="167.64" width="0.1524" layer="91"/>
 <pinref part="C5" gate="G$1" pin="2"/>
@@ -6751,20 +6729,11 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <pinref part="C8" gate="G$1" pin="2"/>
 <wire x1="20.32" y1="175.26" x2="20.32" y2="167.64" width="0.1524" layer="91"/>
 <junction x="20.32" y="167.64"/>
-<pinref part="C9" gate="G$1" pin="2"/>
-<wire x1="33.02" y1="175.26" x2="33.02" y2="167.64" width="0.1524" layer="91"/>
-<junction x="33.02" y="167.64"/>
-<pinref part="C10" gate="G$1" pin="2"/>
-<wire x1="45.72" y1="175.26" x2="45.72" y2="167.64" width="0.1524" layer="91"/>
-<junction x="45.72" y="167.64"/>
-<pinref part="C11" gate="G$1" pin="2"/>
-<wire x1="58.42" y1="175.26" x2="58.42" y2="167.64" width="0.1524" layer="91"/>
-<junction x="58.42" y="167.64"/>
 </segment>
 <segment>
 <pinref part="GRN-D9" gate="G$1" pin="C"/>
 <pinref part="SUPPLY4" gate="GND" pin="GND"/>
-<wire x1="73.66" y1="68.58" x2="73.66" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="104.14" y1="73.66" x2="104.14" y2="66.04" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="RED-D8" gate="G$1" pin="C"/>
@@ -6813,29 +6782,23 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <pinref part="SUPPLY18" gate="GND" pin="GND"/>
 </segment>
 <segment>
-<pinref part="INT1_EXTERNAL" gate="G$1" pin="1"/>
-<wire x1="-35.56" y1="68.58" x2="-30.48" y2="68.58" width="0.1524" layer="91"/>
-<pinref part="SUPPLY21" gate="GND" pin="GND"/>
-<wire x1="-30.48" y1="68.58" x2="-30.48" y2="66.04" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="U1" gate="G$1" pin="GND"/>
 <pinref part="SUPPLY16" gate="GND" pin="GND"/>
-<wire x1="43.18" y1="139.7" x2="0" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="139.7" x2="5.08" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="SUPPLY7" gate="GND" pin="GND"/>
-<wire x1="86.36" y1="114.3" x2="86.36" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="129.54" y1="116.84" x2="129.54" y2="124.46" width="0.1524" layer="91"/>
 <pinref part="ADR4" gate="G$1" pin="2"/>
-<wire x1="86.36" y1="124.46" x2="86.36" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="86.36" y1="137.16" x2="86.36" y2="149.86" width="0.1524" layer="91"/>
-<wire x1="86.36" y1="149.86" x2="93.98" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="129.54" y1="124.46" x2="129.54" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="129.54" y1="137.16" x2="129.54" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="129.54" y1="149.86" x2="137.16" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="ADR2" gate="G$1" pin="2"/>
-<wire x1="93.98" y1="137.16" x2="86.36" y2="137.16" width="0.1524" layer="91"/>
-<junction x="86.36" y="137.16"/>
+<wire x1="137.16" y1="137.16" x2="129.54" y2="137.16" width="0.1524" layer="91"/>
+<junction x="129.54" y="137.16"/>
 <pinref part="ADR1" gate="G$1" pin="2"/>
-<wire x1="93.98" y1="124.46" x2="86.36" y2="124.46" width="0.1524" layer="91"/>
-<junction x="86.36" y="124.46"/>
+<wire x1="137.16" y1="124.46" x2="129.54" y2="124.46" width="0.1524" layer="91"/>
+<junction x="129.54" y="124.46"/>
 </segment>
 <segment>
 <pinref part="SUPPLY6" gate="GND" pin="GND"/>
@@ -6843,24 +6806,34 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <pinref part="LORA_MODULE" gate="G$1" pin="1"/>
 </segment>
 <segment>
-<pinref part="I2C" gate="G$1" pin="5"/>
-<wire x1="101.6" y1="91.44" x2="99.06" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="SUPPLY23" gate="GND" pin="GND"/>
-<wire x1="99.06" y1="91.44" x2="99.06" y2="86.36" width="0.1524" layer="91"/>
-<wire x1="99.06" y1="91.44" x2="99.06" y2="93.98" width="0.1524" layer="91"/>
-<junction x="99.06" y="91.44"/>
+<wire x1="119.38" y1="93.98" x2="119.38" y2="91.44" width="0.1524" layer="91"/>
 <pinref part="I2C" gate="G$1" pin="4"/>
-<wire x1="99.06" y1="93.98" x2="101.6" y2="93.98" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="91.44" x2="119.38" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="93.98" x2="124.46" y2="93.98" width="0.1524" layer="91"/>
+<pinref part="I2C" gate="G$1" pin="5"/>
+<wire x1="124.46" y1="91.44" x2="119.38" y2="91.44" width="0.1524" layer="91"/>
+<junction x="119.38" y="91.44"/>
 </segment>
 <segment>
 <pinref part="SPI" gate="1" pin="8"/>
-<wire x1="50.8" y1="66.04" x2="48.26" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="66.04" x2="73.66" y2="66.04" width="0.1524" layer="91"/>
 <pinref part="SUPPLY17" gate="GND" pin="GND"/>
-<wire x1="48.26" y1="66.04" x2="48.26" y2="63.5" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="66.04" x2="48.26" y2="68.58" width="0.1524" layer="91"/>
-<junction x="48.26" y="66.04"/>
+<wire x1="73.66" y1="66.04" x2="73.66" y2="60.96" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="66.04" x2="73.66" y2="68.58" width="0.1524" layer="91"/>
+<junction x="73.66" y="66.04"/>
 <pinref part="SPI" gate="1" pin="7"/>
-<wire x1="48.26" y1="68.58" x2="50.8" y2="68.58" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="68.58" x2="76.2" y2="68.58" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="8"/>
+<pinref part="SUPPLY20" gate="GND" pin="GND"/>
+<wire x1="35.56" y1="68.58" x2="25.4" y2="68.58" width="0.1524" layer="91"/>
+<wire x1="25.4" y1="68.58" x2="25.4" y2="63.5" width="0.1524" layer="91"/>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="7"/>
+<wire x1="35.56" y1="71.12" x2="25.4" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="25.4" y1="71.12" x2="25.4" y2="68.58" width="0.1524" layer="91"/>
+<junction x="25.4" y="68.58"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -6881,17 +6854,8 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <wire x1="7.62" y1="182.88" x2="20.32" y2="182.88" width="0.1524" layer="91"/>
 <junction x="7.62" y="182.88"/>
 <wire x1="20.32" y1="182.88" x2="33.02" y2="182.88" width="0.1524" layer="91"/>
-<wire x1="33.02" y1="182.88" x2="45.72" y2="182.88" width="0.1524" layer="91"/>
-<wire x1="45.72" y1="182.88" x2="58.42" y2="182.88" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="182.88" x2="60.96" y2="182.88" width="0.1524" layer="91"/>
 <pinref part="C8" gate="G$1" pin="1"/>
 <junction x="20.32" y="182.88"/>
-<pinref part="C9" gate="G$1" pin="1"/>
-<junction x="33.02" y="182.88"/>
-<pinref part="C10" gate="G$1" pin="1"/>
-<junction x="45.72" y="182.88"/>
-<pinref part="C11" gate="G$1" pin="1"/>
-<junction x="58.42" y="182.88"/>
 </segment>
 <segment>
 <pinref part="SUPPLY10" gate="G$1" pin="VCC"/>
@@ -6900,27 +6864,19 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 </segment>
 <segment>
 <pinref part="SUPPLY14" gate="G$1" pin="VCC"/>
-<wire x1="20.32" y1="149.86" x2="20.32" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="170.18" x2="48.26" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="3V3"/>
-<wire x1="20.32" y1="144.78" x2="43.18" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="144.78" x2="68.58" y2="144.78" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="P" pin="VCC"/>
 <pinref part="SUPPLY19" gate="G$1" pin="VCC"/>
 </segment>
 <segment>
-<pinref part="INT1_EXTERNAL" gate="G$1" pin="3"/>
-<wire x1="-35.56" y1="73.66" x2="-30.48" y2="73.66" width="0.1524" layer="91"/>
-<pinref part="SUPPLY20" gate="G$1" pin="VCC"/>
-<wire x1="-30.48" y1="73.66" x2="-30.48" y2="76.2" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="SUPPLY22" gate="G$1" pin="VCC"/>
-<wire x1="99.06" y1="104.14" x2="99.06" y2="106.68" width="0.1524" layer="91"/>
 <pinref part="I2C" gate="G$1" pin="1"/>
-<wire x1="101.6" y1="101.6" x2="99.06" y2="101.6" width="0.1524" layer="91"/>
-<wire x1="99.06" y1="101.6" x2="99.06" y2="106.68" width="0.1524" layer="91"/>
-<junction x="99.06" y="106.68"/>
+<wire x1="124.46" y1="101.6" x2="119.38" y2="101.6" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="101.6" x2="119.38" y2="106.68" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="SUPPLY1" gate="G$1" pin="VCC"/>
@@ -6930,13 +6886,19 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 </segment>
 <segment>
 <pinref part="SPI" gate="1" pin="1"/>
-<wire x1="50.8" y1="83.82" x2="48.26" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="83.82" x2="73.66" y2="83.82" width="0.1524" layer="91"/>
 <pinref part="SUPPLY15" gate="G$1" pin="VCC"/>
-<wire x1="48.26" y1="83.82" x2="48.26" y2="88.9" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="83.82" x2="48.26" y2="81.28" width="0.1524" layer="91"/>
-<junction x="48.26" y="83.82"/>
+<wire x1="73.66" y1="83.82" x2="73.66" y2="88.9" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="83.82" x2="73.66" y2="81.28" width="0.1524" layer="91"/>
+<junction x="73.66" y="83.82"/>
 <pinref part="SPI" gate="1" pin="2"/>
-<wire x1="48.26" y1="81.28" x2="50.8" y2="81.28" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="81.28" x2="76.2" y2="81.28" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="1"/>
+<wire x1="35.56" y1="86.36" x2="33.02" y2="86.36" width="0.1524" layer="91"/>
+<pinref part="SUPPLY24" gate="G$1" pin="VCC"/>
+<wire x1="33.02" y1="86.36" x2="33.02" y2="91.44" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$6" class="0">
@@ -6987,7 +6949,7 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <net name="N$2" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="TX"/>
-<wire x1="43.18" y1="111.76" x2="-5.08" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="111.76" x2="-5.08" y2="111.76" width="0.1524" layer="91"/>
 <wire x1="-5.08" y1="111.76" x2="-5.08" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="LORA_MODULE" gate="G$1" pin="3"/>
 <wire x1="-5.08" y1="132.08" x2="-15.24" y2="132.08" width="0.1524" layer="91"/>
@@ -6996,7 +6958,7 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <net name="N$12" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="RX"/>
-<wire x1="43.18" y1="114.3" x2="-7.62" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="114.3" x2="-7.62" y2="114.3" width="0.1524" layer="91"/>
 <wire x1="-7.62" y1="114.3" x2="-7.62" y2="129.54" width="0.1524" layer="91"/>
 <pinref part="LORA_MODULE" gate="G$1" pin="2"/>
 <wire x1="-7.62" y1="129.54" x2="-15.24" y2="129.54" width="0.1524" layer="91"/>
@@ -7006,25 +6968,25 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
 <pinref part="GRN-D9" gate="G$1" pin="A"/>
-<wire x1="73.66" y1="83.82" x2="73.66" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="104.14" y1="86.36" x2="104.14" y2="81.28" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$4" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
-<wire x1="73.66" y1="93.98" x2="73.66" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="104.14" y1="96.52" x2="104.14" y2="114.3" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="D2"/>
-<wire x1="73.66" y1="114.3" x2="68.58" y2="114.3" width="0.1524" layer="91"/>
+<wire x1="104.14" y1="114.3" x2="93.98" y2="114.3" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$14" class="0">
 <segment>
 <pinref part="POLARITY" gate="G$1" pin="2"/>
 <wire x1="-38.1" y1="96.52" x2="-38.1" y2="157.48" width="0.1524" layer="91"/>
-<wire x1="-38.1" y1="157.48" x2="73.66" y2="157.48" width="0.1524" layer="91"/>
-<wire x1="73.66" y1="157.48" x2="73.66" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="-38.1" y1="157.48" x2="114.3" y2="157.48" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="157.48" x2="114.3" y2="129.54" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="D10"/>
-<wire x1="73.66" y1="129.54" x2="68.58" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="129.54" x2="93.98" y2="129.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -7032,88 +6994,135 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <pinref part="R1" gate="G$1" pin="2"/>
 <pinref part="U1" gate="G$1" pin="S4"/>
 <wire x1="-10.16" y1="106.68" x2="-10.16" y2="127" width="0.1524" layer="91"/>
-<wire x1="-10.16" y1="127" x2="43.18" y2="127" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="127" x2="68.58" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$7" class="0">
 <segment>
 <pinref part="ADR4" gate="G$1" pin="1"/>
 <pinref part="U1" gate="G$1" pin="D5"/>
-<wire x1="68.58" y1="121.92" x2="76.2" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="76.2" y1="121.92" x2="76.2" y2="152.4" width="0.1524" layer="91"/>
-<wire x1="76.2" y1="152.4" x2="93.98" y2="152.4" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="121.92" x2="119.38" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="121.92" x2="119.38" y2="152.4" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="152.4" x2="137.16" y2="152.4" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$11" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="D4"/>
-<wire x1="68.58" y1="119.38" x2="78.74" y2="119.38" width="0.1524" layer="91"/>
-<wire x1="78.74" y1="119.38" x2="78.74" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="119.38" x2="121.92" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="121.92" y1="119.38" x2="121.92" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="ADR2" gate="G$1" pin="1"/>
-<wire x1="78.74" y1="139.7" x2="93.98" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="121.92" y1="139.7" x2="137.16" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$15" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="D3"/>
-<wire x1="68.58" y1="116.84" x2="81.28" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="81.28" y1="116.84" x2="81.28" y2="127" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="116.84" x2="124.46" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="124.46" y1="116.84" x2="124.46" y2="127" width="0.1524" layer="91"/>
 <pinref part="ADR1" gate="G$1" pin="1"/>
-<wire x1="81.28" y1="127" x2="93.98" y2="127" width="0.1524" layer="91"/>
+<wire x1="124.46" y1="127" x2="137.16" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$10" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="SCL"/>
-<wire x1="68.58" y1="111.76" x2="78.74" y2="111.76" width="0.1524" layer="91"/>
-<wire x1="78.74" y1="111.76" x2="78.74" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="111.76" x2="111.76" y2="111.76" width="0.1524" layer="91"/>
+<wire x1="111.76" y1="111.76" x2="111.76" y2="99.06" width="0.1524" layer="91"/>
 <pinref part="I2C" gate="G$1" pin="2"/>
-<wire x1="78.74" y1="99.06" x2="101.6" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="111.76" y1="99.06" x2="124.46" y2="99.06" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$13" class="0">
 <segment>
 <pinref part="I2C" gate="G$1" pin="3"/>
-<wire x1="101.6" y1="96.52" x2="76.2" y2="96.52" width="0.1524" layer="91"/>
-<wire x1="76.2" y1="96.52" x2="76.2" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="124.46" y1="96.52" x2="109.22" y2="96.52" width="0.1524" layer="91"/>
+<wire x1="109.22" y1="96.52" x2="109.22" y2="109.22" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="SDA"/>
-<wire x1="76.2" y1="109.22" x2="68.58" y2="109.22" width="0.1524" layer="91"/>
+<wire x1="109.22" y1="109.22" x2="93.98" y2="109.22" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$16" class="0">
 <segment>
 <pinref part="SPI" gate="1" pin="3"/>
-<wire x1="50.8" y1="78.74" x2="38.1" y2="78.74" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="78.74" x2="38.1" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="78.74" x2="66.04" y2="78.74" width="0.1524" layer="91"/>
+<wire x1="66.04" y1="78.74" x2="66.04" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="MISO"/>
-<wire x1="38.1" y1="116.84" x2="43.18" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="66.04" y1="116.84" x2="68.58" y2="116.84" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$17" class="0">
 <segment>
 <pinref part="SPI" gate="1" pin="4"/>
-<wire x1="50.8" y1="76.2" x2="35.56" y2="76.2" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="76.2" x2="35.56" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="76.2" x2="63.5" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="76.2" x2="63.5" y2="119.38" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="MOSI"/>
-<wire x1="35.56" y1="119.38" x2="43.18" y2="119.38" width="0.1524" layer="91"/>
+<wire x1="63.5" y1="119.38" x2="68.58" y2="119.38" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$18" class="0">
 <segment>
 <pinref part="SPI" gate="1" pin="5"/>
-<wire x1="50.8" y1="73.66" x2="33.02" y2="73.66" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="73.66" x2="60.96" y2="73.66" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="SCK"/>
-<wire x1="33.02" y1="73.66" x2="33.02" y2="121.92" width="0.1524" layer="91"/>
-<wire x1="33.02" y1="121.92" x2="43.18" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="60.96" y1="73.66" x2="60.96" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="60.96" y1="121.92" x2="68.58" y2="121.92" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$19" class="0">
 <segment>
 <pinref part="SPI" gate="1" pin="6"/>
-<wire x1="50.8" y1="71.12" x2="30.48" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="76.2" y1="71.12" x2="58.42" y2="71.12" width="0.1524" layer="91"/>
 <pinref part="U1" gate="G$1" pin="S3"/>
-<wire x1="30.48" y1="71.12" x2="30.48" y2="124.46" width="0.1524" layer="91"/>
-<wire x1="30.48" y1="124.46" x2="43.18" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="71.12" x2="58.42" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="58.42" y1="124.46" x2="68.58" y2="124.46" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$20" class="0">
+<segment>
+<pinref part="U1" gate="G$1" pin="D6"/>
+<wire x1="93.98" y1="124.46" x2="99.06" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="124.46" x2="99.06" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="99.06" x2="25.4" y2="99.06" width="0.1524" layer="91"/>
+<wire x1="25.4" y1="99.06" x2="25.4" y2="83.82" width="0.1524" layer="91"/>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="2"/>
+<wire x1="25.4" y1="83.82" x2="35.56" y2="83.82" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$21" class="0">
+<segment>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="3"/>
+<wire x1="35.56" y1="81.28" x2="22.86" y2="81.28" width="0.1524" layer="91"/>
+<pinref part="U1" gate="G$1" pin="A5"/>
+<wire x1="22.86" y1="81.28" x2="22.86" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="22.86" y1="129.54" x2="68.58" y2="129.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$22" class="0">
+<segment>
+<pinref part="U1" gate="G$1" pin="A2"/>
+<wire x1="68.58" y1="132.08" x2="20.32" y2="132.08" width="0.1524" layer="91"/>
+<wire x1="20.32" y1="132.08" x2="20.32" y2="78.74" width="0.1524" layer="91"/>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="4"/>
+<wire x1="20.32" y1="78.74" x2="35.56" y2="78.74" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$23" class="0">
+<segment>
+<pinref part="U1" gate="G$1" pin="A1"/>
+<wire x1="68.58" y1="134.62" x2="17.78" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="17.78" y1="134.62" x2="17.78" y2="76.2" width="0.1524" layer="91"/>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="5"/>
+<wire x1="17.78" y1="76.2" x2="35.56" y2="76.2" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$24" class="0">
+<segment>
+<pinref part="U1" gate="G$1" pin="A0"/>
+<wire x1="68.58" y1="137.16" x2="15.24" y2="137.16" width="0.1524" layer="91"/>
+<pinref part="DIGITAL/ANALOG" gate="1" pin="6"/>
+<wire x1="35.56" y1="73.66" x2="15.24" y2="73.66" width="0.1524" layer="91"/>
+<wire x1="15.24" y1="73.66" x2="15.24" y2="137.16" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
@@ -7124,18 +7133,20 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <approved hash="101,2,22.86,27.94,IC1B,O,,,,"/>
 <approved hash="101,2,22.86,43.18,IC1C,O,,,,"/>
 <approved hash="101,2,66.04,43.18,IC1F,O,,,,"/>
-<approved hash="113,2,-107.357,185.583,POWER,,,,,"/>
+<approved hash="202,2,68.58,147.32,U1,!RST,,,,"/>
+<approved hash="104,2,68.58,144.78,U1,3V3,VCC,,,"/>
+<approved hash="204,2,93.98,132.08,U1,VUSB,,,,"/>
+<approved hash="202,2,93.98,134.62,U1,EN,,,,"/>
+<approved hash="204,2,93.98,137.16,U1,LI+,,,,"/>
 <approved hash="113,2,-114.469,99.2226,CONTACT_SENSOR,,,,,"/>
-<approved hash="113,2,109.262,124.274,DIGITAL/ANALOG,,,,,"/>
-<approved hash="113,2,-77.5674,183.113,POWER_SWITCH,,,,,"/>
-<approved hash="113,2,-32.2879,131.1,LORA_MODULE,,,,,"/>
-<approved hash="113,2,-39.0457,91.9378,SENSOR_POLARITY,,,,,"/>
-<approved hash="113,2,-43.2468,69.5604,INT1_EXTERNAL,,,,,"/>
-<approved hash="113,2,78.5876,145.864,I2C,,,,,"/>
-<approved hash="113,2,101.642,91.2537,SPI,,,,,"/>
-<approved hash="113,2,-12.9371,103.914,ADR1,,,,,"/>
-<approved hash="113,2,-12.9371,91.2139,ADR2,,,,,"/>
-<approved hash="113,2,-12.9371,78.5139,ADR4,,,,,"/>
+<approved hash="113,2,41.5553,75.9104,DIGITAL/ANALOG,,,,,"/>
+<approved hash="113,2,-19.5879,133.64,LORA_MODULE,,,,,"/>
+<approved hash="113,2,-34.7303,91.9378,POLARITY,,,,,"/>
+<approved hash="113,2,127.042,98.8737,I2C,,,,,"/>
+<approved hash="113,2,78.7823,77.2837,SPI,,,,,"/>
+<approved hash="113,2,137.397,127.226,ADR1,,,,,"/>
+<approved hash="113,2,137.397,139.926,ADR2,,,,,"/>
+<approved hash="113,2,137.397,152.626,ADR4,,,,,"/>
 </errors>
 </schematic>
 </drawing>

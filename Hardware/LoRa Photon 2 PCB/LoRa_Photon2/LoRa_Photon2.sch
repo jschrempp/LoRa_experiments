@@ -6497,12 +6497,12 @@ Footprint and formfactor based on &lt;a href="https://www.adafruit.com/feather"&
 <text x="134.62" y="96.52" size="1.778" layer="91">SDA</text>
 <text x="134.62" y="93.98" size="1.778" layer="91">GND</text>
 <text x="134.62" y="91.44" size="1.778" layer="91">GND</text>
-<text x="86.36" y="71.12" size="1.778" layer="91">MISO</text>
-<text x="86.36" y="73.66" size="1.778" layer="91">MOSI</text>
-<text x="86.36" y="76.2" size="1.778" layer="91">!SS</text>
+<text x="86.36" y="71.12" size="1.778" layer="91">S3</text>
+<text x="86.36" y="73.66" size="1.778" layer="91">SCLK</text>
+<text x="86.36" y="76.2" size="1.778" layer="91">MOSI</text>
 <text x="86.36" y="83.82" size="1.778" layer="91">VCC</text>
 <text x="86.36" y="81.28" size="1.778" layer="91">VCC</text>
-<text x="86.36" y="78.74" size="1.778" layer="91">S3</text>
+<text x="86.36" y="78.74" size="1.778" layer="91">MISO</text>
 <text x="86.36" y="68.58" size="1.778" layer="91">GND</text>
 <text x="86.36" y="66.04" size="1.778" layer="91">GND</text>
 <text x="45.72" y="68.58" size="1.778" layer="91">GND</text>
