@@ -41,6 +41,7 @@ class tpp_LoRa
 {
 private:
     /* data */
+    void clearConfigVariables();
     void clearClassVariables();
     void blinkLED(int ledpin, int number, int delayTimeMS) ;
 
