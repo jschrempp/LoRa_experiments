@@ -20,9 +20,9 @@
     #define LORA_SERIAL Serial1
     #define DEBUG_SERIAL Serial
     // CONSTANTS 
-    const int BUTTON_PIN = D10;   // the pushbutton is on Photon 2 pin D10/WKP
-    const int GRN_LED_PIN = D2;  // the Green LED is on Photon 2 pin D2
-    const int RED_LED_PIN = S4;  // the Red LED is on Photon 2 pin S4/D19
+    const int BUTTON_PIN = D10;   // the pushbutton is on digital pin 2 which is ATMega328 chip pin 4
+    const int GRN_LED_PIN = D2;  // the Green LED is on digital pin 7 which is the P2 onboard LED
+    const int RED_LED_PIN = D19;  // the Red LED is on digital pin 8 
     // xxx additional pins for device address customization
     const int ADR1_PIN = D3;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
     const int ADR2_PIN = D4;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
@@ -36,9 +36,13 @@
     const int GRN_LED_PIN = 9;  // the Green LED is on digital pin 9 which is chip pin 15
     const int RED_LED_PIN = 8;  // the Red LED is on digital pin 8 which is chip pin 14
     // xxx additional pins for device address customization
-    const int ADR1_PIN = 10;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
-    const int ADR2_PIN = 11;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
-    const int ADR4_PIN = 12;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    // const int ADR1_PIN = 10;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    // const int ADR2_PIN = 11;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    // const int ADR4_PIN = 12;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    // Address jumper pins for rev A1 pcb:
+    const int ADR1_PIN = 5;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR2_PIN = 6;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
+    const int ADR4_PIN = 7;  // the device address = BASE_DEVICE_ADDRESS + (ADR4 + ADR2 + ADR1)
 
 #endif
 
