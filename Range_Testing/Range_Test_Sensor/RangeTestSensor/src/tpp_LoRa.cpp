@@ -34,15 +34,12 @@ void tpp_LoRa::debugPrintNoHeader(const String& message){
 }
 void tpp_LoRa::debugPrint(const String& message){
     #if TPP_LORA_DEBUG
-        tempString += message;
+        tempString = message;
         DEBUG_SERIAL.println(tempString);
     #endif
 }
 
-
-void tpp_LoRa::clearClassVariables() {
-    LoRaStringBuffer = "";
-    receivedData = "";
+void tpp_LoRa::clearConfigVariables() {
     LoRaCRFOP = 0;
     LoRaBandwidth = 0;
     LoRaSpreadingFactor = 0;
@@ -51,6 +48,12 @@ void tpp_LoRa::clearClassVariables() {
     LoRaNetworkID = 0;
     LoRaPreamble = 0;
     UID = "";
+}  
+
+
+void tpp_LoRa::clearClassVariables() {
+    LoRaStringBuffer = "";
+    receivedData = "";
     payload = "";
     RSSI = 0;
     SNR = 0;
@@ -114,6 +117,8 @@ bool tpp_LoRa::configDevice(int deviceAddress) {
     }
 
     debugPrintln(F("Start LoRa configuration"));
+
+    clearConfigVariables();
 
     LoRaStringBuffer = F("AT+NETWORKID=");
     LoRaStringBuffer += LoRa_NETWORK_ID;
