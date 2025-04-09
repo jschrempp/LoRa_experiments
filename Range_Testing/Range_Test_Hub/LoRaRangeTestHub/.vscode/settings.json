@@ -1,5 +1,5 @@
 {
     "particle.targetDevice": "Hub_P2",
     "particle.targetPlatform": "p2",
-    "particle.firmwareVersion": "5.9.0"
+    "particle.firmwareVersion": "6.2.1"
 }

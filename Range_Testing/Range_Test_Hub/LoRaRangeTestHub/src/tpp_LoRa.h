@@ -24,7 +24,7 @@
 #define TPP_LORA_MSG_GATE_SENSOR "G" // message from the sensor to the hub
 
 #define LoRa_NETWORK_ID 18
-#define LoRa_CRFOP 10             // default 22; range 1-22; 22 is max power
+#define LoRa_CRFOP 22             // default 22; range 1-22; 22 is max power
 
 #define LoRa_BANDWIDTH 7         // default 7; 7:125kHz, 8:250kHz, 9:500kHz   lower is better for range but requires better
                                 // frequency stability between the two devices
