@@ -32,6 +32,13 @@
  *      testing without filling up the cloud log.
  * ver 2.1 12/15/2024 
  *      Now uses the string defined in tpp_LoRa.h for the message from the sensor to the hub
+ * ver 3.0  6/7/2025
+ *      - added cloud variable for the current version to aid maintainability
+ *      - added cloud function to simulate a sensor trip by generating a sensor trip
+ *          event publication to the Particle cloud.  This function can be called from the
+ *          Particle Console or from an app that uses the Particle REST API.  The app can be
+ *          used to generated administrative messages, in addition to the Hub processing the
+ *          LoRa sensor messages.
  */
 
 #include "Particle.h"
@@ -43,11 +50,12 @@
 SYSTEM_THREAD(ENABLED);
 //SerialLogHandler logHandler(LOG_LEVEL_TRACE);
 
-#define VERSION 2.1
+String VERSION = "3.0";
 
 const int DEBUG_LED_PIN = D7;
 const int LORA_ADDRESS_PIN = D0;   // Ground this pin to set the LoRa module address for a sensor at boot
                                    // Used to configure a LoRa module.
+
 String NODATA = "NODATA";
 tpp_LoRa LoRa;
 
@@ -63,10 +71,24 @@ void logToParticle(String message, int deviceNum, String payload, int SNRhub1, i
     DEBUG_SERIAL.println("cloudLogging return: " + String(rtn));
 }
 
+// Cloud function to generate a "simulated sensor" received message event to the Particle cloud
+int simulatedSensor(String sensorNum) {
+    int _deviceID = sensorNum.toInt();
+    String msg = "Simulated_Sensor";
+
+    logToParticle(msg, _deviceID, "dummyPayload", 0, 0);
+
+    return 0;
+
+}   // end of simulatedSensor()
+
 void setup() {
 
     pinMode(DEBUG_LED_PIN, OUTPUT); // control the onboard LED
     pinMode(LORA_ADDRESS_PIN, INPUT_PULLUP); // used to set LoRa address on boot
+
+    Particle.variable("Version", VERSION);
+    Particle.function("SimSensor", simulatedSensor);
 
     digitalWrite(D7, HIGH);
     DEBUG_SERIAL.begin(9600); // the USB serial port 
